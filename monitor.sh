@@ -11,14 +11,6 @@ PUBLIC_HOST=mes-aides.gouv.fr
 DEPLOYED_DIRECTORY=/var/www/dds
 
 
-echo "Last deployment: $(stat -c %y /home/deploy/production.ini)"
-
-cd $DEPLOYED_DIRECTORY
-echo "Deployed version (as given by $DEPLOYED_DIRECTORY):"
-git log --pretty=oneline -1
-
-echo
-echo "Smoke tests:"
 failures=0
 
 if ! curl -sL -w "OpenFisca\t GET %{url_effective} -> %{http_code}\\n" http://localhost:$OPENFISCA_PORT -o /dev/null
@@ -39,7 +31,22 @@ if ! test $disk_usage -lt $MAX_DISK_USAGE
 then let failures++
 fi
 
+
 echo
-echo "$failures failed tests"
+
+cd $DEPLOYED_DIRECTORY
+echo "Deployed version (in $DEPLOYED_DIRECTORY):"
+git log --pretty=oneline -1
+echo -n "Deployed at "
+stat -c %y /home/deploy/production.ini
+
+
+if [[ $failures -gt 0 ]]
+then
+	echo "**********************"
+	echo "* SOMETHING IS WRONG *"
+	echo "*   $failures failed tests   *"
+	echo "**********************"
+fi
 
 exit $failures
