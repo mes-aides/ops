@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# Execution of this script is available at ssh -i .ssh/mes-aides-bot monitor@mes-aides.gouv.fr
 
 MAX_DISK_USAGE=90  # percentage
 PARTITION_TO_MONITOR=root
