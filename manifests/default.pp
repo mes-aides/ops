@@ -12,3 +12,5 @@ class { 'nodejs':
 package { 'bower':
     provider => 'npm',
 }
+
+include git
