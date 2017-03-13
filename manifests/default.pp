@@ -3,10 +3,10 @@ class { 'nginx': }
 include '::mongodb::server'
 
 class { 'nodejs':
-    repo_url_suffix => '0.10',
     # Version name is mandatory because there seems to be a priority issue
     # which leads to 4.x version being installed
     nodejs_package_ensure => '0.10.48-1nodesource1~trusty1',
+    repo_url_suffix => '0.10',
 }
 
 package { 'bower':
@@ -30,18 +30,18 @@ package { 'build-essential': }
 package { 'libkrb5-dev': }
 
 exec { 'install node modules for mes-aides-ui':
-    cwd         => '/home/ubuntu/mes-aides-ui',
     command     => '/usr/bin/npm install',
-    user        => 'ubuntu',
+    cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
     # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
     #  default is 300 (seconds)
     timeout     => 600,
+    user        => 'ubuntu',
 }
 
 exec { 'test mes-aides-ui':
-    cwd         => '/home/ubuntu/mes-aides-ui',
     command     => '/usr/bin/npm test',
-    user        => 'ubuntu',
+    cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
+    user        => 'ubuntu',
 }
