@@ -14,3 +14,10 @@ package { 'bower':
 }
 
 include git
+
+vcsrepo { '/home/ubuntu/mes-aides-ui':
+    ensure   => present,
+    provider => git,
+    source   => 'https://github.com/sgmap/mes-aides-ui.git',
+    user     => 'ubuntu',
+}
