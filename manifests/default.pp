@@ -28,3 +28,20 @@ package { 'build-essential': }
 # Currently required - Failure during npm install
 # mes-aides-ui > sgmap-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
 package { 'libkrb5-dev': }
+
+exec { 'install node modules for mes-aides-ui':
+    cwd         => '/home/ubuntu/mes-aides-ui',
+    command     => '/usr/bin/npm install',
+    user        => 'ubuntu',
+    environment => ['HOME=/home/ubuntu'],
+    # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
+    #  default is 300 (seconds)
+    timeout     => 600,
+}
+
+exec { 'test mes-aides-ui':
+    cwd         => '/home/ubuntu/mes-aides-ui',
+    command     => '/usr/bin/npm test',
+    user        => 'ubuntu',
+    environment => ['HOME=/home/ubuntu'],
+}
