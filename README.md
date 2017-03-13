@@ -13,3 +13,7 @@ The ```vagrant up --provider virtualbox``` command should gives you a fully func
 Currently, it gives you:
 - An NGINX default page on port 80
 - A MongoDB instance with default settings
+
+## Limitations
+
+* NodeJS 0.10 installation is **distribution dependant** (because of *0.10.48-1nodesource1~trusty1*)
