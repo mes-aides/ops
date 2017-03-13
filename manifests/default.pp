@@ -21,3 +21,10 @@ vcsrepo { '/home/ubuntu/mes-aides-ui':
     source   => 'https://github.com/sgmap/mes-aides-ui.git',
     user     => 'ubuntu',
 }
+
+# Using 'make' and 'g++'
+package { 'build-essential': }
+
+# Currently required - Failure during npm install
+# mes-aides-ui > sgmap-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
+package { 'libkrb5-dev': }
