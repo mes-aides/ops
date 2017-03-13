@@ -33,6 +33,7 @@ exec { 'install node modules for mes-aides-ui':
     command     => '/usr/bin/npm install',
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
+    require     => Class['nodejs'],
     # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
     #  default is 300 (seconds)
     timeout     => 600,
@@ -43,5 +44,6 @@ exec { 'test mes-aides-ui':
     command     => '/usr/bin/npm test',
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
+    require     => Class['nodejs'],
     user        => 'ubuntu',
 }
