@@ -10,6 +10,13 @@ Vagrant.configure("2") do |config|
   config.vm.define 'mes_aides'
   config.vm.network 'private_network', ip: '192.168.56.100'
 
+  # Guest have 500MB of RAM by default
+  # That is not enough to `npm install`
+  # Upgrading to 3GB
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 3072
+  end
+
   # Update puppet to version 3.2.2 before using puppet provisioning.
   $puppet_update_script = <<SCRIPT
   wget https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
