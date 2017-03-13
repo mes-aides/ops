@@ -8,3 +8,7 @@ class { 'nodejs':
     # which leads to 4.x version being installed
     nodejs_package_ensure => '0.10.48-1nodesource1~trusty1',
 }
+
+package { 'bower':
+    provider => 'npm',
+}
