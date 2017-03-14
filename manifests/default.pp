@@ -47,3 +47,16 @@ exec { 'test mes-aides-ui':
     require     => Class['nodejs'],
     user        => 'ubuntu',
 }
+
+file { '/etc/init/ma-web.conf':
+    ensure => file,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '755',
+    source => 'puppet:///modules/mesaides/ma-web.conf',
+}
+
+service { 'ma-web':
+    ensure  => 'running',
+    require => File['/etc/init/ma-web.conf'],
+}
