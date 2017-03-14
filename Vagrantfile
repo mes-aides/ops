@@ -36,6 +36,7 @@ SCRIPT
   cd /opt/puppetlabs/puppet/
   cp /vagrant/Puppetfile /opt/puppetlabs/puppet/Puppetfile
   librarian-puppet install
+  cp -r /vagrant/modules/mesaides /opt/puppetlabs/puppet/modules/
   /opt/puppetlabs/bin/puppet apply /vagrant/manifests/default.pp --verbose --modulepath=/opt/puppetlabs/puppet/modules
 SCRIPT
   config.vm.provision :shell, :inline => $puppet_provisioning_script
