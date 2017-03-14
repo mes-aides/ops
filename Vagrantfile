@@ -33,9 +33,10 @@ SCRIPT
   config.vm.provision :shell, :inline => $librarian_puppet_install_script
 
   $puppet_provisioning_script = <<SCRIPT
-  cd /vagrant
+  cd /opt/puppetlabs/puppet/
+  cp /vagrant/Puppetfile /opt/puppetlabs/puppet/Puppetfile
   librarian-puppet install
-  /opt/puppetlabs/bin/puppet apply manifests/default.pp --verbose --modulepath=/vagrant/modules
+  /opt/puppetlabs/bin/puppet apply /vagrant/manifests/default.pp --verbose --modulepath=/opt/puppetlabs/puppet/modules
 SCRIPT
   config.vm.provision :shell, :inline => $puppet_provisioning_script
 end
