@@ -58,5 +58,5 @@ file { '/etc/init/ma-web.conf':
 
 service { 'ma-web':
     ensure  => 'running',
-    require => File['/etc/init/ma-web.conf'],
+    require => [ File['/etc/init/ma-web.conf'], Exec['test mes-aides-ui'] ],
 }

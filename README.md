@@ -13,6 +13,7 @@ The ```vagrant up --provider virtualbox``` command should gives you a fully func
 Currently, it gives you:
 - An NGINX default page on port 80
 - A MongoDB instance with default settings
+- Mes-aides on port 8000 (ExpressJS application)
 
 ## Limitations
 
