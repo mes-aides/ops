@@ -61,6 +61,13 @@ service { 'ma-web':
     require => [ File['/etc/init/ma-web.conf'], Exec['test mes-aides-ui'] ],
 }
 
+nginx::resource::server { 'mes-aides.gouv.fr':
+  listen_options => 'default_server',
+  listen_port    => 80,
+  proxy          => 'http://localhost:8000',
+  require        => Service['ma-web'],
+}
+
 class { 'python' :
     dev      => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip

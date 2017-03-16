@@ -11,10 +11,10 @@ Development is done using Vagrant and the Ubuntu version used in production: Ubu
 The ```vagrant up --provider virtualbox``` command should gives you a fully functionning Mes Aides instance.
 
 Currently, it gives you:
-- An NGINX default page on port 80
 - A MongoDB instance with default settings
 - Mes-aides on port 8000 (ExpressJS application)
 - OpenFisca on port 2000 (Python via gunicorn)
+- Mes-aides on port 80 thanks to NGINX proxy
 
 ## Limitations
 
