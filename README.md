@@ -14,6 +14,7 @@ Currently, it gives you:
 - An NGINX default page on port 80
 - A MongoDB instance with default settings
 - Mes-aides on port 8000 (ExpressJS application)
+- OpenFisca on port 2000 (Python via gunicorn)
 
 ## Limitations
 

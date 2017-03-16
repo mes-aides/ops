@@ -95,3 +95,16 @@ python::pip { 'gunicorn' :
   pkgname       => 'gunicorn',
   virtualenv    => '/home/ubuntu/venv',
 }
+
+file { '/etc/init/openfisca.conf':
+    ensure => file,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '755',
+    source => 'puppet:///modules/mesaides/openfisca.conf',
+}
+
+service { 'openfisca':
+    ensure  => 'running',
+    require => [ File['/etc/init/openfisca.conf'], Python::Pip['gunicorn'] ],
+}
