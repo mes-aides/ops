@@ -60,3 +60,38 @@ service { 'ma-web':
     ensure  => 'running',
     require => [ File['/etc/init/ma-web.conf'], Exec['test mes-aides-ui'] ],
 }
+
+class { 'python' :
+    dev      => 'present', # default: 'absent'
+    # Can't use python gunicorn here as it would be imported from apt instead of pip
+    virtualenv => 'present', # default: 'absent'
+}
+
+python::virtualenv { '/home/ubuntu/venv' :
+    group        => 'ubuntu',
+    owner        => 'ubuntu',
+    require      => [ Class['python'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
+}
+
+exec { 'update virtualenv pip':
+    command     => '/home/ubuntu/venv/bin/pip install pip --upgrade',
+    cwd         => '/home/ubuntu/mes-aides-ui',
+    environment => ['HOME=/home/ubuntu'],
+    require     => Python::Virtualenv['/home/ubuntu/venv'],
+    user        => 'ubuntu',
+}
+
+exec { 'fetch openfisca requirements':
+    command     => '/home/ubuntu/venv/bin/pip install --upgrade -r openfisca/requirements.txt',
+    cwd         => '/home/ubuntu/mes-aides-ui',
+    environment => ['HOME=/home/ubuntu'],
+    require     => Python::Virtualenv['/home/ubuntu/venv'],
+    user        => 'ubuntu',
+}
+
+python::pip { 'gunicorn' :
+  ensure        => 'present',
+  owner         => 'ubuntu',
+  pkgname       => 'gunicorn',
+  virtualenv    => '/home/ubuntu/venv',
+}
