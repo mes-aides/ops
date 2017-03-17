@@ -16,6 +16,10 @@ Currently, it gives you:
 - OpenFisca on port 2000 (Python via gunicorn)
 - Mes-aides on port 80 thanks to NGINX proxy
 
+### Iterations
+
+By default, the guest instance is available at `192.168.56.100`. The Vagrantfile is set up to make iterations relatively easy. If your repository is checked out in a directory named `n(_label)` where `n` is a number, the guest instance will be available at `192.168.56.(100+n)`.
+
 ## Limitations
 
 * NodeJS 0.10 installation is **distribution dependant** (because of *0.10.48-1nodesource1~trusty1*)

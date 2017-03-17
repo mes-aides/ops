@@ -7,8 +7,6 @@
 # you're doing.
 Vagrant.configure("2") do |config|
   config.vm.box = 'ubuntu/trusty64'
-  config.vm.define 'mes_aides'
-  config.vm.network 'private_network', ip: '192.168.56.100'
 
   # Guest have 500MB of RAM by default
   # That is not enough to `npm install`
@@ -16,6 +14,15 @@ Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |vb|
     vb.memory = 3072
   end
+
+  # Allow development on various version relatively simply
+  current_directory = Dir.pwd.split('/').last
+  current_index = 100 + current_directory[0..(current_directory.index('_')-1)].to_i
+  current_private_ip = '192.168.56.' + current_index.to_s
+
+  print('This instance will be reachable at ' + current_private_ip + "\n")
+  config.vm.define 'mes_aides_' + current_directory
+  config.vm.network 'private_network', ip: current_private_ip
 
   # Update puppet to version 3.2.2 before using puppet provisioning.
   $puppet_update_script = <<SCRIPT
