@@ -1,4 +1,4 @@
-# Mes aides ops
+# Mes Aides ops
 
 Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 
@@ -27,14 +27,14 @@ cd mes-aides-ops-dev &&
 
 Development is done using Vagrant and the Ubuntu version used in production: Ubuntu 14.04 64 bit (trusty).
 
-The `vagrant up --provider virtualbox` command should gives you a fully functionning Mes Aides instance.
+The `vagrant up --provider virtualbox` command should give you a fully functioning Mes Aides instance.
 
 Currently, it gives you:
-- A MongoDB instance with default settings
-- Mes-aides on port 8000 (ExpressJS application)
-- OpenFisca on port 2000 (Python via gunicorn)
-- Mes-aides on port 80 thanks to NGINX proxy
 
+- A MongoDB instance with default settings.
+- Mes Aides on port 8000 (ExpressJS application).
+- OpenFisca on port 2000 (Python via gunicorn).
+- Mes Aides on port 80 thanks to NGINX proxy.
 
 
 ### Iterations
