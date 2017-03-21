@@ -29,5 +29,5 @@ Vagrant.configure("2") do |config|
   cd /vagrant
   ./bootstrap.sh
 SCRIPT
-  config.vm.provision :shell, :inline => $bootstrap_script
+  config.vm.provision :shell, inline: $bootstrap_script
 end
