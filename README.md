@@ -27,7 +27,7 @@ cd mes-aides-ops-dev
 
 Development is done using Vagrant and the Ubuntu version used in production: Ubuntu 14.04 64 bit (trusty).
 
-The `vagrant up --provider virtualbox` command should give you a fully functioning Mes Aides instance.
+The `vagrant up` command should give you a fully functioning Mes Aides instance.
 
 Currently, it gives you:
 
