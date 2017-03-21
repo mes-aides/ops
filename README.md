@@ -16,9 +16,9 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 The following commands run as **root** set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 
 ```
-curl https://github.com/sgmap/mes-aides-ops/archive/dev.tar.gz &&
-tar -xvf dev.tar.gz &&
-cd mes-aides-ops-dev &&
+curl https://github.com/sgmap/mes-aides-ops/archive/dev.tar.gz
+tar -xvf dev.tar.gz
+cd mes-aides-ops-dev
 ./bootstrap.sh
 ```
 
