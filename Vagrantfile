@@ -25,9 +25,5 @@ Vagrant.configure("2") do |config|
   config.vm.define "mes_aides_#{current_directory}"
   config.vm.network "private_network", ip: current_private_ip
 
-  $bootstrap_script = <<SCRIPT
-  cd /vagrant
-  ./bootstrap.sh
-SCRIPT
-  config.vm.provision :shell, inline: $bootstrap_script
+  config.vm.provision :shell, inline: '/vagrant/bootstrap.sh'
 end

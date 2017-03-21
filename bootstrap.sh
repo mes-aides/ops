@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd $(dirname "$BASH_SOURCE")
+
 set -ev
 
 # Update puppet to version >= 3.2.2 before using puppet provisioning.
