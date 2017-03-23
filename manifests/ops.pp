@@ -1,0 +1,14 @@
+include git
+
+vcsrepo { '/opt/mes-aides-ops':
+    ensure   => present,
+    provider => git,
+    source   => 'https://github.com/sgmap/mes-aides-ops.git',
+}
+
+# Use gem install in ruby embedded in Puppet
+# https://docs.puppet.com/puppet/4.9/whered_it_go.html#private-bin-directories
+exec { 'install puppet modules':
+    command     => '/opt/puppetlabs/puppet/bin/librarian-puppet install',
+    cwd         => '/opt/mes-aides-ops',
+}
