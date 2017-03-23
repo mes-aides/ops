@@ -11,4 +11,5 @@ vcsrepo { '/opt/mes-aides-ops':
 exec { 'install puppet modules':
     command     => '/opt/puppetlabs/puppet/bin/librarian-puppet install',
     cwd         => '/opt/mes-aides-ops',
+    environment => ['HOME=/root'],
 }

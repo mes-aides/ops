@@ -23,4 +23,5 @@ file { '/opt/mes-aides-bootstrap/Puppetfile':
 exec { 'install puppet modules':
     command     => '/opt/puppetlabs/puppet/bin/librarian-puppet install',
     cwd         => '/opt/mes-aides-bootstrap',
+    environment => ['HOME=/root'],
 }
