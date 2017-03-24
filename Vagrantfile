@@ -6,7 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = 'ubuntu/trusty64'
+  config.vm.box = "ubuntu/trusty64"
 
   # Guest have 500MB of RAM by default
   # That is not enough to `npm install`
@@ -16,13 +16,14 @@ Vagrant.configure("2") do |config|
   end
 
   # Allow development on various version relatively simply
-  current_directory = Dir.pwd.split('/').last
-  current_index = 100 + (current_directory.index('_') ? current_directory[0..(current_directory.index('_')-1)].to_i : 0)
-  current_private_ip = '192.168.56.' + current_index.to_s
+  current_directory = Dir.pwd.split("/").last
+  delimiter = current_directory.index("_")
+  current_index = 100 + (delimiter ? current_directory[0..(delimiter - 1)].to_i : 0)
+  current_private_ip = "192.168.56.#{current_index}"
 
-  print('This instance will be reachable at ' + current_private_ip + "\n")
-  config.vm.define 'mes_aides_' + current_directory
-  config.vm.network 'private_network', ip: current_private_ip
+  puts "This instance will be reachable at #{current_private_ip}"
+  config.vm.define "mes_aides_#{current_directory}"
+  config.vm.network "private_network", ip: current_private_ip
 
   $bootstrap_script = <<SCRIPT
   cd /vagrant
