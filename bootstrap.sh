@@ -8,11 +8,11 @@ set -ev
 wget https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
 dpkg -i puppetlabs-release-pc1-trusty.deb
 apt-get update
-apt-get -y install puppet-agent
+apt-get --assume-yes install puppet-agent
 export PATH=/opt/puppetlabs/bin:$PATH
 
 DIRECTORY=/opt/mes-aides-bootstrap
-mkdir -p $DIRECTORY/manifests
+mkdir --parents $DIRECTORY/manifests
 for element in bootstrap ops
 do
     REPO_PATH=manifests/$element.pp
