@@ -65,13 +65,13 @@ nginx::resource::server { 'mes-aides.gouv.fr':
   require        => Service['ma-web'],
 }
 
-class { 'python' :
+class { 'python':
     dev      => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip
     virtualenv => 'present', # default: 'absent'
 }
 
-python::virtualenv { '/home/ubuntu/venv' :
+python::virtualenv { '/home/ubuntu/venv':
     group        => 'ubuntu',
     owner        => 'ubuntu',
     require      => [ Class['python'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
@@ -93,7 +93,7 @@ exec { 'fetch openfisca requirements':
     user        => 'ubuntu',
 }
 
-python::pip { 'gunicorn' :
+python::pip { 'gunicorn':
   ensure        => 'present',
   owner         => 'ubuntu',
   pkgname       => 'gunicorn',
