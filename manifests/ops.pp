@@ -1,8 +1,9 @@
 include git
 
 vcsrepo { '/opt/mes-aides-ops':
-    ensure   => present,
+    ensure   => latest,
     provider => git,
+    revision => 'master',
     source   => 'https://git@github.com/sgmap/mes-aides-ops.git',
 }
 
