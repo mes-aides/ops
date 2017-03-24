@@ -3,7 +3,7 @@ include git
 vcsrepo { '/opt/mes-aides-ops':
     ensure   => present,
     provider => git,
-    source   => 'https://github.com/sgmap/mes-aides-ops.git',
+    source   => 'https://git@github.com/sgmap/mes-aides-ops.git',
 }
 
 # Use gem install in ruby embedded in Puppet
