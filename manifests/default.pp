@@ -36,8 +36,8 @@ exec { 'install node modules for mes-aides-ui':
     user        => 'ubuntu',
 }
 
-exec { 'test mes-aides-ui':
-    command     => '/usr/bin/npm test',
+exec { 'prestart mes-aides-ui':
+    command     => '/usr/bin/npm run prestart',
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
     require     => Class['nodejs'],
@@ -54,7 +54,7 @@ file { '/etc/init/ma-web.conf':
 
 service { 'ma-web':
     ensure  => 'running',
-    require => [ File['/etc/init/ma-web.conf'], Exec['test mes-aides-ui'] ],
+    require => [ File['/etc/init/ma-web.conf'], Exec['prestart mes-aides-ui'] ],
 }
 
 nginx::resource::server { 'mes-aides.gouv.fr':
