@@ -5,8 +5,11 @@ cd $(dirname "$BASH_SOURCE")
 set -ev
 
 # Update puppet to version >= 3.2.2 before using puppet provisioning.
-wget https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
-dpkg -i puppetlabs-release-pc1-trusty.deb
+if [ ! -e puppetlabs-release-pc1-trusty.deb ]
+then
+    wget https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
+fi
+dpkg --install puppetlabs-release-pc1-trusty.deb
 apt-get update
 apt-get --assume-yes install puppet-agent
 export PATH=/opt/puppetlabs/bin:$PATH
