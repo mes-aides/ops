@@ -9,10 +9,6 @@ class { 'nodejs':
     repo_url_suffix => '0.10',
 }
 
-package { 'bower':
-    provider => 'npm',
-}
-
 include git
 
 vcsrepo { '/home/ubuntu/mes-aides-ui':
