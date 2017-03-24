@@ -16,9 +16,10 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 The following commands run as **root** in the destination machine sets the [Mes Aides](https://mes-aides.gouv.fr) stack up.
 
 ```
-curl https://github.com/sgmap/mes-aides-ops/archive/dev.tar.gz
-tar -xvf dev.tar.gz
-cd mes-aides-ops-dev
+BRANCH_NAME=master
+wget https://github.com/sgmap/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
+tar -xvf $BRANCH_NAME.tar.gz
+cd mes-aides-ops-$BRANCH_NAME
 ./bootstrap.sh
 ```
 
