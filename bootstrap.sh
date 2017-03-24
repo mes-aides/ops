@@ -27,6 +27,18 @@ do
     fi
 done
 
+# One off script that
+# * install librarian-puppet in Puppet ruby to download Puppet modules
+# * download a bootstrap Puppetfile
+# * download specified modules
 puppet apply /opt/mes-aides-bootstrap/manifests/bootstrap.pp --verbose --modulepath=modules
+
+# Script to run on mes-aides-ops update
+# * update local mes-aides-ops repository
+# * download modules
 puppet apply /opt/mes-aides-bootstrap/manifests/ops.pp --verbose --modulepath=/opt/mes-aides-bootstrap/modules
+
+# Script to run on mes-aides-ui update
+# * update local mes-aides-ui
+# * set up the full mes-aides stack
 puppet apply /opt/mes-aides-ops/manifests/default.pp --verbose --modulepath=/opt/mes-aides-ops/modules
