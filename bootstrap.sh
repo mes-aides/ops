@@ -5,11 +5,10 @@ cd $(dirname "$BASH_SOURCE")
 set -ev
 
 # Update puppet to version >= 3.2.2 before using puppet provisioning.
-if [ ! -e puppetlabs-release-pc1-trusty.deb ]
-then
-    wget https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
-fi
-dpkg --install puppetlabs-release-pc1-trusty.deb
+package_name=puppetlabs-release-pc1-trusty.deb
+# With -r re-downloading a file will result in the new copy simply overwriting the old
+curl --location --remote-name https://apt.puppetlabs.com/$package_name
+dpkg --install $package_name
 apt-get update
 apt-get --assume-yes install puppet-agent
 export PATH=/opt/puppetlabs/bin:$PATH
@@ -23,7 +22,7 @@ do
     then
         cp $REPO_PATH $DIRECTORY/$REPO_PATH
     else
-        wget --output-document=$DIRECTORY/$REPO_PATH https://raw.githubusercontent.com/sgmap/mes-aides-ops/master/$REPO_PATH
+        curl --location --output $DIRECTORY/$REPO_PATH https://raw.githubusercontent.com/sgmap/mes-aides-ops/master/$REPO_PATH
     fi
 done
 

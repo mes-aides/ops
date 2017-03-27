@@ -17,7 +17,7 @@ The following commands run as **root** in the destination machine sets the [Mes 
 
 ```
 BRANCH_NAME=master
-wget https://github.com/sgmap/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
+curl --location --remote-name https://github.com/sgmap/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
 tar -xvf $BRANCH_NAME.tar.gz
 cd mes-aides-ops-$BRANCH_NAME
 ./bootstrap.sh
