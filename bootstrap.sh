@@ -13,29 +13,34 @@ apt-get update
 apt-get --assume-yes install puppet-agent
 export PATH=/opt/puppetlabs/bin:$PATH
 
-DIRECTORY=/opt/mes-aides-bootstrap
-mkdir --parents $DIRECTORY/manifests
-for element in bootstrap ops
+bootstrap_directory=/opt/mes-aides-bootstrap
+mkdir --parents $bootstrap_directory/manifests
+for manifest_name in bootstrap ops
 do
-    REPO_PATH=manifests/$element.pp
-    if [ -e $REPO_PATH ]
+    path_in_repository=manifests/${manifest_name}.pp
+    destination_path=$bootstrap_directory/$path_in_repository
+    # Prefer local version over remote
+    # It allows a bootstrap installation that differs from master
+    # and it fallbacks to a remote file on master
+    if [ -e $path_in_repository ]
     then
-        cp $REPO_PATH $DIRECTORY/$REPO_PATH
+        cp $path_in_repository $destination_path
     else
-        curl --location --output $DIRECTORY/$REPO_PATH https://raw.githubusercontent.com/sgmap/mes-aides-ops/master/$REPO_PATH
+        distant_source=https://raw.githubusercontent.com/sgmap/mes-aides-ops/master/$path_in_repository
+        curl --location $distant_source --output $destination_path
     fi
 done
 
-# One off script that
-# * install librarian-puppet in Puppet ruby to download Puppet modules
+# One off script that will
+# * install librarian-puppet in Puppet internal ruby to download Puppet modules
 # * download a bootstrap Puppetfile
 # * download specified modules
-puppet apply /opt/mes-aides-bootstrap/manifests/bootstrap.pp --verbose --modulepath=modules
+puppet apply $bootstrap_directory/manifests/bootstrap.pp --verbose --modulepath=modules
 
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
-puppet apply /opt/mes-aides-bootstrap/manifests/ops.pp --verbose --modulepath=/opt/mes-aides-bootstrap/modules
+puppet apply $bootstrap_directory/manifests/ops.pp --verbose --modulepath=$bootstrap_directory/modules
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
