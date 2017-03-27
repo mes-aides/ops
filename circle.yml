@@ -1,3 +1,9 @@
-test:
+dependencies:
   override:
     - sudo ./bootstrap.sh
+
+test:
+  override:
+    - curl 0.0.0.0|grep 'mes-aides.gouv.fr' > /dev/null
+    - curl 0.0.0.0:8000|grep 'mes-aides.gouv.fr' > /dev/null
+    - curl 0.0.0.0:2000|grep 'Welcome, this is OpenFisca Web API.' > /dev/null
