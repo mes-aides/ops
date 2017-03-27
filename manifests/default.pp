@@ -1,3 +1,11 @@
+file { '/root/.ssh/authorized_keys':
+    ensure => file,
+    group  => 'root',
+    mode   => '755',
+    owner  => 'root',
+    source => 'puppet:///modules/mesaides/root_authorized_keys',
+}
+
 class { 'nginx': }
 
 include '::mongodb::server'
