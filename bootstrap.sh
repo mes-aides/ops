@@ -33,6 +33,23 @@ install_manifest bootstrap
 install_manifest ops
 
 
+# Define repository revisions
+ui_head=origin/master
+ops_head=origin/master
+
+if [ $# -gt 0 ]
+then
+    ui_head=$1
+fi
+
+if [ $# -gt 1 ]
+then
+    ops_head=$2
+fi
+
+echo $ui_head > /opt/mes-aides/ui_head
+echo $ops_head > /opt/mes-aides/ops_head
+
 # One off script that will
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules
 # * download a bootstrap Puppetfile
@@ -42,9 +59,13 @@ puppet apply $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --mo
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
+#
+# cf. /provision.sh
 puppet apply $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$BOOTSTRAP_FOLDER/modules
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
 # * set up the full mes-aides stack
+#
+# cf. /deploy.sh
 puppet apply $OPS_FOLDER/manifests/default.pp --verbose --modulepath=$OPS_FOLDER/modules

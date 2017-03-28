@@ -1,6 +1,6 @@
 dependencies:
   override:
-    - sudo ./bootstrap.sh
+    - sudo ./bootstrap.sh origin/master origin/$CIRCLE_BRANCH
 
 test:
   override:

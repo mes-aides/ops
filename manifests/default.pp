@@ -22,7 +22,7 @@ include git
 vcsrepo { '/home/ubuntu/mes-aides-ui':
     ensure   => latest,
     provider => git,
-    revision => 'master',
+    revision => String(file('/opt/mes-aides/ui_head'), "%t"),
     source   => 'https://github.com/sgmap/mes-aides-ui.git',
     user     => 'ubuntu',
 }
