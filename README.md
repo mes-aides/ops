@@ -20,7 +20,8 @@ BRANCH_NAME=master
 curl --location --remote-name https://github.com/sgmap/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
 tar -xvf $BRANCH_NAME.tar.gz
 cd mes-aides-ops-$BRANCH_NAME
-./bootstrap.sh
+# ./bootstrap.sh mes-aides-ui_head mes-aides-ops_head
+./bootstrap.sh origin/master origin/$BRANCH_NAME
 ```
 
 
