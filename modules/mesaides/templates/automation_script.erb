@@ -17,7 +17,7 @@ do
 done
 
 export PATH=/opt/puppetlabs/bin:$PATH
-puppet apply manifests/<%= @manifest_name %>.pp --verbose --modulepath=modules
+puppet apply ops/manifests/<%= @manifest_name %>.pp --verbose --modulepath=ops/modules
 <% if @post_command -%>
 <%= @post_command %>
 <% end -%>
