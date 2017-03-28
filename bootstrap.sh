@@ -40,14 +40,14 @@ echo ${2:-origin/master} > $PROVISIONING_FOLDER/ops_target_revision
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules
 # * download a bootstrap Puppetfile
 # * download specified modules
-puppet apply $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --modulepath=modules
+puppet apply --detailed-exitcodes $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --modulepath=modules
 
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
-puppet apply $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$BOOTSTRAP_FOLDER/modules
+puppet apply --detailed-exitcodes $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$BOOTSTRAP_FOLDER/modules
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
 # * set up the full mes-aides stack
-puppet apply $OPS_FOLDER/manifests/default.pp --verbose --modulepath=$OPS_FOLDER/modules
+puppet apply --detailed-exitcodes $OPS_FOLDER/manifests/default.pp --verbose --modulepath=$OPS_FOLDER/modules
