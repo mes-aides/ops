@@ -9,3 +9,10 @@ test:
     - curl --silent 0.0.0.0:2000 | grep --silent OpenFisca
     - sudo /opt/mes-aides/update.sh provision
     - sudo /opt/mes-aides/update.sh deploy
+
+deployment:
+  vps:
+    branch: dev
+    commands:
+      # CircleCI rely on a private key that triggers /opt/mes-aides/update.sh provision
+      - ssh root@vps274040.ovh.net
