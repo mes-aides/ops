@@ -29,6 +29,14 @@ install_manifest() {  # $1 = name of the manifest file
     curl --location --remote-name https://raw.githubusercontent.com/$MANIFESTS_SOURCE_REPOSITORY/$MANIFESTS_SOURCE_FOLDER/$1.pp --output $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER
 }
 
+function run_puppet {
+    set +e
+    eval "puppet apply --detailed-exitcodes --verbose $*"
+    exit_code=$?
+    set -e
+    [ $exit_code -eq 0  ] || [ $exit_code -eq 2 ]
+}
+
 install_manifest bootstrap
 install_manifest ops
 
@@ -40,14 +48,14 @@ echo ${2:-origin/master} > $PROVISIONING_FOLDER/ops_target_revision
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules
 # * download a bootstrap Puppetfile
 # * download specified modules
-puppet apply --detailed-exitcodes $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --modulepath=modules
+run_puppet "$BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --modulepath=modules"
 
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
-puppet apply --detailed-exitcodes $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$BOOTSTRAP_FOLDER/modules
+run_puppet "$BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --modulepath=$BOOTSTRAP_FOLDER/modules"
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
 # * set up the full mes-aides stack
-puppet apply --detailed-exitcodes $OPS_FOLDER/manifests/default.pp --verbose --modulepath=$OPS_FOLDER/modules
+run_puppet "$OPS_FOLDER/manifests/default.pp --modulepath=$OPS_FOLDER/modules"
