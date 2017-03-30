@@ -11,7 +11,7 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 * NodeJS 0.10 installation is **distribution dependant** (because of *0.10.48-1nodesource1~trusty1*)
 
 
-## Provisioning
+## Initial provisioning
 
 The following commands run as **root** in the destination machine sets the [Mes Aides](https://mes-aides.gouv.fr) stack up.
 
@@ -24,6 +24,31 @@ cd mes-aides-ops-$BRANCH_NAME
 ./bootstrap.sh origin/master origin/$BRANCH_NAME
 ```
 
+`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/sgmap/mes-aides-ui and https://github.com/sgmap/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The fist one is `mes-aides-ui` head and the second one is `mes-aides-ops` one.
+
+That is why the suggested set of commands above overrides the default head of `mes-aides-ops` to rely on the selected branch.
+
+## Continuous provisioning and deployment
+
+### Provisioning
+
+A private key can `ssh` to the host and it will automatically trigger:
+- `puppet apply ops.pp` (update of mes-aides-ops on the host)
+- `puppet apply default.pp` (host provisioning with mes-aides-ui deployment)
+
+### Deployment
+
+Another one can `ssh` to the host and it will automatically run `puppet apply default.pp` (host provisioning with mes-aides-ui deployment).
+
+### Tree-ish specification
+
+Both SSH connections allow `tree-ish specification`.
+
+Using the provisioning private key, one can specifiy mes-aides-ops head and mes-aides-ui head. The deployment key can only specify mes-aides-ui head.
+
+```ssh root@$host -i provision ops_head=$commit_hash ui_head=origin/$feature_branch
+ssh root@$host -i deploy ui_head=origin/$feature_branch
+```
 
 ## Development
 
