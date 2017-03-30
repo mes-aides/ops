@@ -93,13 +93,6 @@ exec { 'fetch openfisca requirements':
     user        => 'ubuntu',
 }
 
-python::pip { 'gunicorn':
-  ensure        => 'present',
-  owner         => 'ubuntu',
-  pkgname       => 'gunicorn',
-  virtualenv    => '/home/ubuntu/venv',
-}
-
 file { '/etc/init/openfisca.conf':
     ensure => file,
     owner  => 'root',
@@ -110,5 +103,5 @@ file { '/etc/init/openfisca.conf':
 
 service { 'openfisca':
     ensure  => 'running',
-    require => [ File['/etc/init/openfisca.conf'], Python::Pip['gunicorn'] ],
+    require => [ File['/etc/init/openfisca.conf'], Exec['fetch openfisca requirements'] ],
 }
