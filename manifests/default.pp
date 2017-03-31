@@ -76,7 +76,7 @@ service { 'ma-web':
 
 ::mesaides::nginx_config { String(file('/etc/hostname'), "%t"):
     require => Service['ma-web'],
-    use_ssl => false,
+    use_ssl => find_file('/opt/mes-aides/use_ssl'),
 }
 
 class { 'python':
