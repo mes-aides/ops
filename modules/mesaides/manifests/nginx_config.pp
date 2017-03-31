@@ -2,11 +2,14 @@ define mesaides::nginx_config (
     $use_ssl = false,
     $webroot_path = '/var/www',
 ) {
+    include ::nginx
+
     file { "/etc/nginx/sites-enabled/${name}.conf":
         content => template('mesaides/nginx_config.erb'),
         ensure  => file,
         group   => 'www-data',
         mode    => '600',
+        notify  => Class['nginx::service'],
         owner   => 'www-data',
     }
 
