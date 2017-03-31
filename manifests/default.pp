@@ -74,7 +74,7 @@ service { 'ma-web':
     require => [ File['/etc/init/ma-web.conf'], Exec['prestart mes-aides-ui'] ],
 }
 
-::mesaides::nginx_config { String(file('/etc/hostname'), "%t"):
+::mesaides::nginx_config { 'vps.mes-aides.gouv.fr':
     require => Service['ma-web'],
     use_ssl => find_file('/opt/mes-aides/use_ssl'),
 }
