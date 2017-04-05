@@ -11,7 +11,7 @@ server {
   }
 <% if @use_ssl and File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") -%>
   location / {
-    return              302 https://$host$request_uri;
+    return              302 https://<%= @name %>$request_uri;
   }
 <%- else -%>
   location / {
