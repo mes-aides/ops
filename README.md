@@ -106,3 +106,10 @@ Currently, applications are set up and run by *ubuntu* user.
     + Prevent renewal
 - Create OpenFisca Puppet module?
 - Create Mes-Aides Puppet module (to make feature branch deployment a breeze)?
+
+# Monitor
+
+
+
+Two different scanning services are used, in order to remove dependency on one specific provider to notify in case of a service failure.
+This endpoint is scanned by [UptimeRobot](https://uptimerobot.com) on a 5-minutes interval, and will notify the team through Slack and SMS. It is also scanned on a 2-minutes interval by [SetCronJob](https://www.setcronjob.com) which will notify the team by email. The SetCronJob instance has to be manually rearmed when it has been triggered.
