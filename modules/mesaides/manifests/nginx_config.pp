@@ -18,8 +18,7 @@ define mesaides::nginx_config (
 
         class { ::letsencrypt:
             config => {
-                email => 'thomas.guillet@beta.gouv.fr',
-                #server => 'https://acme-staging.api.letsencrypt.org/directory',
+                email => 'contact@mes-aides.gouv.fr',
             }
         }
 
