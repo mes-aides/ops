@@ -14,6 +14,8 @@ define mesaides::nginx_config (
     }
 
     if $use_ssl {
+        include mesaides::ensure_custom_dhparam
+
         class { ::letsencrypt:
             config => {
                 email => 'thomas.guillet@beta.gouv.fr',

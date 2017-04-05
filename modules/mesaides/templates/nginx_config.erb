@@ -34,6 +34,7 @@ server {
     ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
     ssl_session_cache shared:TLS:2m;
     ssl_session_timeout  5m;
+    ssl_dhparam /etc/ssl/private/dhparam.pem;
 
     access_log          /var/log/nginx/<%= @name %>.access.log combined;
     error_log           /var/log/nginx/<%= @name %>.error.log;
