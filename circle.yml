@@ -4,6 +4,6 @@ dependencies:
 
 test:
   override:
-    - curl 0.0.0.0|grep 'mes-aides.gouv.fr' > /dev/null
-    - curl 0.0.0.0:8000|grep 'mes-aides.gouv.fr' > /dev/null
-    - curl 0.0.0.0:2000|grep 'Welcome, this is OpenFisca Web API.' > /dev/null
+    - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
+    - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
+    - curl --silent 0.0.0.0:2000 | grep --silent OpenFisca
