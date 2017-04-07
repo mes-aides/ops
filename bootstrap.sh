@@ -6,7 +6,6 @@ set -ev
 
 # Update puppet to version >= 3.2.2 before using puppet provisioning.
 package_name=puppetlabs-release-pc1-trusty.deb
-# With -r re-downloading a file will result in the new copy simply overwriting the old
 curl --location --remote-name https://apt.puppetlabs.com/$package_name
 dpkg --install $package_name
 apt-get update
