@@ -57,7 +57,7 @@ file { '/etc/init/ma-web.conf':
     ensure => file,
     owner  => 'root',
     group  => 'root',
-    mode   => '755',
+    mode   => '644',
     source => 'puppet:///modules/mesaides/ma-web.conf',
 }
 
@@ -105,7 +105,7 @@ file { '/etc/init/openfisca.conf':
     ensure => file,
     owner  => 'root',
     group  => 'root',
-    mode   => '755',
+    mode   => '644',
     source => 'puppet:///modules/mesaides/openfisca.conf',
 }
 
