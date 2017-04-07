@@ -3,7 +3,7 @@ include git
 vcsrepo { '/opt/mes-aides/ops':
     ensure   => latest,
     provider => git,
-    revision => String(file('/opt/mes-aides/ops_head'), "%t"),
+    revision => String(file('/opt/mes-aides/ops_target_revision'), "%t"),
     source   => 'https://git@github.com/sgmap/mes-aides-ops.git',
 }
 
