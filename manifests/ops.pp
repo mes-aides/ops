@@ -1,6 +1,6 @@
 include git
 
-vcsrepo { '/opt/mes-aides-ops':
+vcsrepo { '/opt/mes-aides/ops':
     ensure   => latest,
     provider => git,
     revision => 'master',
@@ -11,6 +11,6 @@ vcsrepo { '/opt/mes-aides-ops':
 # https://docs.puppet.com/puppet/4.9/whered_it_go.html#private-bin-directories
 exec { 'install puppet modules':
     command     => '/opt/puppetlabs/puppet/bin/librarian-puppet install',
-    cwd         => '/opt/mes-aides-ops',
+    cwd         => '/opt/mes-aides/ops',
     environment => ['HOME=/root'],
 }
