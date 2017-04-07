@@ -6,40 +6,40 @@ set -ev
 
 LATEST_PUPPET_PACKAGE=puppetlabs-release-pc1-trusty.deb
 
+MES_AIDES_BOOTSTRAP_FOLDER=/opt/mes-aides-bootstrap
+MANIFESTS_DESTINATION_FOLDER=$MES_AIDES_BOOTSTRAP_FOLDER/manifests
+MANIFESTS_SOURCE_FOLDER=manifests
+MANIFESTS_SOURCE_REPOSITORY=sgmap/mes-aides-ops
+
+
 curl --location --remote-name https://apt.puppetlabs.com/$LATEST_PUPPET_PACKAGE
 dpkg --install $LATEST_PUPPET_PACKAGE
 apt-get update
 apt-get --assume-yes install puppet-agent
 export PATH=/opt/puppetlabs/bin:$PATH
 
-bootstrap_directory=/opt/mes-aides-bootstrap
-mkdir --parents $bootstrap_directory/manifests
-for manifest_name in bootstrap ops
-do
-    path_in_repository=manifests/${manifest_name}.pp
-    destination_path=$bootstrap_directory/$path_in_repository
-    # Prefer local version over remote
-    # It allows a bootstrap installation that differs from master
-    # and it fallbacks to a remote file on master
-    if [ -e $path_in_repository ]
-    then
-        cp $path_in_repository $destination_path
-    else
-        distant_source=https://raw.githubusercontent.com/sgmap/mes-aides-ops/master/$path_in_repository
-        curl --location $distant_source --output $destination_path
-    fi
-done
+# Install a manifest file in the manifests folder.
+# If a local version is present, it will be used. Otherwise, it will be fetched from the source repository.
+install_manifest() {  # $1 = name of the manifest file
+    mkdir --parents $MANIFESTS_DESTINATION_FOLDER
+
+    cp -f ./$MANIFESTS_SOURCE_FOLDER/$1.pp $MANIFESTS_DESTINATION_FOLDER ||
+    curl --location --remote-name https://raw.githubusercontent.com/$MANIFESTS_SOURCE_REPOSITORY/$MANIFESTS_SOURCE_FOLDER/$1.pp --output $MANIFESTS_DESTINATION_FOLDER
+}
+
+install_manifest bootstrap
+install_manifest ops
 
 # One off script that will
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules
 # * download a bootstrap Puppetfile
 # * download specified modules
-puppet apply $bootstrap_directory/manifests/bootstrap.pp --verbose --modulepath=modules
+puppet apply $MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --modulepath=modules
 
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
-puppet apply $bootstrap_directory/manifests/ops.pp --verbose --modulepath=$bootstrap_directory/modules
+puppet apply $MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$MES_AIDES_BOOTSTRAP_FOLDER/modules
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
