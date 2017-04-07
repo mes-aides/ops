@@ -59,13 +59,9 @@ puppet apply $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --mo
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
-#
-# cf. /provision.sh
 puppet apply $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$BOOTSTRAP_FOLDER/modules
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
 # * set up the full mes-aides stack
-#
-# cf. /deploy.sh
 puppet apply $OPS_FOLDER/manifests/default.pp --verbose --modulepath=$OPS_FOLDER/modules
