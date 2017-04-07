@@ -33,7 +33,7 @@ exec { 'install node modules for mes-aides-ui':
     require     => Class['nodejs'],
     # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
     #  default is 300 (seconds)
-    timeout     => 600,
+    timeout     => 1800, # 30 minutes
     user        => 'ubuntu',
 }
 
