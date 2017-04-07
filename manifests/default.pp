@@ -6,15 +6,12 @@ file { '/root/.ssh/authorized_keys':
     source => 'puppet:///modules/mesaides/root_authorized_keys',
 }
 
-::mesaides::automation_script { '/opt/mes-aides/provision.sh':
-    accepted_head_types => ['ui', 'ops'],
-    manifest_name => 'ops',
-    post_command => '/opt/mes-aides/deploy.sh',
-}
-
-::mesaides::automation_script { '/opt/mes-aides/deploy.sh':
-    accepted_head_types => ['ui'],
-    manifest_name => 'default',
+file { '/opt/mes-aides/update.sh':
+    ensure => file,
+    group  => 'root',
+    mode   => '700',
+    owner  => 'root',
+    source => 'puppet:///modules/mesaides/update.sh',
 }
 
 class { 'nginx': }
