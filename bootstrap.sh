@@ -31,7 +31,7 @@ install_manifest() {  # $1 = name of the manifest file
 
 function run_puppet {
     set +e
-    eval "puppet apply --detailed-exitcodes --verbose $*"
+    puppet apply --detailed-exitcodes --verbose $*
     exit_code=$?
     set -e
     [ $exit_code -eq 0  ] || [ $exit_code -eq 2 ]
