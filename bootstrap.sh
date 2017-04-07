@@ -32,23 +32,9 @@ install_manifest() {  # $1 = name of the manifest file
 install_manifest bootstrap
 install_manifest ops
 
-
 # Define repository revisions
-ui_head=origin/master
-ops_head=origin/master
-
-if [ $# -gt 0 ]
-then
-    ui_head=$1
-fi
-
-if [ $# -gt 1 ]
-then
-    ops_head=$2
-fi
-
-echo $ui_head > /opt/mes-aides/ui_head
-echo $ops_head > /opt/mes-aides/ops_head
+echo ${1:-origin/master} > $PROVISIONING_FOLDER/ui_head
+echo ${2:-origin/master} > $PROVISIONING_FOLDER/ops_head
 
 # One off script that will
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules
