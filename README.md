@@ -27,6 +27,13 @@ cd mes-aides-ops-$BRANCH_NAME
 
 That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
 
+### HTTPS configuration
+
+Limitation: The initial set up can't be done with HTTPS enabled.
+
+A HTTPS configuration is enabled if the file `/opt/mes-aides/use_ssl` exists (with `sudo touch /opt/mes-aides/use_ssl` for instance).
+
+
 ## Continuous provisioning and deployment
 
 ### Provisioning
@@ -54,7 +61,11 @@ Currently, it gives you:
 - A MongoDB instance with default settings.
 - Mes Aides on port 8000 (ExpressJS application).
 - OpenFisca on port 2000 (Python via gunicorn).
+
 - Mes Aides on port 80 thanks to NGINX proxy.
+or
+- A redirection from port 80 to https://vps.mes-aides.gouv.fr
+- Mes Aides on port 433 at hostname vps.mes-aides.gouv.fr
 
 
 ### Iterations
