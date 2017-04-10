@@ -4,19 +4,44 @@ cd $(dirname "$BASH_SOURCE")
 
 set -ev
 
-# Update puppet to version >= 3.2.2 before using puppet provisioning.
-wget https://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
-dpkg -i puppetlabs-release-pc1-trusty.deb
+LATEST_PUPPET_PACKAGE=puppetlabs-release-pc1-trusty.deb
+
+MES_AIDES_BOOTSTRAP_FOLDER=/opt/mes-aides-bootstrap
+MANIFESTS_DESTINATION_FOLDER=$MES_AIDES_BOOTSTRAP_FOLDER/manifests
+MANIFESTS_SOURCE_FOLDER=manifests
+MANIFESTS_SOURCE_REPOSITORY=sgmap/mes-aides-ops
+
+
+curl --location --remote-name https://apt.puppetlabs.com/$LATEST_PUPPET_PACKAGE
+dpkg --install $LATEST_PUPPET_PACKAGE
 apt-get update
-apt-get -y install puppet-agent
+apt-get --assume-yes install puppet-agent
 export PATH=/opt/puppetlabs/bin:$PATH
 
-cp -f Puppetfile /opt/puppetlabs/puppet/Puppetfile
+# Install a manifest file in the manifests folder.
+# If a local version is present, it will be used. Otherwise, it will be fetched from the source repository.
+install_manifest() {  # $1 = name of the manifest file
+    mkdir --parents $MANIFESTS_DESTINATION_FOLDER
 
-cd /opt/puppetlabs/puppet/
-gem install librarian-puppet
-librarian-puppet install
+    cp -f ./$MANIFESTS_SOURCE_FOLDER/$1.pp $MANIFESTS_DESTINATION_FOLDER ||
+    curl --location --remote-name https://raw.githubusercontent.com/$MANIFESTS_SOURCE_REPOSITORY/$MANIFESTS_SOURCE_FOLDER/$1.pp --output $MANIFESTS_DESTINATION_FOLDER
+}
 
-cd -
-cp -r modules/mesaides /opt/puppetlabs/puppet/modules/
-/opt/puppetlabs/bin/puppet apply manifests/default.pp --verbose --modulepath=/opt/puppetlabs/puppet/modules
+install_manifest bootstrap
+install_manifest ops
+
+# One off script that will
+# * install librarian-puppet in Puppet internal ruby to download Puppet modules
+# * download a bootstrap Puppetfile
+# * download specified modules
+puppet apply $MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --verbose --modulepath=modules
+
+# Script to run on mes-aides-ops update
+# * update local mes-aides-ops repository
+# * download modules
+puppet apply $MANIFESTS_DESTINATION_FOLDER/ops.pp --verbose --modulepath=$MES_AIDES_BOOTSTRAP_FOLDER/modules
+
+# Script to run on mes-aides-ui update
+# * update local mes-aides-ui
+# * set up the full mes-aides stack
+puppet apply /opt/mes-aides-ops/manifests/default.pp --verbose --modulepath=/opt/mes-aides-ops/modules

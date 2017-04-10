@@ -12,8 +12,9 @@ class { 'nodejs':
 include git
 
 vcsrepo { '/home/ubuntu/mes-aides-ui':
-    ensure   => present,
+    ensure   => latest,
     provider => git,
+    revision => 'master',
     source   => 'https://github.com/sgmap/mes-aides-ui.git',
     user     => 'ubuntu',
 }
@@ -32,7 +33,7 @@ exec { 'install node modules for mes-aides-ui':
     require     => Class['nodejs'],
     # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
     #  default is 300 (seconds)
-    timeout     => 600,
+    timeout     => 1800, # 30 minutes
     user        => 'ubuntu',
 }
 
@@ -64,13 +65,13 @@ nginx::resource::server { 'mes-aides.gouv.fr':
   require        => Service['ma-web'],
 }
 
-class { 'python' :
+class { 'python':
     dev      => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip
     virtualenv => 'present', # default: 'absent'
 }
 
-python::virtualenv { '/home/ubuntu/venv' :
+python::virtualenv { '/home/ubuntu/venv':
     group        => 'ubuntu',
     owner        => 'ubuntu',
     require      => [ Class['python'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
@@ -92,13 +93,6 @@ exec { 'fetch openfisca requirements':
     user        => 'ubuntu',
 }
 
-python::pip { 'gunicorn' :
-  ensure        => 'present',
-  owner         => 'ubuntu',
-  pkgname       => 'gunicorn',
-  virtualenv    => '/home/ubuntu/venv',
-}
-
 file { '/etc/init/openfisca.conf':
     ensure => file,
     owner  => 'root',
@@ -109,5 +103,5 @@ file { '/etc/init/openfisca.conf':
 
 service { 'openfisca':
     ensure  => 'running',
-    require => [ File['/etc/init/openfisca.conf'], Python::Pip['gunicorn'] ],
+    require => [ File['/etc/init/openfisca.conf'], Exec['fetch openfisca requirements'] ],
 }

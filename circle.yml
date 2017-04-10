@@ -1,0 +1,9 @@
+dependencies:
+  override:
+    - sudo ./bootstrap.sh
+
+test:
+  override:
+    - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
+    - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
+    - curl --silent 0.0.0.0:2000 | grep --silent OpenFisca
