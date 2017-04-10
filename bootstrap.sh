@@ -31,7 +31,7 @@ install_manifest() {  # $1 = name of the manifest file
 
 function run_puppet {
     set +e
-    puppet apply --detailed-exitcodes --verbose $*
+    puppet apply --detailed-exitcodes --verbose $@
     exit_code=$?
     set -e
     [ $exit_code -eq 0  ] || [ $exit_code -eq 2 ]
@@ -48,14 +48,14 @@ echo ${2:-origin/master} > $PROVISIONING_FOLDER/ops_target_revision
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules
 # * download a bootstrap Puppetfile
 # * download specified modules
-run_puppet "$BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --modulepath=modules"
+run_puppet $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/bootstrap.pp --modulepath=modules
 
 # Script to run on mes-aides-ops update
 # * update local mes-aides-ops repository
 # * download modules
-run_puppet "$BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --modulepath=$BOOTSTRAP_FOLDER/modules"
+run_puppet $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER/ops.pp --modulepath=$BOOTSTRAP_FOLDER/modules
 
 # Script to run on mes-aides-ui update
 # * update local mes-aides-ui
 # * set up the full mes-aides stack
-run_puppet "$OPS_FOLDER/manifests/default.pp --modulepath=$OPS_FOLDER/modules"
+run_puppet $OPS_FOLDER/manifests/default.pp --modulepath=$OPS_FOLDER/modules
