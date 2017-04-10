@@ -5,12 +5,13 @@ package { 'librarian-puppet':
 }
 
 file { [ '/opt',
-    '/opt/mes-aides-bootstrap',
+    '/opt/mes-aides',
+    '/opt/mes-aides/bootstrap',
      ]:
     ensure => directory,
 }
 
-file { '/opt/mes-aides-bootstrap/Puppetfile':
+file { '/opt/mes-aides/bootstrap/Puppetfile':
     ensure => file,
     source => [
         'puppet:///modules/mesaides/Puppetfile.bootstrap',
@@ -22,6 +23,6 @@ file { '/opt/mes-aides-bootstrap/Puppetfile':
 # https://docs.puppet.com/puppet/4.9/whered_it_go.html#private-bin-directories
 exec { 'install puppet modules':
     command     => '/opt/puppetlabs/puppet/bin/librarian-puppet install',
-    cwd         => '/opt/mes-aides-bootstrap',
+    cwd         => '/opt/mes-aides/bootstrap',
     environment => ['HOME=/root'],
 }
