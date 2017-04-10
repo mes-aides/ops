@@ -1,5 +1,5 @@
 #!/bin/bash
-# Managed by puppet from automation_script.sh 
+# Managed by puppet from modules/mesaides/files/update.sh
 
 set -e
 

@@ -23,7 +23,7 @@ cd mes-aides-ops-$BRANCH_NAME
 ./bootstrap.sh origin/master origin/$BRANCH_NAME
 ```
 
-`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/sgmap/mes-aides-ui and https://github.com/sgmap/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The first one is `mes-aides-ui` target revision and the second one is `mes-aides-ops` one.
+`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/sgmap/mes-aides-ui and https://github.com/sgmap/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The first one is the target revision for `mes-aides-ui`and the second one is the target revision for `mes-aides-ops`.
 
 That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
 
@@ -39,7 +39,7 @@ That private key has been added to CircleCI (mes-aides-ops repository) to allow 
 
 ### Deployment
 
-Another one can `ssh` to the host and it will automatically run `puppet apply default.pp` (host provisioning with mes-aides-ui deployment).
+Another private key can `ssh` to the host and it will automatically run `puppet apply default.pp` (host provisioning with mes-aides-ui deployment).
 
 That private key has been added to CirclecCI (mes-aides-ui repository) to allow continuous deployment.
 
