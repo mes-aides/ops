@@ -1,9 +1,11 @@
 dependencies:
   override:
-    - sudo ./bootstrap.sh
+    - sudo ./bootstrap.sh origin/master origin/$CIRCLE_BRANCH
 
 test:
   override:
     - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
     - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
     - curl --silent 0.0.0.0:2000 | grep --silent OpenFisca
+    - sudo /opt/mes-aides/update.sh provision
+    - sudo /opt/mes-aides/update.sh deploy

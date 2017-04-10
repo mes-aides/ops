@@ -25,5 +25,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "mes_aides_#{current_directory}"
   config.vm.network "private_network", ip: current_private_ip
 
-  config.vm.provision :shell, inline: '/vagrant/bootstrap.sh'
+  target_commit_hash = `git symbolic-ref HEAD | awk -F '/' '{ print "origin/"$NF }'`
+  config.vm.provision :shell, inline: "/vagrant/bootstrap.sh origin/master #{target_commit_hash}"
 end

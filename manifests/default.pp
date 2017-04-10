@@ -6,6 +6,14 @@ file { '/root/.ssh/authorized_keys':
     source => 'puppet:///modules/mesaides/root_authorized_keys',
 }
 
+file { '/opt/mes-aides/update.sh':
+    ensure => file,
+    group  => 'root',
+    mode   => '700',
+    owner  => 'root',
+    source => 'puppet:///modules/mesaides/update.sh',
+}
+
 class { 'nginx': }
 
 include '::mongodb::server'
@@ -22,7 +30,7 @@ include git
 vcsrepo { '/home/ubuntu/mes-aides-ui':
     ensure   => latest,
     provider => git,
-    revision => 'master',
+    revision => String(file('/opt/mes-aides/ui_target_revision'), "%t"),
     source   => 'https://github.com/sgmap/mes-aides-ui.git',
     user     => 'ubuntu',
 }

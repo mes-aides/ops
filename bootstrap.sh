@@ -32,6 +32,9 @@ install_manifest() {  # $1 = name of the manifest file
 install_manifest bootstrap
 install_manifest ops
 
+# Define repository revisions
+echo ${1:-origin/master} > $PROVISIONING_FOLDER/ui_target_revision
+echo ${2:-origin/master} > $PROVISIONING_FOLDER/ops_target_revision
 
 # One off script that will
 # * install librarian-puppet in Puppet internal ruby to download Puppet modules

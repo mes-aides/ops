@@ -11,7 +11,7 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 * NodeJS 0.10 installation is **distribution dependant** (because of *0.10.48-1nodesource1~trusty1*)
 
 
-## Provisioning
+## Initial provisioning
 
 The following commands run as **root** in the destination machine sets the [Mes Aides](https://mes-aides.gouv.fr) stack up.
 
@@ -20,9 +20,28 @@ BRANCH_NAME=master
 curl --location --remote-name https://github.com/sgmap/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
 tar -xvf $BRANCH_NAME.tar.gz
 cd mes-aides-ops-$BRANCH_NAME
-./bootstrap.sh
+./bootstrap.sh origin/master origin/$BRANCH_NAME
 ```
 
+`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/sgmap/mes-aides-ui and https://github.com/sgmap/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The first one is the target revision for `mes-aides-ui`and the second one is the target revision for `mes-aides-ops`.
+
+That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
+
+## Continuous provisioning and deployment
+
+### Provisioning
+
+A private key has been generated so that one can `ssh` to the host and it will automatically trigger:
+- `puppet apply ops.pp` (update of mes-aides-ops on the host)
+- `puppet apply default.pp` (host provisioning with mes-aides-ui deployment)
+
+That private key has been added to CircleCI (mes-aides-ops repository) to allow continuous provisioning.
+
+### Deployment
+
+Another private key can `ssh` to the host and it will automatically run `puppet apply default.pp` (host provisioning with mes-aides-ui deployment).
+
+That private key has been added to CirclecCI (mes-aides-ui repository) to allow continuous deployment.
 
 ## Development
 
