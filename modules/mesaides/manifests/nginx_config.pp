@@ -28,6 +28,7 @@ define mesaides::nginx_config (
 
         letsencrypt::certonly { $name:
             domains       => [ $name ],
+            notify        => File["/etc/nginx/sites-enabled/${name}.conf"],
             plugin        => 'webroot',
             require       => File[$webroot_path],
             webroot_paths => [$webroot_path],
