@@ -29,9 +29,9 @@ That is why the suggested set of commands above overrides the default target rev
 
 ### HTTPS configuration
 
-Limitation: The initial set up can't be done with HTTPS enabled.
+Limitation: The initial setup can't be done with HTTPS enabled because NGINX has to be properly configured on port 80 before requesting an SSL certificate.
 
-A HTTPS configuration is enabled if the file `/opt/mes-aides/use_ssl` exists (with `sudo touch /opt/mes-aides/use_ssl` for instance).
+An HTTPS configuration is enabled if the file `/opt/mes-aides/use_ssl` exists (you can create it with `sudo touch /opt/mes-aides/use_ssl`).
 
 
 ## Continuous provisioning and deployment
@@ -62,8 +62,12 @@ Currently, it gives you:
 - Mes Aides on port 8000 (ExpressJS application).
 - OpenFisca on port 2000 (Python via gunicorn).
 
+And then:
+
 - Mes Aides on port 80 thanks to NGINX proxy.
+
 or
+
 - A redirection from port 80 to https://vps.mes-aides.gouv.fr
 - Mes Aides on port 433 at hostname vps.mes-aides.gouv.fr
 
