@@ -29,12 +29,13 @@ install_manifest() {  # $1 = name of the manifest file
     curl --location --remote-name https://raw.githubusercontent.com/$MANIFESTS_SOURCE_REPOSITORY/$MANIFESTS_SOURCE_FOLDER/$1.pp --output $BOOTSTRAP_MANIFESTS_DESTINATION_FOLDER
 }
 
+# Required because of https://tickets.puppetlabs.com/browse/PUP-2754
 function run_puppet {
     set +e
-    puppet apply --detailed-exitcodes --verbose $@
+    puppet apply --detailed-exitcodes --verbose "$@"
     exit_code=$?
     set -e
-    [ $exit_code -eq 0  ] || [ $exit_code -eq 2 ]
+    [[ $exit_code = 0  ]] || [[ $exit_code = 2 ]]
 }
 
 install_manifest bootstrap
