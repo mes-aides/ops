@@ -1,4 +1,6 @@
-# MANAGED BY PUPPET
+# MANAGED BY PUPPET from modules/mesaides/templates/nginx_config.erb
+# Modifications should be made in that template
+
 server {
   listen                *:80 default_server;
   server_name           <%= @name %>;
