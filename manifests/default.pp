@@ -57,7 +57,8 @@ exec { 'prestart mes-aides-ui':
     command     => '/usr/bin/npm run prestart',
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
-    require     => Class['nodejs'],
+    notify      => [ Service['openfisca'], Service['ma-web'] ],
+    require     => [ Class['nodejs'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
     user        => 'ubuntu',
 }
 
@@ -71,7 +72,7 @@ file { '/etc/init/ma-web.conf':
 
 service { 'ma-web':
     ensure  => 'running',
-    require => [ File['/etc/init/ma-web.conf'], Exec['prestart mes-aides-ui'] ],
+    require => File['/etc/init/ma-web.conf'],
 }
 
 ::mesaides::nginx_config { 'vps.mes-aides.gouv.fr':
@@ -107,7 +108,8 @@ exec { 'fetch openfisca requirements':
     command     => '/home/ubuntu/venv/bin/pip install --upgrade -r openfisca/requirements.txt',
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
-    require     => Python::Virtualenv['/home/ubuntu/venv'],
+    notify      => [ Service['openfisca'], Service['ma-web'] ],
+    require     => Exec['update virtualenv pip'],
     user        => 'ubuntu',
 }
 
@@ -121,5 +123,5 @@ file { '/etc/init/openfisca.conf':
 
 service { 'openfisca':
     ensure  => 'running',
-    require => [ File['/etc/init/openfisca.conf'], Exec['fetch openfisca requirements'] ],
+    require => File['/etc/init/openfisca.conf'],
 }
