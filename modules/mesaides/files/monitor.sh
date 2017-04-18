@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 #
-# Execution of this script is available at ssh -i .ssh/mes-aides-bot monitor@mes-aides.gouv.fr
 
 MAX_DISK_USAGE=90  # percentage
-PARTITION_TO_MONITOR=root
 PORT=8000
-OPENFISCA_PORT=12000
+OPENFISCA_PORT=2000
 PROTOCOL=https
 PUBLIC_HOST=mes-aides.gouv.fr
-DEPLOYED_DIRECTORY=/var/www/dds
+DEPLOYED_DIRECTORY=/home/ubuntu/mes-aides-ui
 
 
 failures=0
@@ -25,8 +23,8 @@ if ! curl -sL -w "App (on public internet)\t GET %{url_effective} -> %{http_code
 then let failures++
 fi
 
-disk_usage=$(df | grep $PARTITION_TO_MONITOR | tr -s ' ' | cut -d ' ' -f 5 | tr -d '%')
-echo "$PARTITION_TO_MONITOR disk usage: $disk_usage%"
+disk_usage=$(df | grep /$ | tr -s ' ' | cut -d ' ' -f 5 | tr -d '%')
+echo "$Disk usage on /: $disk_usage%"
 if ! test $disk_usage -lt $MAX_DISK_USAGE
 then let failures++
 fi
@@ -38,7 +36,7 @@ cd $DEPLOYED_DIRECTORY
 echo "Deployed version (in $DEPLOYED_DIRECTORY):"
 git log --pretty=oneline -1
 echo -n "Deployed at "
-stat -c %y /home/deploy/production.ini
+stat -c %y openfisca/api_config.ini
 
 
 if [[ $failures -gt 0 ]]

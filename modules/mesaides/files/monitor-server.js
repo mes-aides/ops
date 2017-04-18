@@ -11,7 +11,7 @@ var PORT = 8887;
 
 
 http.createServer(function(req, res) {
-    exec('/home/monitor/monitor.sh', function(error, stdout, stderr) {
+    exec('/opt/mes-aides/monitor.sh', function(error, stdout, stderr) {
         res.writeHead(error ? 500 : 200, {
             'Content-Type': 'text/plain'
         });
