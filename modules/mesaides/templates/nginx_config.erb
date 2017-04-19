@@ -8,22 +8,17 @@ server {
   access_log            /var/log/nginx/<%= @name %>.access.log combined;
   error_log             /var/log/nginx/<%= @name %>.error.log;
 
+<% if @use_ssl -%>
   location /.well-known {
     root                <%= @webroot_path %>;
   }
-<% if @use_ssl and File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") -%>
+
+  <% if File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") -%>
   location / {
     return              302 https://<%= @name %>$request_uri;
   }
-<%- else -%>
-  location / {
-    proxy_pass          http://localhost:8000;
-    proxy_redirect      off;
-  }
-<% end -%>
 }
 
-<% if @use_ssl and File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") -%>
 server {
     listen              443 ssl;
     server_name         <%= @name %>;
@@ -39,8 +34,10 @@ server {
     ssl_session_timeout  5m;
     ssl_dhparam /etc/ssl/private/dhparam.pem;
 
-    access_log          /var/log/nginx/<%= @name %>.access.log combined;
-    error_log           /var/log/nginx/<%= @name %>.error.log;
+    access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
+    error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
+  <% end -%><%# File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
+<% end -%><%# @use_ssl %>
 
     gzip on;
     gzip_proxied        any;
@@ -56,4 +53,3 @@ server {
       proxy_redirect    off;
     }
 }
-<% end -%>
