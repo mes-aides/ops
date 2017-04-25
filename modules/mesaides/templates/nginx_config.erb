@@ -1,0 +1,55 @@
+# MANAGED BY PUPPET from modules/mesaides/templates/nginx_config.erb
+# Modifications should be made in that template
+
+server {
+  listen              *:80 default_server;
+  server_name         <%= @name %>;
+
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
+
+<% if @use_ssl -%>
+  location /.well-known {
+    root              <%= @webroot_path %>;
+  }
+
+  <% if File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") -%>
+  location / {
+    return            302 https://<%= @name %>$request_uri;
+  }
+}
+
+server {
+  listen              443 ssl;
+  server_name         <%= @name %>;
+
+  ssl_certificate     /etc/letsencrypt/live/<%= @name %>/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/<%= @name %>/privkey.pem;
+
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers               ECDHE+ECDSA+CHACHA20+POLY1305:ECDHE+RSA+CHACHA20+POLY1305:ECDHE+ECDSA+AES128+GCM+SHA256:ECDHE+RSA+AES128+GCM+SHA256:ECDHE+ECDSA+AES256+GCM+SHA384:ECDHE+RSA+AES256+GCM+SHA384:DHE+RSA+AES128+GCM+SHA256:DHE+RSA+AES256+GCM+SHA384:ECDHE+ECDSA+AES128+SHA256:ECDHE+RSA+AES128+SHA256:ECDHE+ECDSA+AES128+SHA:ECDHE+RSA+AES256+SHA384:ECDHE+RSA+AES128+SHA:ECDHE+ECDSA+AES256+SHA384:ECDHE+ECDSA+AES256+SHA:ECDHE+RSA+AES256+SHA:DHE+RSA+AES128+SHA256:DHE+RSA+AES128+SHA:DHE+RSA+AES256+SHA256:DHE+RSA+AES256+SHA:ECDHE+ECDSA+DES+CBC3+SHA:ECDHE+RSA+DES+CBC3+SHA:EDH+RSA+DES+CBC3+SHA:AES128+GCM+SHA256:AES256+GCM+SHA384:AES128+SHA256:AES256+SHA256:AES128+SHA:AES256+SHA:DES+CBC3+SHA:!DSS;
+
+  ssl_protocols       TLSv1.2 TLSv1.1 TLSv1;
+  ssl_session_cache   shared:TLS:2m;
+  ssl_session_timeout 5m;
+  ssl_dhparam         /etc/ssl/private/dhparam.pem;
+
+  access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
+  <% end -%><%# File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
+<% end -%><%# @use_ssl %>
+
+  gzip                on;
+  gzip_proxied        any;
+  gzip_types          application/json
+                      application/javascript
+                      text/css
+                      text/plain
+                      text/xml;
+  gzip_vary           on;
+
+  location / {
+    proxy_pass        http://localhost:8000;
+    proxy_redirect    off;
+  }
+}

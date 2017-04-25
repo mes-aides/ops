@@ -74,11 +74,9 @@ service { 'ma-web':
     require => [ File['/etc/init/ma-web.conf'], Exec['prestart mes-aides-ui'] ],
 }
 
-nginx::resource::server { 'mes-aides.gouv.fr':
-  listen_options => 'default_server',
-  listen_port    => 80,
-  proxy          => 'http://localhost:8000',
-  require        => Service['ma-web'],
+::mesaides::nginx_config { 'vps.mes-aides.gouv.fr':
+    require => Service['ma-web'],
+    use_ssl => find_file('/opt/mes-aides/use_ssl'),
 }
 
 class { 'python':
