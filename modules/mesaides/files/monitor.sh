@@ -7,6 +7,7 @@ OPENFISCA_PORT=2000
 PROTOCOL=https
 PUBLIC_HOST=vps.mes-aides.gouv.fr
 DEPLOYED_DIRECTORY=/home/ubuntu/mes-aides-ui
+PROVISIONING_DIRECTORY=/opt/mes-aides/ops
 
 
 failures=0
@@ -29,15 +30,18 @@ if ! test $disk_usage -lt $MAX_DISK_USAGE
 then let failures++
 fi
 
+function show_repository_stats {
+    echo
 
-echo
+    cd $2
+    echo "Deployed version of $1 (in $2):"
+    git log --pretty=oneline -1
+    echo -n "Deployed at "
+    stat -c %y .git
+}
 
-cd $DEPLOYED_DIRECTORY
-echo "Deployed version (in $DEPLOYED_DIRECTORY):"
-git log --pretty=oneline -1
-echo -n "Deployed at "
-stat -c %y openfisca/api_config.ini
-
+show_repository_stats application $DEPLOYED_DIRECTORY
+show_repository_stats provisioning $PROVISIONING_DIRECTORY
 
 if [[ $failures -gt 0 ]]
 then
