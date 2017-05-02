@@ -2,7 +2,11 @@
 # Modifications should be made in that template
 
 server {
+<% if @is_default -%>
   listen              *:80 default_server;
+<% else -%>
+  listen              *:80;
+<% end -%>
   server_name         <%= @name %>;
 
   access_log          /var/log/nginx/<%= @name %>.access.log combined;
@@ -49,7 +53,7 @@ server {
   gzip_vary           on;
 
   location / {
-    proxy_pass        http://localhost:8000;
+    proxy_pass        <%= @proxied_endpoint %>;
     proxy_redirect    off;
   }
 }

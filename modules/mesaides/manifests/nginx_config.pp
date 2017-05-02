@@ -1,6 +1,8 @@
 define mesaides::nginx_config (
+    $is_default = true,
     $use_ssl = false,
     $webroot_path = '/var/www',
+    $proxied_endpoint = 'http://localhost:8000',
 ) {
     include ::nginx
 
