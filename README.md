@@ -53,6 +53,17 @@ Another private key can `ssh` to the host and it will automatically run `puppet 
 That private key has been added to CirclecCI (mes-aides-ui repository) to allow continuous deployment.
 
 
+## Branch/SHA1 live deployment
+
+Branch specifications are expected to be done during the initial provisioning as described in the above section. However, revisions can be directly updated on the server. The following script updates mes-aides-ui target revision to `origin/staging` and triggers a redeployment. A similar script could be created to provision the server using a different target revision than `origin/master`.
+
+```shell
+UI_TARGET_REVISION=origin/staging
+echo $UI_TARGET_REVISION > /opt/mes-aides/ui_target_revision
+/opt/mes-aides/update.sh deploy
+```
+
+
 ## Development
 
 Development is done using Vagrant and the Ubuntu version used in production: Ubuntu 14.04 64 bit (trusty).
