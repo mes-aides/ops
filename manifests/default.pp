@@ -79,7 +79,7 @@ service { 'ma-web':
     use_ssl => find_file('/opt/mes-aides/use_ssl'),
 }
 
-::mesaides::monitor_config { 'monitor.vps.mes-aides.gouv.fr':
+::mesaides::monitor { 'monitor.vps.mes-aides.gouv.fr':
     require => Class['nodejs'],
 }
 

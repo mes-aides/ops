@@ -1,4 +1,4 @@
-define mesaides::monitor_config () {
+define mesaides::monitor () {
     file { '/opt/mes-aides/monitor.sh':
         ensure => file,
         owner  => 'root',
