@@ -37,7 +37,7 @@ Currently, multiple steps are required to have a HTTPS configuration.
 ```shell
 touch /opt/mes-aides/use_ssl # Puppet relies on that file to enable a HTTPS/SSL configuration
 /opt/mes-aides/update.sh provision # Given use_ssl Puppet will update NGINX configuration to accept Let's Encrypt and request a certificate
-/opt/mes-aides/update.sh provision # With a certificate and the use_ssl flag Puppet will switch the HTTPS setup on (with the redirection)
+/opt/mes-aides/update.sh provision # This time with a certificate and the use_ssl flag Puppet will switch the HTTPS setup on (with the redirection)
 ```
 
 
