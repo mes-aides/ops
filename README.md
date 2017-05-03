@@ -114,4 +114,4 @@ Currently, applications are set up and run by *ubuntu* user.
 # Monitor
 
 Two different scanning services are used, in order to remove dependency on one specific provider to notify in case of a service failure.
-This endpoint is scanned by [UptimeRobot](https://uptimerobot.com) on a 5-minutes interval, and will notify the team through Slack and SMS. It is also scanned on a 2-minutes interval by [SetCronJob](https://www.setcronjob.com) which will notify the team by email. The SetCronJob instance has to be manually rearmed (i.e. re-enabled after it gets automatically disabled on failure) when it has been triggered.
+This endpoint is scanned by [UptimeRobot](https://uptimerobot.com) on a 1-minute interval, and will notify the team through Slack and SMS. It is also scanned on a 2-minute interval by [SetCronJob](https://www.setcronjob.com) which will notify the team by email. The SetCronJob instance has to be manually rearmed (i.e. re-enabled after it gets automatically disabled on failure) when it has been triggered.
