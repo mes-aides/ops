@@ -79,6 +79,10 @@ service { 'ma-web':
     use_ssl => find_file('/opt/mes-aides/use_ssl'),
 }
 
+::mesaides::monitor { 'monitor.vps.mes-aides.gouv.fr':
+    require => Class['nodejs'],
+}
+
 class { 'python':
     dev      => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip

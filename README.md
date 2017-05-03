@@ -27,6 +27,7 @@ cd mes-aides-ops-$BRANCH_NAME
 
 That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
 
+
 ### HTTPS configuration
 
 Limitation: The initial setup can't be done with HTTPS enabled because NGINX has to be properly configured on port 80 before requesting an SSL certificate.
@@ -44,11 +45,13 @@ A private key has been generated so that one can `ssh` to the host and it will a
 
 That private key has been added to CircleCI (mes-aides-ops repository) to allow continuous provisioning.
 
+
 ### Deployment
 
 Another private key can `ssh` to the host and it will automatically run `puppet apply default.pp` (host provisioning with mes-aides-ui deployment).
 
 That private key has been added to CirclecCI (mes-aides-ui repository) to allow continuous deployment.
+
 
 ## Development
 
@@ -106,3 +109,9 @@ Currently, applications are set up and run by *ubuntu* user.
     + Prevent renewal
 - Create OpenFisca Puppet module?
 - Create Mes-Aides Puppet module (to make feature branch deployment a breeze)?
+
+
+# Monitor
+
+Two different scanning services are used, in order to remove dependency on one specific provider to notify in case of a service failure.
+This endpoint is scanned by [UptimeRobot](https://uptimerobot.com) on a 1-minute interval, and will notify the team through Slack and SMS. It is also scanned on a 2-minute interval by [SetCronJob](https://www.setcronjob.com) which will notify the team by email. The SetCronJob instance has to be manually rearmed (i.e. re-enabled after it gets automatically disabled on failure) when it has been triggered.
