@@ -32,8 +32,12 @@ That is why the suggested set of commands above overrides the default target rev
 
 Limitation: The initial setup can't be done with HTTPS enabled because NGINX has to be properly configured on port 80 before requesting an SSL certificate.
 
-An HTTPS configuration is enabled if the file `/opt/mes-aides/use_ssl` exists (you can create it with `sudo touch /opt/mes-aides/use_ssl`).
+The following script can be used after the initial provisioning to enable the HTTPS configuration.
 
+```shell
+touch /opt/mes-aides/use_ssl
+/opt/mes-aides/update.sh provision
+```
 
 ## Continuous provisioning and deployment
 
