@@ -2,11 +2,7 @@
 # Modifications should be made in that template
 
 server {
-<% if @is_default -%>
-  listen              *:80 default_server;
-<% else -%>
-  listen              *:80;
-<% end -%>
+  listen              *:80<% if @is_default -%> default_server<% end -%>;
   server_name         <%= @name %>;
 
   access_log          /var/log/nginx/<%= @name %>.access.log combined;
