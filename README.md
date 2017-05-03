@@ -32,12 +32,14 @@ That is why the suggested set of commands above overrides the default target rev
 
 Limitation: The initial setup can't be done with HTTPS enabled because NGINX has to be properly configured on port 80 before requesting an SSL certificate.
 
-The following script can be used after the initial provisioning to enable the HTTPS configuration.
+Currently, multiple steps are required to have a HTTPS configuration.
 
 ```shell
-touch /opt/mes-aides/use_ssl
-/opt/mes-aides/update.sh provision
+touch /opt/mes-aides/use_ssl # Puppet relies on that file to enable a HTTPS/SSL configuration
+/opt/mes-aides/update.sh provision # Given use_ssl Puppet will update NGINX configuration to accept Let's Encrypt and request a certificate
+/opt/mes-aides/update.sh provision # With a certificate and the use_ssl flag Puppet will switch the HTTPS setup on (with the redirection)
 ```
+
 
 ## Continuous provisioning and deployment
 
