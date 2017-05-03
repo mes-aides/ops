@@ -11,7 +11,7 @@ define mesaides::nginx_config (
         ensure  => file,
         group   => 'www-data',
         mode    => '600',
-        notify  => Class['nginx::service'],
+        notify  => Service['nginx'],
         owner   => 'www-data',
     }
 
@@ -30,9 +30,8 @@ define mesaides::nginx_config (
 
         letsencrypt::certonly { $name:
             domains       => [ $name ],
-            notify        => Service['nginx'],
             plugin        => 'webroot',
-            require       => [ File[$webroot_path], File["/etc/nginx/sites-enabled/${name}.conf"] ],
+            require       => [ File[$webroot_path], File["/etc/nginx/sites-enabled/${name}.conf"], Service['nginx'] ],
             webroot_paths => [ $webroot_path ],
         }
     }
