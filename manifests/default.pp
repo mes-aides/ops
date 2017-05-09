@@ -19,10 +19,8 @@ class { 'nginx': }
 include '::mongodb::server'
 
 class { 'nodejs':
-    # Version name is mandatory because there seems to be a priority issue
-    # which leads to 4.x version being installed
-    nodejs_package_ensure => '0.10.48-1nodesource1~trusty1',
-    repo_url_suffix => '0.10',
+    nodejs_package_ensure => '6.10.3-1nodesource1~trusty1',
+    repo_url_suffix => '6.x',
 }
 
 include git
