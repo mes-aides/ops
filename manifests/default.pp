@@ -88,6 +88,11 @@ service { 'ma-web':
     require => Class['nodejs'],
 }
 
+::mesaides::nginx_config { 'monitor.mes-aides.gouv.fr':
+    proxied_endpoint => 'http://localhost:8887',
+    require    => ::Mesaides::Monitor['monitor.vps.mes-aides.gouv.fr'],
+}
+
 class { 'python':
     dev      => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip
