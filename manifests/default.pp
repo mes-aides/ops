@@ -56,7 +56,7 @@ exec { 'prestart mes-aides-ui':
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
     notify      => [ Service['openfisca'], Service['ma-web'] ],
-    require     => [ Class['nodejs'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
+    require     => [ Class['nodejs'], Vcsrepo['/home/ubuntu/mes-aides-ui'], Exec['install node modules for mes-aides-ui'] ],
     user        => 'ubuntu',
 }
 
