@@ -129,3 +129,9 @@ service { 'openfisca':
     ensure  => 'running',
     require => File['/etc/init/openfisca.conf'],
 }
+
+class { ::letsencrypt:
+    config => {
+        email => 'contact@mes-aides.gouv.fr',
+    }
+}

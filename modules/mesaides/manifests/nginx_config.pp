@@ -18,20 +18,15 @@ define mesaides::nginx_config (
     if $use_ssl {
         include mesaides::generate_custom_dhparam
 
-        class { ::letsencrypt:
-            config => {
-                email => 'contact@mes-aides.gouv.fr',
-            }
-        }
-
-        file { $webroot_path:
+        file { "webroot for ${name} (${webroot_path})":
             ensure => directory,
+            path   => $webroot_path,
         }
 
         letsencrypt::certonly { $name:
             domains       => [ $name ],
             plugin        => 'webroot',
-            require       => [ File[$webroot_path], File["/etc/nginx/sites-enabled/${name}.conf"], Service['nginx'] ],
+            require       => [ File["webroot for ${name} (${webroot_path})"], File["/etc/nginx/sites-enabled/${name}.conf"], Service['nginx'] ],
             webroot_paths => [ $webroot_path ],
         }
     }
