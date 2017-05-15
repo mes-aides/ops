@@ -73,10 +73,15 @@ service { 'ma-web':
     require => File['/etc/init/ma-web.conf'],
 }
 
-::mesaides::nginx_config { 'vps.mes-aides.gouv.fr':
+::mesaides::nginx_config { 'mes-aides.gouv.fr':
     is_default => true,
     require    => Service['ma-web'],
     use_ssl    => find_file('/opt/mes-aides/use_ssl'),
+}
+
+::mesaides::nginx_config { 'vps.mes-aides.gouv.fr':
+    require    => Service['ma-web'],
+    use_ssl    => find_file('/opt/mes-aides/vps_use_ssl'),
 }
 
 ::mesaides::monitor { 'monitor.vps.mes-aides.gouv.fr':
