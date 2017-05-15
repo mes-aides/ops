@@ -107,7 +107,7 @@ exec { 'fetch openfisca requirements':
     cwd         => '/home/ubuntu/mes-aides-ui',
     environment => ['HOME=/home/ubuntu'],
     notify      => [ Service['openfisca'], Service['ma-web'] ],
-    require     => Exec['update virtualenv pip'],
+    require     => [ Exec['update virtualenv pip'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
     user        => 'ubuntu',
 }
 
