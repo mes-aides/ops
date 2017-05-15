@@ -18,10 +18,7 @@ define mesaides::nginx_config (
     if $use_ssl {
         include mesaides::generate_custom_dhparam
 
-        file { "webroot for ${name} (${webroot_path})":
-            ensure => directory,
-            path   => $webroot_path,
-        }
+        ensure_resource('file', $webroot_path, {'ensure' => 'directory' })
 
         letsencrypt::certonly { $name:
             domains       => [ $name ],
