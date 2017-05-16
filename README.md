@@ -88,8 +88,8 @@ And then:
 
 or
 
-- A redirection from port 80 to https://vps.mes-aides.gouv.fr
-- Mes Aides on port 433 at hostname vps.mes-aides.gouv.fr
+- A redirection from port 80 to https://metal.mes-aides.gouv.fr
+- Mes Aides on port 433 at hostname metal.mes-aides.gouv.fr
 
 
 ### Iterations
