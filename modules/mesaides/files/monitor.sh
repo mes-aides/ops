@@ -5,7 +5,7 @@ MAX_DISK_USAGE=90  # percentage
 PORT=8000
 OPENFISCA_PORT=2000
 PROTOCOL=https
-PUBLIC_HOST=vps.mes-aides.gouv.fr
+PUBLIC_HOST=metal.mes-aides.gouv.fr
 DEPLOYED_DIRECTORY=/home/ubuntu/mes-aides-ui
 PROVISIONING_DIRECTORY=/opt/mes-aides/ops
 

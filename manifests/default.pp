@@ -1,3 +1,6 @@
+
+$instance_name = 'metal'
+
 file { '/root/.ssh/authorized_keys':
     ensure => file,
     group  => 'root',
@@ -79,18 +82,18 @@ service { 'ma-web':
     use_ssl    => find_file('/opt/mes-aides/use_ssl'),
 }
 
-::mesaides::nginx_config { 'vps.mes-aides.gouv.fr':
+::mesaides::nginx_config { "${instance_name}.mes-aides.gouv.fr":
     require    => Service['ma-web'],
-    use_ssl    => find_file('/opt/mes-aides/vps_use_ssl'),
+    use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
 }
 
-::mesaides::monitor { 'monitor.vps.mes-aides.gouv.fr':
+::mesaides::monitor { "monitor.${instance_name}.mes-aides.gouv.fr":
     require => Class['nodejs'],
 }
 
 ::mesaides::nginx_config { 'monitor.mes-aides.gouv.fr':
     proxied_endpoint => 'http://localhost:8887',
-    require    => ::Mesaides::Monitor['monitor.vps.mes-aides.gouv.fr'],
+    require    => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
 }
 
 class { 'python':
@@ -135,7 +138,7 @@ service { 'openfisca':
     require => File['/etc/init/openfisca.conf'],
 }
 
-if find_file('/opt/mes-aides/vps_use_ssl') or find_file('/opt/mes-aides/use_ssl') {
+if find_file("/opt/mes-aides/${instance_name}_use_ssl") or find_file('/opt/mes-aides/use_ssl') {
     class { ::letsencrypt:
         config => {
             email => 'contact@mes-aides.gouv.fr',

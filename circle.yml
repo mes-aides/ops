@@ -7,13 +7,13 @@ test:
     - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
     - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
     - curl --silent 0.0.0.0:2000 | grep --silent OpenFisca
-    - "curl --silent 0.0.0.0 -H 'Host: monitor.vps.mes-aides.gouv.fr' | grep --silent $CIRCLE_SHA1"
+    - "curl --silent 0.0.0.0 -H 'Host: monitor.mes-aides.gouv.fr' | grep --silent $CIRCLE_SHA1"
     - sudo /opt/mes-aides/update.sh provision
     - sudo /opt/mes-aides/update.sh deploy
 
 deployment:
-  vps:
+  metal:
     branch: master
     commands:
       # CircleCI rely on a private key that triggers /opt/mes-aides/update.sh provision
-      - ssh root@vps274040.ovh.net
+      - ssh root@37.187.147.133
