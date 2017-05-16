@@ -28,12 +28,23 @@ class { 'nodejs':
 
 include git
 
-vcsrepo { '/home/ubuntu/mes-aides-ui':
+group { 'main':
+    ensure => present,
+}
+
+user { 'main':
+    ensure     => present,
+    managehome => true,
+    require    => [ Group['main'] ],
+}
+
+vcsrepo { '/home/main/mes-aides-ui':
     ensure   => latest,
     provider => git,
+    require    => [ User['main'] ],
     revision => String(file('/opt/mes-aides/ui_target_revision'), "%t"),
     source   => 'https://github.com/sgmap/mes-aides-ui.git',
-    user     => 'ubuntu',
+    user     => 'main',
 }
 
 # Using 'make' and 'g++'
@@ -45,22 +56,22 @@ package { 'libkrb5-dev': }
 
 exec { 'install node modules for mes-aides-ui':
     command     => '/usr/bin/npm install',
-    cwd         => '/home/ubuntu/mes-aides-ui',
-    environment => ['HOME=/home/ubuntu'],
-    require     => Class['nodejs'],
+    cwd         => '/home/main/mes-aides-ui',
+    environment => ['HOME=/home/main'],
+    require     => [ Class['nodejs'], User['main'] ],
     # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
     #  default is 300 (seconds)
     timeout     => 1800, # 30 minutes
-    user        => 'ubuntu',
+    user        => 'main',
 }
 
 exec { 'prestart mes-aides-ui':
     command     => '/usr/bin/npm run prestart',
-    cwd         => '/home/ubuntu/mes-aides-ui',
-    environment => ['HOME=/home/ubuntu'],
+    cwd         => '/home/main/mes-aides-ui',
+    environment => ['HOME=/home/main'],
     notify      => [ Service['openfisca'], Service['ma-web'] ],
-    require     => [ Class['nodejs'], Vcsrepo['/home/ubuntu/mes-aides-ui'], Exec['install node modules for mes-aides-ui'] ],
-    user        => 'ubuntu',
+    require     => [ Class['nodejs'], Vcsrepo['/home/main/mes-aides-ui'], Exec['install node modules for mes-aides-ui'] ],
+    user        => 'main',
 }
 
 file { '/etc/init/ma-web.conf':
@@ -73,7 +84,7 @@ file { '/etc/init/ma-web.conf':
 
 service { 'ma-web':
     ensure  => 'running',
-    require => File['/etc/init/ma-web.conf'],
+    require => [ File['/etc/init/ma-web.conf'], User['main'] ],
 }
 
 ::mesaides::nginx_config { 'mes-aides.gouv.fr':
@@ -102,27 +113,27 @@ class { 'python':
     virtualenv => 'present', # default: 'absent'
 }
 
-python::virtualenv { '/home/ubuntu/venv':
-    group        => 'ubuntu',
-    owner        => 'ubuntu',
-    require      => [ Class['python'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
+python::virtualenv { '/home/main/venv':
+    group        => 'main',
+    owner        => 'main',
+    require      => [ Class['python'], Vcsrepo['/home/main/mes-aides-ui'], User['main'] ],
 }
 
 exec { 'update virtualenv pip':
-    command     => '/home/ubuntu/venv/bin/pip install pip --upgrade',
-    cwd         => '/home/ubuntu/mes-aides-ui',
-    environment => ['HOME=/home/ubuntu'],
-    require     => Python::Virtualenv['/home/ubuntu/venv'],
-    user        => 'ubuntu',
+    command     => '/home/main/venv/bin/pip install pip --upgrade',
+    cwd         => '/home/main/mes-aides-ui',
+    environment => ['HOME=/home/main'],
+    require     => Python::Virtualenv['/home/main/venv'],
+    user        => 'main',
 }
 
 exec { 'fetch openfisca requirements':
-    command     => '/home/ubuntu/venv/bin/pip install --upgrade -r openfisca/requirements.txt',
-    cwd         => '/home/ubuntu/mes-aides-ui',
-    environment => ['HOME=/home/ubuntu'],
+    command     => '/home/main/venv/bin/pip install --upgrade -r openfisca/requirements.txt',
+    cwd         => '/home/main/mes-aides-ui',
+    environment => ['HOME=/home/main'],
     notify      => [ Service['openfisca'], Service['ma-web'] ],
-    require     => [ Exec['update virtualenv pip'], Vcsrepo['/home/ubuntu/mes-aides-ui'] ],
-    user        => 'ubuntu',
+    require     => [ Exec['update virtualenv pip'], Vcsrepo['/home/main/mes-aides-ui'] ],
+    user        => 'main',
 }
 
 file { '/etc/init/openfisca.conf':
@@ -135,7 +146,7 @@ file { '/etc/init/openfisca.conf':
 
 service { 'openfisca':
     ensure  => 'running',
-    require => File['/etc/init/openfisca.conf'],
+    require => [ File['/etc/init/openfisca.conf'], User['main'] ],
 }
 
 if find_file("/opt/mes-aides/${instance_name}_use_ssl") or find_file('/opt/mes-aides/use_ssl') {

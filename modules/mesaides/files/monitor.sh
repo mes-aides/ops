@@ -6,7 +6,7 @@ PORT=8000
 OPENFISCA_PORT=2000
 PROTOCOL=https
 PUBLIC_HOST=metal.mes-aides.gouv.fr
-DEPLOYED_DIRECTORY=/home/ubuntu/mes-aides-ui
+DEPLOYED_DIRECTORY=/home/main/mes-aides-ui
 PROVISIONING_DIRECTORY=/opt/mes-aides/ops
 
 
