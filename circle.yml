@@ -12,8 +12,8 @@ test:
     - sudo /opt/mes-aides/update.sh deploy
 
 deployment:
-  vps:
+  metal:
     branch: master
     commands:
       # CircleCI rely on a private key that triggers /opt/mes-aides/update.sh provision
-      - ssh root@vps274040.ovh.net
+      - ssh root@37.187.147.133
