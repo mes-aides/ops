@@ -1,0 +1,17 @@
+<% require 'net/http' %>
+# File managed by Puppet from mesaides/templates
+# User keys
+<% "MattiSG fpagnoux guillett monbocal".split.each do |user| %>
+# <%= user  %>
+<%   uri = URI("https://github.com/#{user}.keys") %>
+<%=  Net::HTTP.get(uri) %>
+<% end %>
+
+# Application keys
+# Provisioning
+
+command="/opt/mes-aides/update.sh provision",no-pty,no-port-forwarding,no-agent-forwarding ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC2jqYK9E4R9/sYB5cnBhIgwxpUYV3G9Sfo2L5pIoAOsal/iludiuV8sIIdeqRLw8VmHgN8Dj3DEfOZgmBzqvJewqt1hZEPOJ/q9uAuBvd363CLBYI0KoLHOvd5snMIYyzRB3KjOXdH2D3f315yRPtMA73vmgUoXV0trbxxCToeqTx7Fbl2fx3PGPpyWM3anzo4WIYFYqqyt//UiQy8d5u3snM6Jks4DvOzzmGYvkcWAI3766LoS7Tb4vQ5AIYOC0LDlIM2X96hxdfymu1eks78oKEJ6BAmLEDG0Vk3bUtSPICDo58Z28qXkQl+tkQyNQ9aGV+/vwvvN+5PjuUjMZHj
+
+# Deployment
+
+command="/opt/mes-aides/update.sh deploy",no-pty,no-port-forwarding,no-agent-forwarding ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDMtPoempzy3iCvs42pQhSh05KsRW9W7I+6ardtQH1GxhOWSSpIuPDZMfEA+2dWDwue8z0H6nsoZ4dlm7R9MJUWInN8xW+QlzYfVytURZw1aumX0OltUnQSXJ/hMN6olAQnSnVwEAO2ohyyQtbPVR5s0uPvbodwUdlF0Nf/eHtL6D/MDJMyErOmDjwNNuKJ0/bptFikVPQnirNd3/dwggRMC8vSDrVJizDANljezz/eXhq+AV41Hs50NHCf1P7BR/+dooLBRVQGnwsAidWQAjj6NSq2TnK2OJHK08xQ05Pq6btTdubfsRBvTDzpMSgnC7asSsKKJ1JJpNT0T/FYLRsB
