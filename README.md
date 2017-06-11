@@ -27,6 +27,16 @@ cd mes-aides-ops-$BRANCH_NAME
 
 That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
 
+### Secret environment variables
+
+The main NodeJS server needs some private variables. These can be made available as environment variables set in `/home/main/.mes-aides-secrets`. This file is loaded before starting the NodeJS server.
+
+Here is an example of `/home/main/.mes-aides-secrets`:
+
+```bash
+LUDWIG_ACCESS_TOKEN=secret_ludwig_access_token
+LUDWIG_GH_CLIENT_SECRET=ludwig_gh_client_secret
+```
 
 ### HTTPS configuration
 
