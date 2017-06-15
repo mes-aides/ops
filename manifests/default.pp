@@ -2,11 +2,11 @@
 $instance_name = 'metal'
 
 file { '/root/.ssh/authorized_keys':
-    ensure => file,
-    group  => 'root',
-    mode   => '600',
-    owner  => 'root',
-    source => 'puppet:///modules/mesaides/root_authorized_keys',
+    content => template('mesaides/root_authorized_keys.erb'),
+    ensure  => file,
+    group   => 'root',
+    mode    => '600',
+    owner   => 'root',
 }
 
 file { '/opt/mes-aides/update.sh':
