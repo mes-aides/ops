@@ -22,7 +22,6 @@ class { 'nginx': }
 include '::mongodb::server'
 
 class { 'nodejs':
-    nodejs_package_ensure => '6.10.3-1nodesource1~trusty1',
     repo_url_suffix => '6.x',
 }
 
