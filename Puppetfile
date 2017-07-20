@@ -1,6 +1,6 @@
 forge 'https://forgeapi.puppetlabs.com'
 
-mod 'puppet-letsencrypt', '1.1.0'
+mod 'puppet-letsencrypt', '2.0.0'
 mod 'puppet-nginx', '0.6.0'
 mod 'puppet-nodejs', '2.3.0'
 mod 'puppetlabs-git', '0.5.0'
