@@ -14,6 +14,8 @@ test:
 deployment:
   metal:
     branch: master
+    owner: sgmap
     commands:
-      # CircleCI rely on a private key that triggers /opt/mes-aides/update.sh provision
-      - ssh root@37.187.147.133
+      # CircleCI has a private key only allowed to trigger '/opt/mes-aides/update.sh provision'
+      # That command line refreshes Mes-Aides-OPS and UI repositories and re-deploys the services
+      - ssh root@metal.mes-aides.gouv.fr
