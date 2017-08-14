@@ -21,11 +21,12 @@ define mesaides::nginx_config (
         ensure_resource('file', $webroot_path, {'ensure' => 'directory' })
 
         letsencrypt::certonly { $name:
-            domains       => [ $name ],
-            manage_cron   => true,
-            plugin        => 'webroot',
-            require       => [ File[$webroot_path], File["/etc/nginx/sites-enabled/${name}.conf"], Service['nginx'] ],
-            webroot_paths => [ $webroot_path ],
+            cron_success_command => 'service nginx reload',
+            domains              => [ $name ],
+            manage_cron          => true,
+            plugin               => 'webroot',
+            require              => [ File[$webroot_path], File["/etc/nginx/sites-enabled/${name}.conf"], Service['nginx'] ],
+            webroot_paths        => [ $webroot_path ],
         }
     }
 }
