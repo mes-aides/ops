@@ -4,13 +4,6 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 
 > Déploie l'infrastructure de Mes Aides.
 
-
-## Limitations
-
-* Provisioning only possible on Ubuntu 14.04 (trusty)
-* NodeJS 0.10 installation is **distribution dependant** (because of *0.10.48-1nodesource1~trusty1*)
-
-
 ## Initial provisioning
 
 The following commands run as **root** in the destination machine sets the [Mes Aides](https://mes-aides.gouv.fr) stack up.
