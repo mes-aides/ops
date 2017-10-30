@@ -6,7 +6,7 @@ test:
   override:
     - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
     - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
-    - curl --silent 0.0.0.0:2000 | grep --silent OpenFisca
+    - curl --silent 0.0.0.0:2000/variable/parisien | grep --silent openfisca_paris/paris.py
     - "curl --silent 0.0.0.0 -H 'Host: monitor.mes-aides.gouv.fr' | grep --silent $CIRCLE_SHA1"
     - sudo /opt/mes-aides/update.sh provision
     - sudo /opt/mes-aides/update.sh deploy
