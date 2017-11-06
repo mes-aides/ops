@@ -86,6 +86,15 @@ service { 'ma-web':
     require => [ File['/etc/init/ma-web.conf'], User['main'] ],
 }
 
+cron { 'refresh mes-aides stats':
+    command     => '/usr/bin/node /home/main/mes-aides-ui/backend/lib/stats',
+    environment => ['HOME=/home/main'],
+    hour        => 2,
+    minute      => 23,
+    require     => Exec['prestart mes-aides-ui'],
+    user        => 'main',
+}
+
 ::mesaides::nginx_config { 'mes-aides.gouv.fr':
     is_default => true,
     require    => Service['ma-web'],
