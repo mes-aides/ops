@@ -42,7 +42,7 @@ vcsrepo { '/home/main/mes-aides-ui':
     provider => git,
     require    => [ User['main'] ],
     revision => String(file('/opt/mes-aides/ui_target_revision'), "%t"),
-    source   => 'https://github.com/sgmap/mes-aides-ui.git',
+    source   => 'https://github.com/betagouv/mes-aides-ui.git',
     user     => 'main',
 }
 
@@ -50,7 +50,7 @@ vcsrepo { '/home/main/mes-aides-ui':
 package { 'build-essential': }
 
 # Currently required - Failure during npm install
-# mes-aides-ui > sgmap-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
+# mes-aides-ui > betagouv-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
 package { 'libkrb5-dev': }
 
 exec { 'install node modules for mes-aides-ui':
