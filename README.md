@@ -10,13 +10,13 @@ The following commands run as **root** in the destination machine sets the [Mes 
 
 ```
 BRANCH_NAME=master
-curl --location --remote-name https://github.com/sgmap/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
+curl --location --remote-name https://github.com/betagouv/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
 tar -xvf $BRANCH_NAME.tar.gz
 cd mes-aides-ops-$BRANCH_NAME
 ./bootstrap.sh origin/master origin/$BRANCH_NAME
 ```
 
-`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/sgmap/mes-aides-ui and https://github.com/sgmap/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The first one is the target revision for `mes-aides-ui`and the second one is the target revision for `mes-aides-ops`.
+`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/betagouv/mes-aides-ui and https://github.com/betagouv/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The first one is the target revision for `mes-aides-ui`and the second one is the target revision for `mes-aides-ops`.
 
 That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
 

@@ -14,7 +14,7 @@ test:
 deployment:
   metal:
     branch: master
-    owner: sgmap
+    owner: betagouv
     commands:
       # CircleCI has a private key only allowed to trigger '/opt/mes-aides/update.sh provision'
       # That command line refreshes Mes-Aides-OPS and UI repositories and re-deploys the services

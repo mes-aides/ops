@@ -15,7 +15,7 @@ file { '/opt/mes-aides/bootstrap/Puppetfile':
     ensure => file,
     source => [
         'puppet:///modules/mesaides/Puppetfile.bootstrap',
-        'https://raw.githubusercontent.com/sgmap/mes-aides-ops/master/modules/mesaides/files/Puppetfile.bootstrap',
+        'https://raw.githubusercontent.com/betagouv/mes-aides-ops/master/modules/mesaides/files/Puppetfile.bootstrap',
     ],
 }
 
