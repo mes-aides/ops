@@ -1,4 +1,4 @@
-include git
+package { 'git': }
 
 vcsrepo { '/opt/mes-aides/ops':
     ensure   => latest,
