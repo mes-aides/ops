@@ -25,7 +25,7 @@ class { 'nodejs':
     repo_url_suffix => '6.x',
 }
 
-include git
+package { 'git': }
 
 group { 'main':
     ensure => present,
