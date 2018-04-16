@@ -51,9 +51,14 @@ exec { 'install pm2 startup script':
     user        => 'root',
 }
 
+exec { 'chown pm2 home':
+     command => '/bin/chown -R main:main /home/main/.pm2',
+     require => [ Exec['install pm2 startup script'] ],
+}
+
 service { 'pm2-main':
     ensure  => 'running',
-    require => [ Exec['install pm2 startup script'] ]
+    require => [ Exec['chown pm2 home'] ]
 }
 
 vcsrepo { '/home/main/mes-aides-ui':
