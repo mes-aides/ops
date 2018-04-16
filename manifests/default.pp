@@ -43,6 +43,19 @@ package { 'pm2':
     require  => [ Class['nodejs'] ],
 }
 
+exec { 'install pm2 startup script':
+    command     => '/usr/bin/pm2 startup upstart -u main --hp /home/main',
+    cwd         => '/home/main',
+    environment => ['HOME=/home/main'],
+    require     => [ Class['nodejs'], Package['pm2'] ],
+    user        => 'root',
+}
+
+service { 'pm2-main':
+    ensure  => 'running',
+    require => [ Exec['install pm2 startup script'] ]
+}
+
 vcsrepo { '/home/main/mes-aides-ui':
     ensure   => latest,
     provider => git,
