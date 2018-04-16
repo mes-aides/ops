@@ -37,6 +37,12 @@ user { 'main':
     require    => [ Group['main'] ],
 }
 
+package { 'pm2':
+    ensure   => 'present',
+    provider => 'npm',
+    require  => [ Class['nodejs'] ],
+}
+
 vcsrepo { '/home/main/mes-aides-ui':
     ensure   => latest,
     provider => git,
