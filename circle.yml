@@ -8,8 +8,11 @@ test:
     - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
     - curl --silent 0.0.0.0:2000/variable/parisien | grep --silent openfisca_paris/paris.py
     - "curl --silent 0.0.0.0 -H 'Host: monitor.mes-aides.gouv.fr' | grep --silent $CIRCLE_SHA1"
+    - initctl list > $CIRCLE_ARTIFACTS/service-list.start.txt
     - sudo /opt/mes-aides/update.sh provision
+    - initctl list > $CIRCLE_ARTIFACTS/service-list.post-provision.txt
     - sudo /opt/mes-aides/update.sh deploy
+    - initctl list > $CIRCLE_ARTIFACTS/service-list.post-deploy.txt
 
 deployment:
   metal:
