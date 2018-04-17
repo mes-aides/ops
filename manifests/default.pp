@@ -153,8 +153,10 @@ file { '/etc/init/openfisca.conf':
 }
 
 service { 'openfisca':
-    ensure  => 'running',
-    require => [ File['/etc/init/openfisca.conf'], User['main'] ],
+    ensure     => 'running',
+    hasrestart => true,
+    require    => [ File['/etc/init/openfisca.conf'], User['main'] ],
+    restart    => 'service openfisca reload'
 }
 
 if find_file("/opt/mes-aides/${instance_name}_use_ssl") or find_file('/opt/mes-aides/use_ssl') {
