@@ -37,6 +37,30 @@ user { 'main':
     require    => [ Group['main'] ],
 }
 
+package { 'pm2':
+    ensure   => 'present',
+    provider => 'npm',
+    require  => [ Class['nodejs'] ],
+}
+
+exec { 'install pm2 startup script':
+    command     => '/usr/bin/pm2 startup upstart -u main --hp /home/main',
+    cwd         => '/home/main',
+    environment => ['HOME=/home/main'],
+    require     => [ Class['nodejs'], Package['pm2'] ],
+    user        => 'root',
+}
+
+exec { 'chown pm2 home':
+     command => '/bin/chown -R main:main /home/main/.pm2',
+     require => [ Exec['install pm2 startup script'] ],
+}
+
+service { 'pm2-main':
+    ensure  => 'running',
+    require => [ Exec['chown pm2 home'] ]
+}
+
 vcsrepo { '/home/main/mes-aides-ui':
     ensure   => latest,
     provider => git,
