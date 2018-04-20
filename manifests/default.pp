@@ -92,22 +92,17 @@ exec { 'prestart mes-aides-ui':
     command     => '/usr/bin/npm run prestart',
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
-    notify      => [ Service['openfisca'], Service['ma-web'] ],
+    notify      => [ Exec['startOrReload ma-web'], Service['openfisca'] ],
     require     => [ Class['nodejs'], Vcsrepo['/home/main/mes-aides-ui'], Exec['install node modules for mes-aides-ui'] ],
     user        => 'main',
 }
 
-file { '/etc/init/ma-web.conf':
-    ensure => file,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '644',
-    source => 'puppet:///modules/mesaides/ma-web.conf',
-}
-
-service { 'ma-web':
-    ensure  => 'running',
-    require => [ File['/etc/init/ma-web.conf'], User['main'] ],
+exec { 'startOrReload ma-web':
+    command     => '/usr/bin/pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml',
+    cwd         => '/home/main/mes-aides-ui',
+    environment => ['HOME=/home/main'],
+    require     => [ Exec['prestart mes-aides-ui'], Package['pm2'] ],
+    user        => 'main',
 }
 
 cron { 'refresh mes-aides stats':
@@ -121,12 +116,12 @@ cron { 'refresh mes-aides stats':
 
 ::mesaides::nginx_config { 'mes-aides.gouv.fr':
     is_default => true,
-    require    => Service['ma-web'],
+    require    => [ Exec['startOrReload ma-web'] ],
     use_ssl    => find_file('/opt/mes-aides/use_ssl'),
 }
 
 ::mesaides::nginx_config { "${instance_name}.mes-aides.gouv.fr":
-    require    => Service['ma-web'],
+    require    => [ Exec['startOrReload ma-web'] ],
     use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
 }
 
@@ -163,7 +158,7 @@ exec { 'fetch openfisca requirements':
     command     => '/home/main/venv/bin/pip install --upgrade -r openfisca/requirements.txt',
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
-    notify      => [ Service['openfisca'], Service['ma-web'] ],
+    notify      => [ Exec['startOrReload ma-web'], Service['openfisca'] ],
     require     => [ Exec['update virtualenv pip'], Vcsrepo['/home/main/mes-aides-ui'] ],
     user        => 'main',
 }
