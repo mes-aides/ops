@@ -22,7 +22,7 @@ define mesaides::nginx_config (
 
         letsencrypt::certonly { $name:
             cron_success_command => 'service nginx reload',
-            domains              => [ $name ],
+            domains              => [ $name, "www.${name}" ],
             manage_cron          => true,
             plugin               => 'webroot',
             require              => [ File[$webroot_path], File["/etc/nginx/sites-enabled/${name}.conf"], Service['nginx'] ],
