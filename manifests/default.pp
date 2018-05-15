@@ -17,6 +17,27 @@ file { '/opt/mes-aides/update.sh':
     source => 'puppet:///modules/mesaides/update.sh',
 }
 
+file_line { '/etc/ssh/sshd_config ChallengeResponseAuthentication':
+    ensure => present,
+    path   => '/etc/ssh/sshd_config',
+    line   => 'ChallengeResponseAuthentication no',
+    match  => 'ChallengeResponseAuthentication',
+}
+
+file_line { '/etc/ssh/sshd_config PasswordAuthentication':
+    ensure => present,
+    path   => '/etc/ssh/sshd_config',
+    line   => 'PasswordAuthentication no',
+    match  => 'PasswordAuthentication',
+}
+
+file_line { '/etc/ssh/sshd_config UsePAM':
+    ensure => present,
+    path   => '/etc/ssh/sshd_config',
+    line   => 'UsePAM no',
+    match  => 'UsePAM',
+}
+
 class { 'nginx': }
 
 include '::mongodb::server'
