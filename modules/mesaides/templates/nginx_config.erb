@@ -2,29 +2,30 @@
 # Modifications should be made in that template
 
 server {
-  listen              *:80<% if @is_default -%> default_server<% end -%>;
+  listen              *:80<% if @is_default %> default_server<% end %>;
   server_name         <%= @name %>;
 
   access_log          /var/log/nginx/<%= @name %>.access.log combined;
   error_log           /var/log/nginx/<%= @name %>.error.log;
 
-<% if @use_ssl -%>
+<% if @use_ssl %>
   location /.well-known {
     root              <%= @webroot_path %>;
   }
 
-  <% if File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") -%>
+  <% if true or File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
   location / {
     return            302 https://<%= @name %>$request_uri;
   }
 }
 
 server {
+  server_name         www.<%= @name %>;
+<% ssl_section = %{
   listen              443 ssl;
-  server_name         <%= @name %>;
 
-  ssl_certificate     /etc/letsencrypt/live/<%= @name %>/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/<%= @name %>/privkey.pem;
+  ssl_certificate     /etc/letsencrypt/live/#{@name}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/#{@name}/privkey.pem;
 
   ssl_prefer_server_ciphers on;
   ssl_ciphers         EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA512:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EDH+aRSA:EECDH:!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS;
@@ -32,13 +33,22 @@ server {
   ssl_protocols       TLSv1.2 TLSv1.1 TLSv1;
   ssl_session_cache   shared:TLS:2m;
   ssl_session_timeout 5m;
+
+  access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
+  error_log           /var/log/nginx/#{@name}.ssl.error.log;
   ssl_dhparam         /etc/ssl/private/dhparam.pem;
+} %>
+  <%= ssl_section %>
+  location / {
+    return            302 https://<%= @name %>$request_uri;
+  }
+}
 
-  access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
-  error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
-  <% end -%><%# File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
-<% end -%><%# @use_ssl %>
-
+server {
+  server_name         <%= @name %>;
+  <%= ssl_section %>
+  <% end %><%# File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
+<% end %><%# @use_ssl %>
   gzip                on;
   gzip_proxied        any;
   gzip_types          application/json
