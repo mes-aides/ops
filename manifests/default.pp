@@ -17,6 +17,10 @@ file { '/opt/mes-aides/update.sh':
     source => 'puppet:///modules/mesaides/update.sh',
 }
 
+service { 'ssh':
+    ensure => 'running',
+}
+
 # ^[ ^]* prefix in file_line REGEXes is used to prevent matching on legitimate textual comments
 file_line { '/etc/ssh/sshd_config ChallengeResponseAuthentication':
     ensure => present,
