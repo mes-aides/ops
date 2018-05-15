@@ -1,7 +1,7 @@
 <% require 'net/http' %>
 # File managed by Puppet from mesaides/templates
 # User keys
-<% "guillett monbocal".split.each do |user| %>
+<% "alexsegura guillett monbocal".split.each do |user| %>
 # <%= user  %>
 <%   uri = URI("https://github.com/#{user}.keys") %>
 <%=  Net::HTTP.get(uri) %>
