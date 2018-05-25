@@ -163,6 +163,11 @@ cron { 'refresh mes-aides stats':
     require    => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
 }
 
+::mesaides::nginx_config { 'openfisca.mes-aides.gouv.fr':
+    proxied_endpoint => 'http://localhost:2000',
+    use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+}
+
 class { 'python':
     dev      => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip
