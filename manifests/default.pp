@@ -17,12 +17,17 @@ file { '/opt/mes-aides/update.sh':
     source => 'puppet:///modules/mesaides/update.sh',
 }
 
+service { 'ssh':
+    ensure => 'running',
+}
+
 # ^[ ^]* prefix in file_line REGEXes is used to prevent matching on legitimate textual comments
 file_line { '/etc/ssh/sshd_config ChallengeResponseAuthentication':
     ensure => present,
     path   => '/etc/ssh/sshd_config',
     line   => 'ChallengeResponseAuthentication no',
     match  => '^[ ^]*ChallengeResponseAuthentication',
+    notify      => [ Service['ssh'] ],
 }
 
 file_line { '/etc/ssh/sshd_config PasswordAuthentication':
@@ -30,6 +35,7 @@ file_line { '/etc/ssh/sshd_config PasswordAuthentication':
     path   => '/etc/ssh/sshd_config',
     line   => 'PasswordAuthentication no',
     match  => '^[ ^]*PasswordAuthentication',
+    notify      => [ Service['ssh'] ],
 }
 
 file_line { '/etc/ssh/sshd_config UsePAM':
@@ -37,6 +43,7 @@ file_line { '/etc/ssh/sshd_config UsePAM':
     path   => '/etc/ssh/sshd_config',
     line   => 'UsePAM no',
     match  => '^[ ^]*UsePAM',
+    notify      => [ Service['ssh'] ],
 }
 
 class { 'nginx': }
