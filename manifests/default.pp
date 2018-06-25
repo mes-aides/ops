@@ -127,7 +127,7 @@ exec { 'prestart mes-aides-ui':
 }
 
 exec { 'startOrReload ma-web':
-    command     => '/usr/bin/pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml',
+    command     => '/usr/bin/pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env',
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
     require     => [ Exec['prestart mes-aides-ui'], Package['pm2'] ],
