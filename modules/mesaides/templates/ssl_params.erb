@@ -1,0 +1,6 @@
+ssl_prefer_server_ciphers on;
+ssl_ciphers         EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA512:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EDH+aRSA:EECDH:!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS;
+ssl_protocols       TLSv1.2 TLSv1.1 TLSv1;
+ssl_session_cache   shared:TLS:2m;
+ssl_session_timeout 5m;
+ssl_dhparam         /etc/ssl/private/dhparam.pem;

@@ -48,6 +48,21 @@ file_line { '/etc/ssh/sshd_config UsePAM':
 
 class { 'nginx': }
 
+file { '/etc/nginx/snippets':
+    ensure => 'directory',
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+}
+
+file { "/etc/nginx/snippets/ssl_params.conf":
+    content => template('mesaides/ssl_params.erb'),
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '644',
+}
+
 include '::mongodb::server'
 
 class { 'nodejs':
