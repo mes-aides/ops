@@ -1,28 +1,7 @@
 # MANAGED BY PUPPET from modules/mesaides/templates/nginx_config.erb
 # Modifications should be made in that template
 
-server {
-  listen              *:80<% if @is_default %> default_server<% end %>;
-  server_name         <%= @name %>;
-
-  access_log          /var/log/nginx/<%= @name %>.access.log combined;
-  error_log           /var/log/nginx/<%= @name %>.error.log;
-
-<% if @use_ssl %>
-  location /.well-known {
-    root              <%= @webroot_path %>;
-  }
-
-  <% if true or File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
-  location / {
-    return            302 https://<%= @name %>$request_uri;
-  }
-}
-
-server {
-  server_name         www.<%= @name %>;
 <% ssl_section = %{
-  listen              443 ssl;
 
   ssl_certificate     /etc/letsencrypt/live/#{@name}/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/#{@name}/privkey.pem;
@@ -31,18 +10,62 @@ server {
 
   access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
   error_log           /var/log/nginx/#{@name}.ssl.error.log;
+
 } %>
-  <%= ssl_section %>
+
+<% if @use_ssl %>
+server {
+
+  listen              *:80<% if @is_default %> default_server<% end %>;
+  server_name         <%= @name %>;
+
+  location /.well-known {
+    root              <%= @webroot_path %>;
+  }
+
   location / {
     return            302 https://<%= @name %>$request_uri;
   }
+
+}
+<% end %>
+
+server {
+
+  server_name         www.<%= @name %>;
+
+  <% if @use_ssl %>
+  listen              443 ssl;
+  <%= ssl_section %>
+  access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
+  error_log           /var/log/nginx/#{@name}.ssl.error.log;
+  <% else %>
+  listen              *:80;
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
+  <% end %>
+
+  location / {
+    return            302 https://<%= @name %>$request_uri;
+  }
+
 }
 
 server {
+
   server_name         <%= @name %>;
+
+  <% if @use_ssl %>
+  listen              443 ssl;
   <%= ssl_section %>
-  <% end %><%# File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
-<% end %><%# @use_ssl %>
+  access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
+  error_log           /var/log/nginx/#{@name}.ssl.error.log;
+  <% else %>
+  listen              *:80<% if @is_default and !@use_ssl %> default_server<% end %>;
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
+  <% end %>
+
   gzip                on;
   gzip_proxied        any;
   gzip_types          application/json
