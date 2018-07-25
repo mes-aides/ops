@@ -63,6 +63,14 @@ file { "/etc/nginx/snippets/ssl_params.conf":
     mode    => '644',
 }
 
+file { "/etc/nginx/snippets/mes-aides-static.conf":
+    content => template('mesaides/mesaides_static.erb'),
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '644',
+}
+
 include '::mongodb::server'
 
 class { 'nodejs':
