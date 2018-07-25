@@ -159,14 +159,18 @@ cron { 'refresh mes-aides stats':
 }
 
 ::mesaides::nginx_config { 'mes-aides.gouv.fr':
-    is_default => true,
-    require    => [ Exec['startOrReload ma-web'] ],
-    use_ssl    => find_file('/opt/mes-aides/use_ssl'),
+    is_default     => true,
+    require        => [ Exec['startOrReload ma-web'] ],
+    use_ssl        => find_file('/opt/mes-aides/use_ssl'),
+    nginx_template => 'mesaides/mesaides_config.erb',
+    nginx_root     => '/home/main/mes-aides-ui',
 }
 
 ::mesaides::nginx_config { "${instance_name}.mes-aides.gouv.fr":
-    require    => [ Exec['startOrReload ma-web'] ],
-    use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    require        => [ Exec['startOrReload ma-web'] ],
+    use_ssl        => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    nginx_template => 'mesaides/mesaides_config.erb',
+    nginx_root     => '/home/main/mes-aides-ui',
 }
 
 ::mesaides::monitor { "monitor.${instance_name}.mes-aides.gouv.fr":

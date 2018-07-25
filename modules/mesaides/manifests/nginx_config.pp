@@ -3,11 +3,13 @@ define mesaides::nginx_config (
     $use_ssl = false,
     $webroot_path = '/var/www',
     $proxied_endpoint = 'http://localhost:8000',
+    $nginx_template = 'mesaides/nginx_config.erb',
+    $nginx_root = nil
 ) {
     include ::nginx
 
     file { "/etc/nginx/sites-enabled/${name}.conf":
-        content => template('mesaides/nginx_config.erb'),
+        content => template($nginx_template),
         ensure  => file,
         group   => 'www-data',
         mode    => '600',
