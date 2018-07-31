@@ -175,10 +175,11 @@ cron { 'refresh mes-aides stats':
 }
 
 ::mesaides::nginx_config { "${instance_name}.mes-aides.gouv.fr":
-    require        => [ Exec['startOrReload ma-web'] ],
-    use_ssl        => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
-    nginx_template => 'mesaides/mesaides_config.erb',
-    nginx_root     => '/home/main/mes-aides-ui',
+    require           => [ Exec['startOrReload ma-web'] ],
+    use_ssl           => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    nginx_template    => 'mesaides/mesaides_config.erb',
+    nginx_root        => '/home/main/mes-aides-ui',
+    add_www_subdomain => false,
 }
 
 ::mesaides::monitor { "monitor.${instance_name}.mes-aides.gouv.fr":
@@ -186,13 +187,15 @@ cron { 'refresh mes-aides stats':
 }
 
 ::mesaides::nginx_config { 'monitor.mes-aides.gouv.fr':
-    proxied_endpoint => 'http://localhost:8887',
-    require    => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
+    proxied_endpoint  => 'http://localhost:8887',
+    require           => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
+    add_www_subdomain => false,
 }
 
 ::mesaides::nginx_config { 'openfisca.mes-aides.gouv.fr':
-    proxied_endpoint => 'http://localhost:2000',
-    use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    proxied_endpoint  => 'http://localhost:2000',
+    use_ssl           => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    add_www_subdomain => false,
 }
 
 class { 'python':

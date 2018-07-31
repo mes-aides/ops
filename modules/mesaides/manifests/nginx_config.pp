@@ -4,7 +4,8 @@ define mesaides::nginx_config (
     $webroot_path = '/var/www',
     $proxied_endpoint = 'http://localhost:8000',
     $nginx_template = 'mesaides/nginx_config.erb',
-    $nginx_root = nil
+    $nginx_root = nil,
+    $add_www_subdomain = true
 ) {
     include ::nginx
 
