@@ -2,16 +2,12 @@
 # Modifications should be made in that template
 
 <% ssl_section = %{
-
   ssl_certificate     /etc/letsencrypt/live/#{@name}/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/#{@name}/privkey.pem;
-
   include snippets/ssl_params.conf;
-
-  access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
-  error_log           /var/log/nginx/#{@name}.ssl.error.log;
-
 } %>
+
+<% @use_ssl = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
 
 <% if @use_ssl %>
 server {
@@ -42,8 +38,8 @@ server {
   error_log           /var/log/nginx/#{@name}.ssl.error.log;
   <% else %>
   listen              *:80;
-  access_log          /var/log/nginx/<%= @name %>.access.log combined;
-  error_log           /var/log/nginx/<%= @name %>.error.log;
+  access_log          /var/log/nginx/#{@name}.access.log combined;
+  error_log           /var/log/nginx/#{@name}.error.log;
   <% end %>
 
   location / {
@@ -64,9 +60,13 @@ server {
   error_log           /var/log/nginx/#{@name}.ssl.error.log;
   <% else %>
   listen              *:80<% if @is_default and !@use_ssl %> default_server<% end %>;
-  access_log          /var/log/nginx/<%= @name %>.access.log combined;
-  error_log           /var/log/nginx/<%= @name %>.error.log;
+  access_log          /var/log/nginx/#{@name}.access.log combined;
+  error_log           /var/log/nginx/#{@name}.error.log;
   <% end %>
+
+  location /.well-known {
+    root              <%= @webroot_path %>;
+  }
 
   gzip                on;
   gzip_proxied        any;
