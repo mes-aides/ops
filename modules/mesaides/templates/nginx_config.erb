@@ -34,12 +34,12 @@ server {
   <% if @ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
-  access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
-  error_log           /var/log/nginx/#{@name}.ssl.error.log;
+  access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
   <% else %>
   listen              *:80;
-  access_log          /var/log/nginx/#{@name}.access.log combined;
-  error_log           /var/log/nginx/#{@name}.error.log;
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
   <% end %>
 
   location / {
@@ -56,12 +56,12 @@ server {
   <% if @ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
-  access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
-  error_log           /var/log/nginx/#{@name}.ssl.error.log;
+  access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
   <% else %>
   listen              *:80<% if @is_default and !@ssl_exists %> default_server<% end %>;
-  access_log          /var/log/nginx/#{@name}.access.log combined;
-  error_log           /var/log/nginx/#{@name}.error.log;
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
   <% end %>
 
   location /.well-known {
