@@ -7,9 +7,9 @@
   include snippets/ssl_params.conf;
 } %>
 
-<% @use_ssl = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
+<% @ssl_exists = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
 
-<% if @use_ssl %>
+<% if @ssl_exists %>
 server {
 
   listen              *:80<% if @is_default %> default_server<% end %>;
@@ -31,7 +31,7 @@ server {
 
   server_name         www.<%= @name %>;
 
-  <% if @use_ssl %>
+  <% if @ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
   access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
@@ -53,13 +53,13 @@ server {
 
   server_name         <%= @name %>;
 
-  <% if @use_ssl %>
+  <% if @ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
   access_log          /var/log/nginx/#{@name}.ssl.access.log combined;
   error_log           /var/log/nginx/#{@name}.ssl.error.log;
   <% else %>
-  listen              *:80<% if @is_default and !@use_ssl %> default_server<% end %>;
+  listen              *:80<% if @is_default and !@ssl_exists %> default_server<% end %>;
   access_log          /var/log/nginx/#{@name}.access.log combined;
   error_log           /var/log/nginx/#{@name}.error.log;
   <% end %>
