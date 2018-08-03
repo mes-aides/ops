@@ -170,7 +170,6 @@ cron { 'refresh mes-aides stats':
     add_www_subdomain => true,
     is_default        => true,
     nginx_root        => '/home/main/mes-aides-ui',
-    nginx_template    => 'mesaides/mesaides_config.erb',
     require           => [ Exec['startOrReload ma-web'] ],
     use_ssl           => find_file('/opt/mes-aides/use_ssl'),
 }
@@ -178,7 +177,6 @@ cron { 'refresh mes-aides stats':
 ::mesaides::nginx_config { "${instance_name}.mes-aides.gouv.fr":
     require        => [ Exec['startOrReload ma-web'] ],
     nginx_root     => '/home/main/mes-aides-ui',
-    nginx_template => 'mesaides/mesaides_config.erb',
     use_ssl        => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
 }
 
