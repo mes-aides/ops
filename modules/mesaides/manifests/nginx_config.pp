@@ -5,7 +5,7 @@ define mesaides::nginx_config (
     $proxied_endpoint = 'http://localhost:8000',
     $nginx_template = 'mesaides/nginx_config.erb',
     $nginx_root = nil,
-    $add_www_subdomain = true
+    $add_www_subdomain = false
 ) {
     include ::nginx
 
