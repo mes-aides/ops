@@ -8,6 +8,8 @@ test:
     - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
     # Test NGINX default server
     - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
+    # Test NGINX redirection from www
+    - "[[ `curl --silent 0.0.0.0 --header 'Host: www.mes-aides.gouv.fr' -s -o /dev/null -w '%{http_code} %{redirect_url}'` == '302 http://mes-aides.gouv.fr/' ]]"
     # Test OpenFisca webserver
     - curl --silent 0.0.0.0:2000/variable/parisien | grep --silent openfisca_paris/paris.py
     # Test NGINX configuration for OpenFisca
