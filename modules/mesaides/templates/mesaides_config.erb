@@ -10,6 +10,7 @@
 <% @ssl_exists = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
 
 <% if @ssl_exists %>
+# REDIRECT HTTP TRAFFIC ON <%= @name %> TO HTTPS
 server {
 
   listen              *:80<% if @is_default %> default_server<% end %>;
@@ -22,33 +23,60 @@ server {
   location / {
     return            302 https://<%= @name %>$request_uri;
   }
-
 }
 <% end %>
 
 <% if @add_www_subdomain %>
+  <% if @ssl_exists %>
+# REDIRECT HTTP TRAFFIC ON www.<%= @name %> TO <%= @name %> ON HTTPS
 server {
 
   server_name         www.<%= @name %>;
+
+  location /.well-known {
+    root              <%= @webroot_path %>;
+  }
+
+  listen              *:80;
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
+
+  location / {
+    return            302 https://<%= @name %>$request_uri;
+  }
+}
+  <% end %>
+
+# REDIRECT TRAFFIC ON www.<%= @name %> TO <%= @name %>
+server {
+  server_name         www.<%= @name %>;
+
+  location /.well-known {
+    root              <%= @webroot_path %>;
+  }
 
   <% if @ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
   access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
   error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
-  <% else %>
-  listen              *:80;
-  access_log          /var/log/nginx/<%= @name %>.access.log combined;
-  error_log           /var/log/nginx/<%= @name %>.error.log;
-  <% end %>
 
   location / {
     return            302 https://<%= @name %>$request_uri;
   }
+  <% else %>
+  listen              *:80;
+  access_log          /var/log/nginx/<%= @name %>.access.log combined;
+  error_log           /var/log/nginx/<%= @name %>.error.log;
 
+  location / {
+    return            302 http://<%= @name %>$request_uri;
+  }
+  <% end %>
 }
 <% end %>
 
+# MAIN SERVER
 server {
 
   server_name         <%= @name %>;
