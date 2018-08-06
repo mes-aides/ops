@@ -3,7 +3,7 @@ define mesaides::nginx_config (
     $use_ssl = false,
     $webroot_path = '/var/www',
     $proxied_endpoint = 'http://localhost:8000',
-    $nginx_root = nil,
+    $nginx_root = false,
     $add_www_subdomain = false
 ) {
     include ::nginx
