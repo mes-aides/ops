@@ -26,7 +26,9 @@ test:
     - initctl list > $CIRCLE_ARTIFACTS/service-list.post-deploy.txt
     - grep '^openfisca' $CIRCLE_ARTIFACTS/service-list.post-deploy.txt > $CIRCLE_ARTIFACTS/openfisca-service.post-deploy.txt
     - diff $CIRCLE_ARTIFACTS/openfisca-service.post-deploy.txt $CIRCLE_ARTIFACTS/openfisca-service.start.txt
-
+  post:
+    - mkdir $CIRCLE_ARTIFACTS/nginx
+    - cp /etc/nginx/sites-enabled/*.conf $CIRCLE_ARTIFACTS/nginx
 
 deployment:
   metal:
