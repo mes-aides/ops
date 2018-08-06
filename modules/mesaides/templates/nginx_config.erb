@@ -105,7 +105,7 @@ server {
                       text/xml;
   gzip_vary           on;
 
-  <% if defined? @nginx_root %>
+  <% if @nginx_root %>
   root <%= @nginx_root %>;
 
   include snippets/mes-aides-static.conf;
