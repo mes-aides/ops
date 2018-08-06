@@ -9,7 +9,7 @@ define mesaides::nginx_config (
     include ::nginx
 
     file { "/etc/nginx/sites-enabled/${name}.conf":
-        content => template('mesaides/mesaides_config.erb'),
+        content => template('mesaides/nginx_config.erb'),
         ensure  => file,
         group   => 'www-data',
         mode    => '600',
