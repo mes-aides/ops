@@ -4,11 +4,18 @@ dependencies:
 
 test:
   override:
-    - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
+    # Test node webserver
     - curl --silent 0.0.0.0:8000 | grep --silent 'mes-aides.gouv.fr'
+    # Test NGINX default server
+    - curl --silent 0.0.0.0 | grep --silent 'mes-aides.gouv.fr'
+    # Test NGINX redirection from www
+    - "[[ `curl --silent 0.0.0.0 --header 'Host: www.mes-aides.gouv.fr' -s -o /dev/null -w '%{http_code} %{redirect_url}'` == '302 http://mes-aides.gouv.fr/' ]]"
+    # Test OpenFisca webserver
     - curl --silent 0.0.0.0:2000/variable/parisien | grep --silent openfisca_paris/paris.py
-    - "curl --silent 0.0.0.0/variable/parisien -H 'Host: openfisca.mes-aides.gouv.fr' | grep --silent openfisca_paris/paris.py"
-    - "curl --silent 0.0.0.0 -H 'Host: monitor.mes-aides.gouv.fr' | grep --silent $CIRCLE_SHA1"
+    # Test NGINX configuration for OpenFisca
+    - "curl --silent 0.0.0.0/variable/parisien --header 'Host: openfisca.mes-aides.gouv.fr' | grep --silent openfisca_paris/paris.py"
+    # Test NGINX configuration for monitor endpoint
+    - "curl --silent 0.0.0.0 --header 'Host: monitor.mes-aides.gouv.fr' | grep --silent $CIRCLE_SHA1"
     - initctl list > $CIRCLE_ARTIFACTS/service-list.start.txt
     - grep '^openfisca' $CIRCLE_ARTIFACTS/service-list.start.txt > $CIRCLE_ARTIFACTS/openfisca-service.start.txt
     - sudo /opt/mes-aides/update.sh provision

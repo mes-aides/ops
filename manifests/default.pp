@@ -27,7 +27,7 @@ file_line { '/etc/ssh/sshd_config ChallengeResponseAuthentication':
     path   => '/etc/ssh/sshd_config',
     line   => 'ChallengeResponseAuthentication no',
     match  => '^[ ^]*ChallengeResponseAuthentication',
-    notify      => [ Service['ssh'] ],
+    notify => [ Service['ssh'] ],
 }
 
 file_line { '/etc/ssh/sshd_config PasswordAuthentication':
@@ -35,7 +35,7 @@ file_line { '/etc/ssh/sshd_config PasswordAuthentication':
     path   => '/etc/ssh/sshd_config',
     line   => 'PasswordAuthentication no',
     match  => '^[ ^]*PasswordAuthentication',
-    notify      => [ Service['ssh'] ],
+    notify => [ Service['ssh'] ],
 }
 
 file_line { '/etc/ssh/sshd_config UsePAM':
@@ -43,10 +43,33 @@ file_line { '/etc/ssh/sshd_config UsePAM':
     path   => '/etc/ssh/sshd_config',
     line   => 'UsePAM no',
     match  => '^[ ^]*UsePAM',
-    notify      => [ Service['ssh'] ],
+    notify => [ Service['ssh'] ],
 }
 
 class { 'nginx': }
+
+file { '/etc/nginx/snippets':
+    ensure => 'directory',
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+}
+
+file { "/etc/nginx/snippets/ssl_params.conf":
+    content => template('mesaides/ssl_params.erb'),
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '644',
+}
+
+file { "/etc/nginx/snippets/mes-aides-static.conf":
+    content => template('mesaides/mesaides_static.erb'),
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '644',
+}
 
 include '::mongodb::server'
 
@@ -93,7 +116,7 @@ service { 'pm2-main':
 vcsrepo { '/home/main/mes-aides-ui':
     ensure   => latest,
     provider => git,
-    require    => [ User['main'] ],
+    require  => [ User['main'] ],
     revision => String(file('/opt/mes-aides/ui_target_revision'), "%t"),
     source   => 'https://github.com/betagouv/mes-aides-ui.git',
     user     => 'main',
@@ -144,14 +167,17 @@ cron { 'refresh mes-aides stats':
 }
 
 ::mesaides::nginx_config { 'mes-aides.gouv.fr':
-    is_default => true,
-    require    => [ Exec['startOrReload ma-web'] ],
-    use_ssl    => find_file('/opt/mes-aides/use_ssl'),
+    add_www_subdomain => true,
+    is_default        => true,
+    nginx_root        => '/home/main/mes-aides-ui',
+    require           => [ Exec['startOrReload ma-web'] ],
+    use_ssl           => find_file('/opt/mes-aides/use_ssl'),
 }
 
 ::mesaides::nginx_config { "${instance_name}.mes-aides.gouv.fr":
-    require    => [ Exec['startOrReload ma-web'] ],
-    use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    require        => [ Exec['startOrReload ma-web'] ],
+    nginx_root     => '/home/main/mes-aides-ui',
+    use_ssl        => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
 }
 
 ::mesaides::monitor { "monitor.${instance_name}.mes-aides.gouv.fr":
@@ -160,24 +186,24 @@ cron { 'refresh mes-aides stats':
 
 ::mesaides::nginx_config { 'monitor.mes-aides.gouv.fr':
     proxied_endpoint => 'http://localhost:8887',
-    require    => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
+    require          => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
 }
 
 ::mesaides::nginx_config { 'openfisca.mes-aides.gouv.fr':
     proxied_endpoint => 'http://localhost:2000',
-    use_ssl    => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
+    use_ssl          => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
 }
 
 class { 'python':
-    dev      => 'present', # default: 'absent'
+    dev        => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip
     virtualenv => 'present', # default: 'absent'
 }
 
 python::virtualenv { '/home/main/venv':
-    group        => 'main',
-    owner        => 'main',
-    require      => [ Class['python'], Vcsrepo['/home/main/mes-aides-ui'], User['main'] ],
+    group   => 'main',
+    owner   => 'main',
+    require => [ Class['python'], Vcsrepo['/home/main/mes-aides-ui'], User['main'] ],
 }
 
 exec { 'update virtualenv pip':
