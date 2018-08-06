@@ -7,9 +7,9 @@
   include snippets/ssl_params.conf;
 } %>
 
-<% @ssl_exists = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
+<% ssl_exists = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
 
-<% if @ssl_exists %>
+<% if ssl_exists %>
 # REDIRECT HTTP TRAFFIC ON <%= @name %> TO HTTPS
 server {
 
@@ -27,7 +27,7 @@ server {
 <% end %>
 
 <% if @add_www_subdomain %>
-  <% if @ssl_exists %>
+  <% if ssl_exists %>
 # REDIRECT HTTP TRAFFIC ON www.<%= @name %> TO <%= @name %> ON HTTPS
 server {
 
@@ -55,7 +55,7 @@ server {
     root              <%= @webroot_path %>;
   }
 
-  <% if @ssl_exists %>
+  <% if ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
   access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
@@ -81,13 +81,13 @@ server {
 
   server_name         <%= @name %>;
 
-  <% if @ssl_exists %>
+  <% if ssl_exists %>
   listen              443 ssl;
   <%= ssl_section %>
   access_log          /var/log/nginx/<%= @name %>.ssl.access.log combined;
   error_log           /var/log/nginx/<%= @name %>.ssl.error.log;
   <% else %>
-  listen              *:80<% if @is_default and !@ssl_exists %> default_server<% end %>;
+  listen              *:80<% if @is_default and !ssl_exists %> default_server<% end %>;
   access_log          /var/log/nginx/<%= @name %>.access.log combined;
   error_log           /var/log/nginx/<%= @name %>.error.log;
   <% end %>
