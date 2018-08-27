@@ -234,6 +234,7 @@ file { '/etc/init/openfisca.conf':
 service { 'openfisca':
     ensure     => 'running',
     hasrestart => true,
+    provider   => 'upstart',
     require    => [ File['/etc/init/openfisca.conf'], User['main'] ],
     restart    => 'service openfisca reload'
 }
