@@ -6,6 +6,8 @@ version: 2
 jobs:
   build:
     machine: true
+    environment:
+      OPENFISCA_WORKERS: 2
     steps:
       - checkout
       - run:
