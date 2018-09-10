@@ -6,14 +6,6 @@ location ~ ^/(partials|content-pages) {
   try_files /app/views$uri =404;
 }
 
-location ~ ^/js/lib {
-  rewrite ^(/js/lib)(/.*)$ /node_modules$2;
-}
-
-location ~ ^/node_modules {
-  try_files $uri =404;
-}
-
 location ~ ^/(js|fonts) {
   access_log off;
   expires 1y;
@@ -34,8 +26,3 @@ location ~ ^/(img|documents) {
   add_header Cache-Control private;
   try_files /dist$uri /app$uri =404;
 }
-
-# Used in dev only
-# location ~ ^/bower_components {
-#   try_files /app$uri =404;
-# }
