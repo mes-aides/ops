@@ -2,7 +2,7 @@ define mesaides::nginx_config (
     $is_default = false,
     $use_ssl = false,
     $webroot_path = '/var/www',
-    $proxied_endpoint = 'http://localhost:8000',
+    $upstream_name = 'mes_aides',
     $nginx_root = false,
     $add_www_subdomain = false
 ) {

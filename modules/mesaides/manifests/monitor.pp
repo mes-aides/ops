@@ -29,7 +29,7 @@ define mesaides::monitor () {
     }
 
     ::mesaides::nginx_config { $name:
-        proxied_endpoint => 'http://localhost:8887',
         require          => Service['ma-monitor'],
+        upstream_name    => 'monitor',
     }
 }
