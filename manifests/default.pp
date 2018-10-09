@@ -129,6 +129,9 @@ package { 'build-essential': }
 # mes-aides-ui > betagouv-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
 package { 'libkrb5-dev': }
 
+# Install libfontconfig to generate PDFs with PhantomJS
+package { 'libfontconfig': }
+
 exec { 'install node modules for mes-aides-ui':
     command     => '/usr/bin/npm install',
     cwd         => '/home/main/mes-aides-ui',
