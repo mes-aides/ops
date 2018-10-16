@@ -122,8 +122,10 @@ server {
     # Enable Keepalive Connections
     # https://www.nginx.com/blog/tuning-nginx/#keepalive
     # A number of connections may be defined for each upstream in /etc/nginx/conf.d/upstreams.conf
-    proxy_set_header Connection      "";
-    proxy_http_version               1.1;
+    proxy_set_header Connection        "";
+    proxy_set_header Host              $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version                 1.1;
 
     proxy_pass        http://<%= @upstream_name %>;
     proxy_redirect    off;
@@ -134,8 +136,10 @@ server {
     # Enable Keepalive Connections
     # https://www.nginx.com/blog/tuning-nginx/#keepalive
     # A number of connections may be defined for each upstream in /etc/nginx/conf.d/upstreams.conf
-    proxy_set_header Connection      "";
-    proxy_http_version               1.1;
+    proxy_set_header Connection        "";
+    proxy_set_header Host              $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version                 1.1;
 
     proxy_pass        http://<%= @upstream_name %>;
     proxy_redirect    off;
