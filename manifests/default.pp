@@ -74,7 +74,7 @@ file { "/etc/nginx/snippets/mes-aides-static.conf":
 include '::mongodb::server'
 
 class { 'nodejs':
-    repo_url_suffix => '6.x',
+    repo_url_suffix => '8.x',
 }
 
 package { 'git': }
