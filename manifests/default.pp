@@ -75,6 +75,7 @@ include '::mongodb::server'
 
 class { 'nodejs':
     repo_url_suffix => '8.x',
+    nodejs_package_ensure => '8.14.0-1nodesource1',
 }
 
 package { 'git': }
