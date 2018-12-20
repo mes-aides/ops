@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
 
   # Guest have 500MB of RAM by default
-  # That is not enough to `npm install`
+  # That is not enough to `npm ci`
   # Upgrading to 3GB
   config.vm.provider :virtualbox do |vb|
     vb.memory = 3072
