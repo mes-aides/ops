@@ -126,7 +126,7 @@ vcsrepo { '/home/main/mes-aides-ui':
 # Using 'make' and 'g++'
 package { 'build-essential': }
 
-# Currently required - Failure during npm install
+# Currently required - Failure during npm ci
 # mes-aides-ui > betagouv-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
 package { 'libkrb5-dev': }
 
@@ -134,7 +134,7 @@ package { 'libkrb5-dev': }
 package { 'libfontconfig': }
 
 exec { 'install node modules for mes-aides-ui':
-    command     => '/usr/bin/npm install',
+    command     => '/usr/bin/npm ci',
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
     require     => [ Class['nodejs'], User['main'] ],
