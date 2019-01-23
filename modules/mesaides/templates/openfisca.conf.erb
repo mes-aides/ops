@@ -2,9 +2,12 @@ start on runlevel [2345]
 stop on runlevel [!2345]
 respawn
 
+env LC_ALL=C.UTF-8
+env LANG=C.UTF-8
+
 setuid main
 setgid main
 
 chdir /home/main/mes-aides-ui/openfisca
 
-exec /home/main/venv/bin/gunicorn api --config config.py
+exec <%= @venv_dir %>/bin/gunicorn api --config config.py
