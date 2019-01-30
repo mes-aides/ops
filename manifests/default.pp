@@ -208,28 +208,47 @@ file { '/etc/nginx/conf.d/upstreams.conf':
     upstream_name    => 'openfisca',
 }
 
+apt::ppa { 'ppa:deadsnakes/ppa':
+    notify => Exec['apt_update']
+}
+
 class { 'python':
+    version    => 'python3.6',
     dev        => 'present', # default: 'absent'
     # Can't use python gunicorn here as it would be imported from apt instead of pip
     virtualenv => 'present', # default: 'absent'
+    # https://forge.puppet.com/puppetlabs/apt#adding-new-sources-or-ppas
+    require    => [ Apt::Ppa['ppa:deadsnakes/ppa'], Class['apt::update'] ],
 }
 
-python::virtualenv { '/home/main/venv':
+# Allows running `python3 -m venv /path/to/venv`
+# https://docs.python.org/3/library/venv.html#creating-virtual-environments
+package { 'python3.6-venv':
+    require => [ Apt::Ppa['ppa:deadsnakes/ppa'], Class['apt::update'] ],
+}
+
+$venv_dir = '/home/main/venv_python3.6'
+
+exec { 'create virtualenv':
+    command => "python3.6 -m venv ${venv_dir}",
+    path    => [ '/usr/local/bin', '/usr/bin', '/bin' ],
+    cwd     => '/home/main/mes-aides-ui',
+    user    => 'main',
     group   => 'main',
-    owner   => 'main',
-    require => [ Class['python'], Vcsrepo['/home/main/mes-aides-ui'], User['main'] ],
+    creates => "${venv_dir}/bin/activate",
+    require => [ Class['python'], Package['python3.6-venv'] ],
 }
 
 exec { 'update virtualenv pip':
-    command     => '/home/main/venv/bin/pip install pip --upgrade',
+    command     => "${venv_dir}/bin/pip3 install --upgrade pip",
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
-    require     => Python::Virtualenv['/home/main/venv'],
     user        => 'main',
+    require     => Exec['create virtualenv'],
 }
 
 exec { 'fetch openfisca requirements':
-    command     => '/home/main/venv/bin/pip install --upgrade -r openfisca/requirements.txt',
+    command     => "${venv_dir}/bin/pip3 install --upgrade -r openfisca/requirements.txt",
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
     notify      => [ Exec['startOrReload ma-web'], Service['openfisca'] ],
@@ -238,11 +257,11 @@ exec { 'fetch openfisca requirements':
 }
 
 file { '/etc/init/openfisca.conf':
-    ensure => file,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '644',
-    source => 'puppet:///modules/mesaides/openfisca.conf',
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '644',
+    content => template('mesaides/openfisca.conf.erb'),
 }
 
 service { 'openfisca':
