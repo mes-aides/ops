@@ -123,6 +123,15 @@ vcsrepo { '/home/main/mes-aides-ui':
     revision => String(file('/opt/mes-aides/ui_target_revision'), "%t"),
     source   => 'https://github.com/betagouv/mes-aides-ui.git',
     user     => 'main',
+    notify   => [ File['/home/main/mes-aides-ui/backend/config/production.js'] ],
+}
+
+file { '/home/main/mes-aides-ui/backend/config/production.js':
+    ensure => present, # creates a normal file if the file is missing
+    owner  => 'main',
+    group  => 'main',
+    mode   => '644',
+    source => '/home/main/mes-aides-ui/backend/config/continuous_integration.js',
 }
 
 # Using 'make' and 'g++'
