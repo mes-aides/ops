@@ -127,11 +127,12 @@ vcsrepo { '/home/main/mes-aides-ui':
 }
 
 file { '/home/main/mes-aides-ui/backend/config/production.js':
-    ensure => present, # creates a normal file if the file is missing
-    owner  => 'main',
-    group  => 'main',
-    mode   => '644',
-    source => '/home/main/mes-aides-ui/backend/config/continuous_integration.js',
+    ensure  => present, # creates a normal file if the file is missing
+    replace => false,   # setting this to false allows file resources to initialize files without overwriting future changes
+    owner   => 'main',
+    group   => 'main',
+    mode    => '644',
+    source  => '/home/main/mes-aides-ui/backend/config/continuous_integration.js',
 }
 
 # Using 'make' and 'g++'
