@@ -46,6 +46,8 @@ file_line { '/etc/ssh/sshd_config UsePAM':
     notify => [ Service['ssh'] ],
 }
 
+include ntp
+
 class { 'nginx': }
 
 file { '/etc/nginx/snippets':
