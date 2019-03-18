@@ -77,7 +77,7 @@ include '::mongodb::server'
 
 class { 'nodejs':
     repo_url_suffix => '8.x',
-    nodejs_package_ensure => '8.15.0-1nodesource1',
+    nodejs_package_ensure => '8.15.1-1nodesource1',
 }
 
 package { 'git': }
@@ -145,15 +145,31 @@ package { 'libkrb5-dev': }
 # Install libfontconfig to generate PDFs with PhantomJS
 package { 'libfontconfig': }
 
+# Install Chromium to have Puppeteer dependencies installed as well
+package { 'chromium-browser':
+    ensure => 'present',
+}
+
 exec { 'install node modules for mes-aides-ui':
     command     => '/usr/bin/npm ci',
     cwd         => '/home/main/mes-aides-ui',
     environment => ['HOME=/home/main'],
-    require     => [ Class['nodejs'], User['main'] ],
+    require     => [ Class['nodejs'], User['main'], Package['chromium-browser'] ],
     # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
     #  default is 300 (seconds)
     timeout     => 1800, # 30 minutes
     user        => 'main',
+    notify      => [ Exec['setup setuid sandbox'] ],
+}
+
+# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#alternative-setup-setuid-sandbox
+exec { 'setup setuid sandbox':
+    command => 'chown root:root node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox && chmod 4755 node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox && cp -p node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox /usr/local/sbin/chrome-devel-sandbox',
+    path    => [ '/usr/local/bin', '/usr/bin', '/bin' ],
+    cwd     => '/home/main/mes-aides-ui',
+    user    => 'root',
+    creates => '/usr/local/sbin/chrome-devel-sandbox',
+    onlyif  => 'test -d node_modules/puppeteer'
 }
 
 exec { 'prestart mes-aides-ui':
@@ -168,7 +184,7 @@ exec { 'prestart mes-aides-ui':
 exec { 'startOrReload ma-web':
     command     => '/usr/bin/pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env',
     cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main'],
+    environment => ['HOME=/home/main', 'CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox'],
     require     => [ Exec['prestart mes-aides-ui'], Package['pm2'] ],
     user        => 'main',
 }
