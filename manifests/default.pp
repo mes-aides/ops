@@ -116,6 +116,23 @@ service { 'pm2-main':
     require => [ Exec['chown pm2 home'] ]
 }
 
+file { '/home/main/setup-pm2.sh':
+    ensure => file,
+    group  => 'main',
+    mode   => '700',
+    owner  => 'main',
+    source => 'puppet:///modules/mesaides/setup-pm2.sh',
+    require => [ User['main'] ]
+}
+
+exec { 'pm2 install pm2-logrotate':
+    command     => '/home/main/setup-pm2.sh /usr/bin/pm2',
+    cwd         => '/home/main/mes-aides-ui',
+    environment => ['HOME=/home/main'],
+    require     => [ File['/home/main/setup-pm2.sh'], Exec['chown pm2 home'] ],
+    user        => 'main',
+}
+
 vcsrepo { '/home/main/mes-aides-ui':
     ensure   => latest,
     provider => git,
