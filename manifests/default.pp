@@ -73,6 +73,22 @@ file { "/etc/nginx/snippets/mes-aides-static.conf":
     mode    => '644',
 }
 
+file_line { '/etc/nginx/mime.types WOFF':
+    ensure  => present,
+    path    => '/etc/nginx/mime.types',
+    line    => '    application/font-woff                            woff;',
+    match   => 'font\/woff.*woff;$',
+    require => [ Class['nginx'] ],
+}
+
+file_line { '/etc/nginx/mime.types TTF':
+    ensure  => 'present',
+    path    => '/etc/nginx/mime.types',
+    after   => 'application\/font-woff',
+    line    => '    font/ttf                                         ttf;',
+    require => [ Class['nginx'] ],
+}
+
 include '::mongodb::server'
 
 class { 'nodejs':

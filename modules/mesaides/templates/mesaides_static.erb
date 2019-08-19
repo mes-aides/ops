@@ -3,6 +3,8 @@ location /favicon.ico {
 }
 
 location ~ ^/(fonts|js|styles) {
+  # This is needed so that PDF rendering works
+  add_header Access-Control-Allow-Origin *;
   access_log off;
   expires 1y;
   add_header Cache-Control private;

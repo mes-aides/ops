@@ -31,6 +31,9 @@ jobs:
           name: Test NGINX default server
           command: wget --retry-connrefused --tries=10 -O /tmp/artifacts/nginx.out 0.0.0.0 2>/tmp/artifacts/wget.log
       - run:
+          name: Test NGINX serving fonts
+          command: curl -I --silent 0.0.0.0/fonts/fontawesome-webfont.woff | grep --silent "HTTP/1.1 200 OK"
+      - run:
           name: Test NGINX default server
           command: cat /tmp/artifacts/nginx.out | grep --silent 'mes-aides.gouv.fr'
       - run:
