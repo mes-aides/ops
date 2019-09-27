@@ -22,45 +22,51 @@ def write_template(path, ctx):
 
 
 @task
-def tell_me_your_name(c):
-  cc = Connection(host=SERVER_IP, user=USER)
-  cc.run('hostname')
-  cc.run('date')
-  cc.run('uname -a')
-  cc.run('lsb_release -a')
+def tell_me_your_name(ctx):
+  c = Connection(host=SERVER_IP, user=USER)
+  c.run('hostname')
+  c.run('date')
+  c.run('uname -a')
+  c.run('lsb_release -a')
 
 
 @task
-def bootstrap(c):
-  cc = Connection(host=SERVER_IP, user=USER)
-  system(cc)
-  nginx(cc)
-  node(cc)
-  python(cc)
+def bootstrap(ctx, host=SERVER_IP):
+  c = Connection(host=host, user=USER)
+  system(c)
+  nginx(c)
+  node(c)
+  python(c)
   mongodb(c)
 
+  app(c)
+  app_config(c)
+  app_refresh(c)
+
 
 @task
-def test(ctx):
-  c = Connection(host=SERVER_IP, user=USER)
-  monitor(c)
+def test(ctx, host=SERVER_IP):
+  c = Connection(host=host, user=USER)
+  app(c)
 
 
 def nginx(c):
   c.run('apt-get install --assume-yes nginx')
   c.put('files/nginx.upstreams.conf', '/etc/nginx/conf.d/upstreams.conf')
+  c.put('files/nginx_mesaides_static.conf', '/etc/nginx/snippets/mes-aides-static.conf')
+
   c.run('rm -f /etc/nginx/sites-enabled/default')
   c.run('service nginx reload')
 
 
 def system(c):
   c.run('apt-get install --assume-yes curl=7.52.1-5+deb9u9') # Curl versions conflict
-  c.run('apt-get install --assume-yes man')
+  c.run('apt-get install --assume-yes build-essential git man')
   usermain(c)
 
 
 def usermain(c):
-  c.run('useradd main --create-home')
+  c.run('useradd main --create-home --shell /bin/bash')
 
 
 def node(c):
@@ -71,7 +77,7 @@ def node(c):
 
 def pm2(c):
   #c.run('npm install --global pm2@3.5.1')
-  c.run('pm2 startup systemd')
+  c.run('pm2 startup systemd -u main --hp /home/main')
 
 
 def python(c):
@@ -90,6 +96,8 @@ def mongodb(c):
     print('MongoDB packages already setup')
   c.run('apt-get install --assume-yes libcurl3')
   c.run('apt-get install --assume-yes mongodb-org')
+  c.run('service mongod start')
+  c.run('systemctl enable mongod')
 
 
 def monitor(c):
@@ -108,3 +116,30 @@ def monitor(c):
   with write_template('files/nginx_config.template', monitor) as fp:
     c.put(fp, '/etc/nginx/sites-enabled/monitor.mes-aides.gouv.fr.conf')
   c.run('service nginx reload')
+
+
+def app(c):
+  c.run('su - main -c "git clone https://github.com/betagouv/mes-aides-ui.git"')
+  test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'backend/lib/stats\'"', warn=True)
+  if test.exited:
+    c.run('su - main -c \'(crontab -l 2>/dev/null; echo "23 2 * * * /usr/bin/node /home/main/mes-aides-ui/backend/lib/stats") | crontab -\'')
+
+
+def app_config(c):
+  conf = {
+    'name': 'mes-aides.gouv.fr',
+    'add_www_subdomain': True,
+    'is_default': True,
+    'upstream_name' : 'mes_aides',
+    'webroot_path': '/var/www/',
+    'nginx_root': '/home/main/mes-aides-ui',
+  }
+  with write_template('files/nginx_config.template', conf) as fp:
+    c.put(fp, '/etc/nginx/sites-enabled/mes-aides.gouv.fr.conf')
+  c.run('service nginx reload')
+
+
+def app_refresh(c):
+  c.run('su - main -c "cd mes-aides-ui && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm ci"')
+  c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
+  c.run('su - main -c "cd mes-aides-ui && CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
