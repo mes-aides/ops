@@ -1,0 +1,11 @@
+[Unit]
+Description=Service in charge of OpenFisca Web API for mes-aides.gouv.fr
+
+[Service]
+User=main
+Group=main
+WorkingDirectory=/home/main/mes-aides-ui/openfisca
+ExecStart= {{ venv_dir }}/bin/gunicorn api --config config.py
+
+[Install]
+WantedBy=multi-user.target

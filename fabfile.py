@@ -36,10 +36,14 @@ def bootstrap(ctx, host=SERVER_IP):
   system(c)
   nginx(c)
   node(c)
-  python(c)
   mongodb(c)
 
-  app(c)
+  python(c)
+  openfisca_setup(c)
+  openfisca_config(c)
+  openfisca_refresh(c)
+
+  app_setup(c)
   app_config(c)
   app_refresh(c)
 
@@ -47,7 +51,7 @@ def bootstrap(ctx, host=SERVER_IP):
 @task
 def test(ctx, host=SERVER_IP):
   c = Connection(host=host, user=USER)
-  app(c)
+  openfisca_config(c)
 
 
 def nginx(c):
@@ -60,7 +64,7 @@ def nginx(c):
 
 
 def system(c):
-  c.run('apt-get install --assume-yes curl=7.52.1-5+deb9u9') # Curl versions conflict
+  c.run('apt-get install --assume-yes curl') # curl=7.52.1-5+deb9u9 may be necessary as Curl versions may conflict
   c.run('apt-get install --assume-yes build-essential git man')
   usermain(c)
 
@@ -76,12 +80,12 @@ def node(c):
 
 
 def pm2(c):
-  #c.run('npm install --global pm2@3.5.1')
+  c.run('npm install --global pm2@3.5.1')
   c.run('pm2 startup systemd -u main --hp /home/main')
 
 
 def python(c):
-  c.run('apt-get install --assume-yes python3.7 python3.7-dev python3.7-venv')
+  c.run('apt-get install --assume-yes python3.7 python3.7-dev python3-venv')
 
 
 # https://linuxhint.com/install_mongodb_debian_10/
@@ -118,7 +122,7 @@ def monitor(c):
   c.run('service nginx reload')
 
 
-def app(c):
+def app_setup(c):
   c.run('su - main -c "git clone https://github.com/betagouv/mes-aides-ui.git"')
   test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'backend/lib/stats\'"', warn=True)
   if test.exited:
@@ -143,3 +147,22 @@ def app_refresh(c):
   c.run('su - main -c "cd mes-aides-ui && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm ci"')
   c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
   c.run('su - main -c "cd mes-aides-ui && CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
+
+
+venv_dir = '/home/main/venv_python3.7'
+def openfisca_setup(c):
+  c.run('su - main -c "python3.7 -m venv %s"' % venv_dir)
+
+
+def openfisca_config(c):
+  with write_template('files/openfisca.service.template', { 'venv_dir': venv_dir }) as fp:
+    c.put(fp, '/etc/systemd/system/openfisca.service')
+  c.run('systemctl daemon-reload')
+  c.run('service openfisca restart')
+  c.run('systemctl enable openfisca')
+
+
+def openfisca_refresh(c):
+  c.run('su - main -c "%s/bin/pip3 install --upgrade pip"' % venv_dir)
+  c.run('su - main -c "cd mes-aides-ui && %s/bin/pip3 install --upgrade -r openfisca/requirements.txt"' % venv_dir)
+  c.run('service openfisca restart')
