@@ -22,8 +22,8 @@ def write_template(path, ctx):
 
 
 @task
-def tell_me_your_name(ctx):
-  c = Connection(host=SERVER_IP, user=USER)
+def tell_me_your_name(ctx, host=SERVER_IP):
+  c = Connection(host=host, user=USER)
   c.run('hostname')
   c.run('date')
   c.run('uname -a')
@@ -38,20 +38,29 @@ def bootstrap(ctx, host=SERVER_IP):
   node(c)
   mongodb(c)
 
+  monitor(c)
+
   python(c)
   openfisca_setup(c)
   openfisca_config(c)
-  openfisca_refresh(c)
 
   app_setup(c)
   app_config(c)
+
   app_refresh(c)
+  openfisca_refresh(c)
+
+
+@task
+def refresh(ctx, host=SERVER_IP):
+  c = Connection(host=host, user=USER)
+  app_refresh(c)
+  openfisca_refresh(c)
 
 
 @task
 def test(ctx, host=SERVER_IP):
   c = Connection(host=host, user=USER)
-  openfisca_config(c)
 
 
 def nginx(c):
@@ -124,6 +133,10 @@ def monitor(c):
 
 def app_setup(c):
   c.run('su - main -c "git clone https://github.com/betagouv/mes-aides-ui.git"')
+  production_path = '/home/main/mes-aides-ui/backend/config/production.js'
+  result = c.run('[ -f %s ]' % production_path, warn=True)
+  if result.exited:
+    c.run('su - main -c "cp /home/main/mes-aides-ui/backend/config/continuous_integration.js %d"' % production_path)
   test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'backend/lib/stats\'"', warn=True)
   if test.exited:
     c.run('su - main -c \'(crontab -l 2>/dev/null; echo "23 2 * * * /usr/bin/node /home/main/mes-aides-ui/backend/lib/stats") | crontab -\'')
@@ -144,6 +157,7 @@ def app_config(c):
 
 
 def app_refresh(c):
+  c.run('su - main -c "cd mes-aides-ui && git pull"')
   c.run('su - main -c "cd mes-aides-ui && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm ci"')
   c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
   c.run('su - main -c "cd mes-aides-ui && CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')

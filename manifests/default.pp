@@ -89,39 +89,6 @@ file_line { '/etc/nginx/mime.types TTF':
     require => [ Class['nginx'] ],
 }
 
-include '::mongodb::server'
-
-class { 'nodejs':
-    repo_url_suffix => '8.x',
-    nodejs_package_ensure => '8.16.1-1nodesource1',
-}
-
-package { 'git': }
-
-group { 'main':
-    ensure => present,
-}
-
-user { 'main':
-    ensure     => present,
-    managehome => true,
-    require    => [ Group['main'] ],
-}
-
-package { 'pm2':
-    ensure   => 'present',
-    provider => 'npm',
-    require  => [ Class['nodejs'] ],
-}
-
-exec { 'install pm2 startup script':
-    command     => '/usr/bin/pm2 startup upstart -u main --hp /home/main',
-    cwd         => '/home/main',
-    environment => ['HOME=/home/main'],
-    require     => [ Class['nodejs'], Package['pm2'] ],
-    user        => 'root',
-}
-
 exec { 'chown pm2 home':
      command => '/bin/chown -R main:main /home/main/.pm2',
      require => [ Exec['install pm2 startup script'] ],
@@ -168,8 +135,6 @@ file { '/home/main/mes-aides-ui/backend/config/production.js':
     source  => '/home/main/mes-aides-ui/backend/config/continuous_integration.js',
 }
 
-# Using 'make' and 'g++'
-package { 'build-essential': }
 
 # Currently required - Failure during npm ci
 # mes-aides-ui > betagouv-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
@@ -183,18 +148,6 @@ package { 'chromium-browser':
     ensure => 'present',
 }
 
-exec { 'install node modules for mes-aides-ui':
-    command     => '/usr/bin/npm ci',
-    cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main'],
-    require     => [ Class['nodejs'], User['main'], Package['chromium-browser'] ],
-    # https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-timeout
-    #  default is 300 (seconds)
-    timeout     => 1800, # 30 minutes
-    user        => 'main',
-    notify      => [ Exec['setup setuid sandbox'] ],
-}
-
 # https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#alternative-setup-setuid-sandbox
 exec { 'setup setuid sandbox':
     command => 'chown root:root node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox && chmod 4755 node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox && cp -p node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox /usr/local/sbin/chrome-devel-sandbox',
@@ -203,40 +156,6 @@ exec { 'setup setuid sandbox':
     user    => 'root',
     creates => '/usr/local/sbin/chrome-devel-sandbox',
     onlyif  => 'test -d node_modules/puppeteer'
-}
-
-exec { 'prestart mes-aides-ui':
-    command     => '/usr/bin/npm run prestart',
-    cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main'],
-    notify      => [ Exec['startOrReload ma-web'], Service['openfisca'] ],
-    require     => [ Class['nodejs'], Vcsrepo['/home/main/mes-aides-ui'], Exec['install node modules for mes-aides-ui'] ],
-    user        => 'main',
-}
-
-exec { 'startOrReload ma-web':
-    command     => '/usr/bin/pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env',
-    cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main', 'CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox'],
-    require     => [ Exec['prestart mes-aides-ui'], Package['pm2'] ],
-    user        => 'main',
-}
-
-cron { 'refresh mes-aides stats':
-    command     => '/usr/bin/node /home/main/mes-aides-ui/backend/lib/stats',
-    environment => ['HOME=/home/main'],
-    hour        => 2,
-    minute      => 23,
-    require     => Exec['prestart mes-aides-ui'],
-    user        => 'main',
-}
-
-file { '/etc/nginx/conf.d/upstreams.conf':
-    ensure => file,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '644',
-    source => 'puppet:///modules/mesaides/upstreams.conf',
 }
 
 ::mesaides::nginx_config { 'mes-aides.gouv.fr':
@@ -255,83 +174,13 @@ file { '/etc/nginx/conf.d/upstreams.conf':
     upstream_name  => 'mes_aides',
 }
 
-::mesaides::monitor { "monitor.${instance_name}.mes-aides.gouv.fr":
-    require => Class['nodejs'],
-}
-
-::mesaides::nginx_config { 'monitor.mes-aides.gouv.fr':
-    require          => ::Mesaides::Monitor["monitor.${instance_name}.mes-aides.gouv.fr"],
-    upstream_name    => 'monitor',
-}
-
 ::mesaides::nginx_config { 'openfisca.mes-aides.gouv.fr':
     use_ssl          => find_file("/opt/mes-aides/${instance_name}_use_ssl"),
     upstream_name    => 'openfisca',
 }
 
-apt::ppa { 'ppa:deadsnakes/ppa':
-    notify => Exec['apt_update']
-}
-
-class { 'python':
-    version    => 'python3.6',
-    dev        => 'present', # default: 'absent'
-    # Can't use python gunicorn here as it would be imported from apt instead of pip
-    virtualenv => 'present', # default: 'absent'
-    # https://forge.puppet.com/puppetlabs/apt#adding-new-sources-or-ppas
-    require    => [ Apt::Ppa['ppa:deadsnakes/ppa'], Class['apt::update'] ],
-}
-
-# Allows running `python3 -m venv /path/to/venv`
-# https://docs.python.org/3/library/venv.html#creating-virtual-environments
-package { 'python3.6-venv':
-    require => [ Apt::Ppa['ppa:deadsnakes/ppa'], Class['apt::update'] ],
-}
-
 $venv_dir = '/home/main/venv_python3.6'
 
-exec { 'create virtualenv':
-    command => "python3.6 -m venv ${venv_dir}",
-    path    => [ '/usr/local/bin', '/usr/bin', '/bin' ],
-    cwd     => '/home/main/mes-aides-ui',
-    user    => 'main',
-    group   => 'main',
-    creates => "${venv_dir}/bin/activate",
-    require => [ Class['python'], Package['python3.6-venv'] ],
-}
-
-exec { 'update virtualenv pip':
-    command     => "${venv_dir}/bin/pip3 install --upgrade pip",
-    cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main'],
-    user        => 'main',
-    require     => Exec['create virtualenv'],
-}
-
-exec { 'fetch openfisca requirements':
-    command     => "${venv_dir}/bin/pip3 install --upgrade -r openfisca/requirements.txt",
-    cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main'],
-    notify      => [ Exec['startOrReload ma-web'], Service['openfisca'] ],
-    require     => [ Exec['update virtualenv pip'], Vcsrepo['/home/main/mes-aides-ui'] ],
-    user        => 'main',
-}
-
-file { '/etc/init/openfisca.conf':
-    ensure  => file,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '644',
-    content => template('mesaides/openfisca.conf.erb'),
-}
-
-service { 'openfisca':
-    ensure     => 'running',
-    hasrestart => true,
-    provider   => 'upstart',
-    require    => [ File['/etc/init/openfisca.conf'], User['main'] ],
-    restart    => 'service openfisca reload'
-}
 
 if find_file("/opt/mes-aides/${instance_name}_use_ssl") or find_file('/opt/mes-aides/use_ssl') {
     class { ::letsencrypt:
