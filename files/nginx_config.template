@@ -1,14 +1,11 @@
 # MANAGED BY MES AIDES OPS
 # Modifications should be made in that template
 
-{# ssl_section = {
-  ssl_certificate     /etc/letsencrypt/live/#{@name}/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/#{@name}/privkey.pem;
+{% macro ssl_section() -%}
+  ssl_certificate     /etc/letsencrypt/live/{{ name }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ name }}/privkey.pem;
   include snippets/ssl_params.conf;
-}
-#}
-
-{# ssl_exists = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") #}
+{%- endmacro %}
 
 {% if ssl_exists %}
 # REDIRECT HTTP TRAFFIC ON {{ name }} TO HTTPS
@@ -58,7 +55,7 @@ server {
 
   {% if ssl_exists %}
   listen              443 ssl;
-  {#%= ssl_section %#}
+  {{ ssl_section() }}
   access_log          /var/log/nginx/{{ name }}.ssl.access.log combined;
   error_log           /var/log/nginx/{{ name }}.ssl.error.log;
 
@@ -86,7 +83,7 @@ server {
 
   {% if ssl_exists %}
   listen              443 ssl;
-  {#%= ssl_section %#}
+  {{ ssl_section() }}
   access_log          /var/log/nginx/{{ name }}.ssl.access.log combined;
   error_log           /var/log/nginx/{{ name }}.ssl.error.log;
   {% else %}

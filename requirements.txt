@@ -1,3 +1,4 @@
 fabric==2.5.0
 fabtools==0.20.0
 Jinja2=2.10.1
+requests==2.22.0

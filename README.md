@@ -75,9 +75,10 @@ echo $UI_TARGET_REVISION > /opt/mes-aides/ui_target_revision
 
 ## Development
 
-Development is done using Vagrant and the Ubuntu version used in production: Ubuntu 14.04 64 bit (trusty).
+Development is done using Vagrant and a Debian 10 (buster).
 
 The `vagrant up` command should give you a fully functioning Mes Aides instance.
+
 
 Currently, it gives you:
 

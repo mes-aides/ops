@@ -7,7 +7,6 @@
   include snippets/ssl_params.conf;
 } %>
 
-<% ssl_exists = File.exists?("/etc/letsencrypt/live/#{@name}/fullchain.pem") %>
 
 <% if ssl_exists %>
 # REDIRECT HTTP TRAFFIC ON <%= @name %> TO HTTPS
