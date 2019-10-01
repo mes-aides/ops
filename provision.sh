@@ -23,3 +23,4 @@ cd /opt/mes-aides/ops
 pip3 install --requirement requirements.txt
 cat "$HOME/.ssh/id_rsa.pub" >>  "$HOME/.ssh/authorized_keys"
 fab bootstrap --host localhost --name vagrant-local. --dns-ok
+./test.sh
