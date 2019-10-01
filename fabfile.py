@@ -5,24 +5,13 @@ import os
 import requests
 import tempfile
 
-
-SERVER_IP="51.254.223.109"
-SERVER_IP="192.168.56.200"
 SERVER_IP="54.36.180.23"
+HOSTPREFIX='vps515386.'
+
 USER="root"
 WEBROOT_PATH="/var/www"
 
-HOST='vps275796'
-HOSTNAME='vps515386.mes-aides.gouv.fr'
-
 loader = Environment(loader=FileSystemLoader('.'))
-
-#vps275796.mes-aides.gouv.fr
-# DNSs
-# vps275796        3600 IN A      51.254.223.109
-# www.vps275796        3600 IN A      51.254.223.109
-# openfisca.vps275796        3600 IN A      51.254.223.109
-# monitor.vps275796        3600 IN A      51.254.223.109
 
 
 @contextmanager
@@ -44,16 +33,24 @@ def write_nginx_config(config0):
   with write_template('files/nginx_config.template', config) as fp:
     yield fp
 
+
 @task
-def vagrant(ctx, port, identity):
+def vagrant_access(ctx, port, identity):
   c = Connection('127.0.0.1', 'vagrant', port, connect_kwargs={
     "key_filename": identity,
   })
+  c.config = ctx.config
   c.run('hostname')
-  ssh_access(ctx, c)
+  ssh_access(c)
+
 
 @task
-def tell_me_your_name(ctx, host=SERVER_IP):
+def vagrant_provision(ctx, host, name):
+  bootstrap_tasks(ctx, host, name)
+
+
+@task
+def tell_me_your_name(c, host=SERVER_IP):
   c = Connection(host=host, user=USER)
   c.run('hostname')
   c.run('date')
@@ -62,9 +59,20 @@ def tell_me_your_name(ctx, host=SERVER_IP):
 
 
 @task
-def bootstrap(ctx, host=SERVER_IP, name=None):
+def bootstrap(ctx, host, name, dns_ok=False):
+  if not dns_ok:
+    print_dns_records(host, name)
+    return
+
   c = Connection(host=host, user=USER)
-  system(c, name)
+  c.config = ctx.config
+  bootstrap_tasks(c, host, name)
+
+
+def bootstrap_tasks(c, host, name):
+  fullname = '%smes-aides.gouv.fr' % name
+
+  system(c, fullname)
   nginx_setup(c)
   node(c)
   mongodb(c)
@@ -75,11 +83,29 @@ def bootstrap(ctx, host=SERVER_IP, name=None):
   openfisca_setup(c)
   openfisca_config(c)
 
-  nginx_sites(c, 'local', is_default=True)
-
   app_setup(c)
 
-  refresh_tasks(ctx, c)
+  letsencrypt(c)
+  nginx_sites(c, fullname, is_default=True)
+
+  refresh_tasks(c)
+
+
+@task
+def test(ctx, host):
+  c = Connection(host=host, user=USER)
+  # c.run('date')
+  # c.run('apt-get install --assume-yes chromium')
+  # c.run('su - main -c "cd mes-aides-ui && npm ci"')
+
+  print(result)
+  #c.run('su - main -c "cd mes-aides-ui && pm2 restart /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
+
+
+def print_dns_records(host, name):
+  print('DNS records should be updated')
+  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.']]]))
+  print('Once it is done add --dns-ok')
 
 
 @task
@@ -89,38 +115,15 @@ def refresh(ctx, host=SERVER_IP):
 
 
 @task
-def test(ctx, host=SERVER_IP, name=None):
+def fallback(ctx, host=SERVER_IP, name=None):
   c = Connection(host=host, user=USER)
-  nginx_sites(c, 'local', is_default=True)
 
 
-  # c = Connection(host=host, user=USER)
-
-  # name = 'monitor'
-  # fullname = '%s..mes-aides.gouv.fr' % (name, HOST)
-  # is_default = False
-  # add_www_subdomain = False
-  # certificate_path = '/etc/letsencrypt/live/%s/fullchain.pem' % fullname
-  # c.run('certbot certonly --webroot --non-interactive --cert-name %s -d %s %s --webroot-path %s' % (fullname, fullname, ' --expand -d www.%s' % fullname if add_www_subdomain else'' , WEBROOT_PATH))
-  # missing_certificate = c.run('test -e %s' % certificate_path, warn=True).exited
-  # main = {
-  #   'name': fullname,
-  #   'add_www_subdomain': add_www_subdomain,
-  #   'is_default': is_default,
-  #   'upstream_name' : name,
-  #   'nginx_root': '/home/main/mes-aides-ui',
-  #   'ssl_exists': not missing_certificate,
-  # }
-  # with write_nginx_config(main) as fp:
-  #   c.put(fp, '/etc/nginx/sites-enabled/%s.conf' % fullname)
-
-  # c.run('service nginx reload')
-
-
-def refresh_tasks(ctx, c):
-  ssh_access(ctx, c)
+def refresh_tasks(c):
+  ssh_access(c)
   app_refresh(c)
   openfisca_refresh(c)
+
 
 def ssl_setup(c):
   dhparam_path = '/etc/ssl/private/dhparam.pem'
@@ -129,8 +132,8 @@ def ssl_setup(c):
     c.run('/usr/bin/openssl dhparam -out %s 2048' % dhparam_path)
 
 
-def ssh_access(ctx, c):
-  users = ctx.config.get('github', [])
+def ssh_access(c):
+  users = c.config.get('github', [])
   conf = {
     'users': [{ 'name': u, 'ssh_keys': requests.get("https://github.com/%s.keys" % u).text} for u in users]
   }
@@ -153,7 +156,6 @@ def nginx_setup(c):
   c.run('mkdir --parents %s' % WEBROOT_PATH)
 
   ssl_setup(c)
-  letsencrypt(c)
 
 
 def letsencrypt(c):
@@ -214,12 +216,17 @@ def system(c, name=None):
   if name:
     c.run('hostname %s' % name)
   c.run('apt-get install --assume-yes curl') # curl=7.52.1-5+deb9u9 may be necessary as Curl versions may conflict
-  c.run('apt-get install --assume-yes build-essential git man')
+  c.run('apt-get install --assume-yes build-essential git man vim')
+
+  c.run('apt-get install --assume-yes chromium')
+  c.run('sysctl -w kernel.unprivileged_userns_clone=1')
   usermain(c)
 
 
 def usermain(c):
-  c.run('useradd main --create-home --shell /bin/bash')
+  missing = c.run('id -u main', warn=True).exited
+  if missing:
+    c.run('useradd main --create-home --shell /bin/bash')
 
 
 def node(c):
@@ -276,9 +283,9 @@ def app_setup(c):
 
 def app_refresh(c):
   c.run('su - main -c "cd mes-aides-ui && git pull"')
-  c.run('su - main -c "cd mes-aides-ui && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm ci"')
+  c.run('su - main -c "cd mes-aides-ui && npm ci"')
   c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
-  c.run('su - main -c "cd mes-aides-ui && CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
+  c.run('su - main -c "cd mes-aides-ui && pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
 
 
 venv_dir = '/home/main/venv_python3.7'

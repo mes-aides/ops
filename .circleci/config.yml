@@ -15,7 +15,7 @@ jobs:
           command: mkdir /tmp/artifacts
       - run:
           name: Run provisioning
-          command: sudo ./bootstrap.sh origin/master origin/$CIRCLE_BRANCH
+          command: sudo ./provision
           no_output_timeout: 15m
       - run:
           name: Wait for server to start
