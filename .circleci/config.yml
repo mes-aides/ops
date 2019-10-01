@@ -5,7 +5,8 @@ version: 2
 
 jobs:
   build:
-    machine: true
+    docker:
+      - image: debian:buster
     environment:
       OPENFISCA_WORKERS: 2
     steps:
@@ -15,7 +16,7 @@ jobs:
           command: mkdir /tmp/artifacts
       - run:
           name: Run provisioning
-          command: sudo ./provision
+          command: ./provision.sh
           no_output_timeout: 15m
       - run:
           name: Wait for server to start
