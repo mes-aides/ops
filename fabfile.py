@@ -86,21 +86,31 @@ def bootstrap_tasks(c, host, name):
   app_setup(c)
 
   letsencrypt(c)
-  nginx_sites(c, fullname, is_default=False)
-  nginx_sites(c, 'mes-aides.gouv.fr', is_default=True)
+  nginx_all_sites(c, fullname)
 
   refresh_tasks(c)
 
 
 @task
-def test(ctx, host):
+def proxy_challenge(ctx, host, name, challenge_proxy):
   c = Connection(host=host, user=USER)
-  # c.run('date')
-  # c.run('apt-get install --assume-yes chromium')
-  # c.run('su - main -c "cd mes-aides-ui && npm ci"')
+  fullname = '%smes-aides.gouv.fr' % name
+  nginx_all_sites(c, fullname, challenge_proxy=challenge_proxy)
 
-  print(result)
-  #c.run('su - main -c "cd mes-aides-ui && pm2 restart /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
+
+@task
+def regenerate_nginx_hosts(ctx, host):
+  c = Connection(host=host, user=USER)
+  fullname = c.run('hostname').stdout.split()[0]
+  print(fullname)
+  nginx_all_sites(c, fullname)
+
+@task
+def nginx(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.run('service nginx status', warn=True)
+  c.run('service nginx restart', warn=True)
+  c.run('service nginx status')
 
 
 def print_dns_records(host, name):
@@ -168,30 +178,34 @@ def nginx_site(c, config):
   fullname = config['name']
   add_www_subdomain = config['add_www_subdomain'] if 'add_www_subdomain' in config else False
 
-  with write_nginx_config(config) as fp:
-    c.put(fp, '/etc/nginx/sites-enabled/%s.conf' % fullname)
-  c.run('service nginx reload')
-
+  ssl_exists = True
   certificate_path = '/etc/letsencrypt/live/%s/fullchain.pem' % fullname
-  letsencrypt_args = '--cert-name %s -d %s %s --webroot-path %s' % (fullname, fullname, ' --expand -d www.%s' % fullname if add_www_subdomain else '', WEBROOT_PATH)
-  letsencrypt_command = 'certbot certonly --webroot --non-interactive %s' % letsencrypt_args
-  letsencrypt = c.run(letsencrypt_command, warn=True)
-  if letsencrypt.exited:
-    print('WARNING Lets encrypt failed')
-    print(letsencrypt.stdout)
-    print(letsencrypt.stderr)
-    print(letsencrypt)
   missing_certificate = c.run('test -e %s' % certificate_path, warn=True).exited
+  if missing_certificate:
+    with write_nginx_config(config) as fp:
+      c.put(fp, '/etc/nginx/sites-enabled/%s.conf' % fullname)
+    c.run('service nginx reload')
 
-  with write_nginx_config({'ssl_exists': not missing_certificate, **config}) as fp:
+    letsencrypt_args = '--cert-name %s -d %s %s --webroot-path %s' % (fullname, fullname, ' --expand -d www.%s' % fullname if add_www_subdomain else '', WEBROOT_PATH)
+    letsencrypt_command = 'certbot certonly --webroot --non-interactive %s' % letsencrypt_args
+    letsencrypt = c.run(letsencrypt_command, warn=True)
+    if letsencrypt.exited:
+      print('WARNING Lets encrypt failed')
+      print(letsencrypt.stdout)
+      print(letsencrypt.stderr)
+      print(letsencrypt)
+      ssl_exists = False
+
+  with write_nginx_config({'ssl_exists': ssl_exists, **config}) as fp:
     c.put(fp, '/etc/nginx/sites-enabled/%s.conf' % fullname)
   c.run('service nginx reload')
 
 
-def nginx_sites(c, fullname, is_default=False):
+def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
   monitor = {
     'name': 'monitor.%s' % fullname,
     'upstream_name' : 'monitor',
+    'challenge_proxy': challenge_proxy
   }
   nginx_site(c, monitor)
 
@@ -201,16 +215,23 @@ def nginx_sites(c, fullname, is_default=False):
     'is_default': is_default,
     'upstream_name' : 'mes_aides',
     'nginx_root': '/home/main/mes-aides-ui',
+    'challenge_proxy': challenge_proxy,
   }
   nginx_site(c, main)
 
   openfisca = {
     'name': 'openfisca.%s' % fullname,
     'upstream_name' : 'openfisca',
+    'challenge_proxy': challenge_proxy,
   }
   nginx_site(c, openfisca)
 
   c.run('service nginx reload')
+
+
+def nginx_all_sites(c, fullname, challenge_proxy=None):
+  nginx_sites(c, fullname, is_default=False, challenge_proxy=challenge_proxy)
+  nginx_sites(c, 'mes-aides.gouv.fr', is_default=True, challenge_proxy=challenge_proxy)
 
 
 def system(c, name=None):

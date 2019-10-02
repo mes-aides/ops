@@ -7,6 +7,30 @@
   include snippets/ssl_params.conf;
 {%- endmacro %}
 
+{% macro proxy_section(pass) -%}
+    # Enable Keepalive Connections
+    # https://www.nginx.com/blog/tuning-nginx/#keepalive
+    # A number of connections may be defined for each upstream in /etc/nginx/conf.d/upstreams.conf
+    proxy_set_header Connection        "";
+    proxy_set_header Host              $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version                 1.1;
+
+    proxy_pass        {{ pass }};
+    proxy_redirect    off;
+{%- endmacro %}
+
+{% macro well_known_section(webroot_path, proxy) -%}
+  location /.well-known {
+
+  {% if proxy %}
+    {{ proxy_section(proxy) }}
+  {% else %}
+    root              {{ webroot_path }};
+  {% endif %}
+  }
+{%- endmacro %}
+
 {% if ssl_exists %}
 # REDIRECT HTTP TRAFFIC ON {{ name }} TO HTTPS
 server {
@@ -14,9 +38,7 @@ server {
   listen              *:80{% if default_server %} default_server{% endif %};
   server_name         {{ name }};
 
-  location /.well-known {
-    root              {{ webroot_path }};
-  }
+  {{ well_known_section(webroot_path, challenge_proxy) }}
 
   location / {
     return            302 https://{{ name }}$request_uri;
@@ -31,9 +53,7 @@ server {
 
   server_name         www.{{ name }};
 
-  location /.well-known {
-    root              {{ webroot_path }};
-  }
+  {{ well_known_section(webroot_path, challenge_proxy) }}
 
   listen              *:80;
   access_log          /var/log/nginx/{{ name }}.access.log combined;
@@ -49,9 +69,7 @@ server {
 server {
   server_name         www.{{ name }};
 
-  location /.well-known {
-    root              {{ webroot_path }};
-  }
+  {{ well_known_section(webroot_path, challenge_proxy) }}
 
   {% if ssl_exists %}
   listen              443 ssl;
@@ -74,8 +92,6 @@ server {
 }
 {% endif %}
 
-
-
 # MAIN SERVER
 server {
 
@@ -92,9 +108,7 @@ server {
   error_log           /var/log/nginx/{{ name }}.error.log;
   {% endif %}
 
-  location /.well-known {
-    root              {{ webroot_path }};
-  }
+  {{ well_known_section(webroot_path, challenge_proxy) }}
 
   gzip                on;
   gzip_proxied        any;
@@ -118,31 +132,11 @@ server {
   }
 
   location @default {
-
-    # Enable Keepalive Connections
-    # https://www.nginx.com/blog/tuning-nginx/#keepalive
-    # A number of connections may be defined for each upstream in /etc/nginx/conf.d/upstreams.conf
-    proxy_set_header Connection        "";
-    proxy_set_header Host              $host;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_http_version                 1.1;
-
-    proxy_pass        http://{{ upstream_name }};
-    proxy_redirect    off;
+    {{ proxy_section('http://' + upstream_name ) }}
   }
   {% else %}
   location / {
-
-    # Enable Keepalive Connections
-    # https://www.nginx.com/blog/tuning-nginx/#keepalive
-    # A number of connections may be defined for each upstream in /etc/nginx/conf.d/upstreams.conf
-    proxy_set_header Connection        "";
-    proxy_set_header Host              $host;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_http_version                 1.1;
-
-    proxy_pass        http://{{ upstream_name }};
-    proxy_redirect    off;
+    {{ proxy_section('http://' + upstream_name ) }}
   }
   {% endif %}
 }
