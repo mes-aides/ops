@@ -86,7 +86,8 @@ def bootstrap_tasks(c, host, name):
   app_setup(c)
 
   letsencrypt(c)
-  nginx_sites(c, fullname, is_default=True)
+  nginx_sites(c, fullname, is_default=False)
+  nginx_sites(c, 'mes-aides.gouv.fr', is_default=True)
 
   refresh_tasks(c)
 
