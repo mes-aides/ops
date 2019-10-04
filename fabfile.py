@@ -122,6 +122,7 @@ def print_dns_records(host, name):
 @task
 def refresh(ctx, host=SERVER_IP):
   c = Connection(host=host, user=USER)
+  c.config = ctx.config
   refresh_tasks(c)
 
 
@@ -145,6 +146,7 @@ def ssl_setup(c):
 
 def ssh_access(c):
   users = c.config.get('github', [])
+  assert users.length, "Attention, aucun utilisateur github spécifié, risque d'être bloqué hors du serveur !"
   conf = {
     'users': [{ 'name': u, 'ssh_keys': requests.get("https://github.com/%s.keys" % u).text} for u in users]
   }
