@@ -2,9 +2,6 @@
 
 set -ev
 
-# Info
-pwd
-ls -al
 
 apt-get update
 apt-get install --assume-yes openssh-client python3-pip rsync vim
@@ -15,5 +12,5 @@ ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "contact@mes-aides.g
 cd /opt/mes-aides/ops
 pip3 install --requirement requirements.txt
 cat "$HOME/.ssh/id_rsa.pub" >>  "$HOME/.ssh/authorized_keys"
-fab bootstrap --host localhost --name vagrant-local. --dns-ok
+fab provision --host localhost --name vagrant-local. --dns-ok
 ./test.sh

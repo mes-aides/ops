@@ -45,11 +45,6 @@ def vagrant_access(ctx, port, identity):
 
 
 @task
-def vagrant_provision(ctx, host, name):
-  bootstrap_tasks(ctx, host, name)
-
-
-@task
 def tell_me_your_name(c, host=SERVER_IP):
   c = Connection(host=host, user=USER)
   c.run('hostname')
@@ -59,17 +54,17 @@ def tell_me_your_name(c, host=SERVER_IP):
 
 
 @task
-def bootstrap(ctx, host, name, dns_ok=False):
+def provision(ctx, host, name, dns_ok=False):
   if not dns_ok:
     print_dns_records(host, name)
     return
 
   c = Connection(host=host, user=USER)
   c.config = ctx.config
-  bootstrap_tasks(c, host, name)
+  provision_tasks(c, host, name)
 
 
-def bootstrap_tasks(c, host, name):
+def provision_tasks(c, host, name):
   fullname = '%smes-aides.gouv.fr' % name
 
   system(c, fullname)
