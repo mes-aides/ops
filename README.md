@@ -6,7 +6,27 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 
 ## Initial provisioning
 
-The following commands run as **root** in the destination machine sets the [Mes Aides](https://mes-aides.gouv.fr) stack up.
+Prerequisite:
+- Python 3 and virtualenv
+
+```
+virtualenv .venv37 --python=python3.7
+source .venv37/bin/activate
+```
+
+- An SSH access to the remote server to the root user
+
+```
+SERVER=192.168.56.200
+NAME=vps
+ssh root@<server> -C date -c && # to test your connection
+```
+
+```
+pip install --requirement requirements.txt --upgrade
+```
+
+
 
 ```
 BRANCH_NAME=master

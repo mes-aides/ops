@@ -31,6 +31,22 @@ def write_nginx_config(config0):
     yield fp
 
 
+# Initial installation from a remote fabfile
+@task
+def bootstrap(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.config = ctx.config
+  c.run('mkdir --parents /opt/mes-aides')
+  c.run('apt-get install --assume-yes openssh-client python3-pip rsync vim')
+  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
+  c.run('apt-get update')
+  if c.run('test -f $HOME/.ssh/id_rsa', warn=True).exited:
+    c.run('ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "contact@mes-aides.gouv.fr"')
+  c.run('cd /opt/mes-aides/ops && pip3 install --requirement requirements.txt')
+  ssh_access(c)
+  c.run('cd /opt/mes-aides/ops && fab tell-me-your-name --host localhost --identity $HOME/.ssh/id_rsa')
+
+
 # Core task for full porivisionning
 @task
 def provision(ctx, host, name, dns_ok=False):
@@ -76,7 +92,7 @@ def tell_me_your_name(c, host):
 @task
 def proxy_challenge(ctx, host, name, challenge_proxy):
   c = Connection(host=host, user=USER)
-  fullname = '%smes-aides.gouv.fr' % name
+  fullname = get_fullname(name)
   nginx_all_sites(c, fullname, challenge_proxy=challenge_proxy)
 
 
@@ -85,20 +101,33 @@ def proxy_challenge(ctx, host, name, challenge_proxy):
 def regenerate_nginx_hosts(ctx, host):
   c = Connection(host=host, user=USER)
   fullname = c.run('hostname').stdout.split()[0]
-  print(fullname)
   nginx_all_sites(c, fullname)
 
+
+def test(c, name=None):
+  print(name)
 
 # Live hack task
 @task
 def fallback(ctx, host, name=None):
   c = Connection(host=host, user=USER)
-  c.put('files/monitor/monitor.sh', '/opt/mes-aides/monitor.sh')
-  c.run('/opt/mes-aides/monitor.sh')
+  test(c, 'fullname')
+
+
+def curl(c):
+  curl_versions = c.run("apt-cache show curl | grep Version | awk -F \" \" '{print $2}'", hide=True).stdout.split()
+  for v in curl_versions:
+    cmd = c.run("apt-get install --assume-yes --no-remove curl=%s" % v, warn=True)
+    if cmd.exited:
+      print("****************** Curl installation failed for version %s!" % v)
+      print("****************** Fallbacking to next version")
+    else:
+      return
+  raise BaseException("Curl could not be installed")
 
 
 def provision_tasks(c, host, name):
-  fullname = '%smes-aides.gouv.fr' % name
+  fullname = get_fullname(name)
 
   system(c, fullname)
   nginx_setup(c)
@@ -117,6 +146,10 @@ def provision_tasks(c, host, name):
   nginx_all_sites(c, fullname)
 
   refresh_tasks(c)
+
+
+def get_fullname(name):
+  return "%s.mes-aides.gouv.fr" % name
 
 
 def print_dns_records(host, name):
@@ -140,8 +173,9 @@ def ssl_setup(c):
 
 def ssh_access(c):
   users = c.config.get('github', [])
-  assert users.length, "Attention, aucun utilisateur github spécifié, risque d'être bloqué hors du serveur !"
+  assert len(users), "Attention, aucun utilisateur github spécifié, risque d'être bloqué hors du serveur !"
   conf = {
+    'root': c.run('cat ~/.ssh/id_rsa.pub', hide=True, warn=True).stdout,
     'users': [{ 'name': u, 'ssh_keys': requests.get("https://github.com/%s.keys" % u).text} for u in users]
   }
   with write_template('files/root_authorized_keys.template', conf) as fp:
@@ -238,8 +272,10 @@ def system(c, name=None):
   # Once added, curl is tricky to install
   c.run('echo "deb http://deb.debian.org/debian/ stretch main" | tee /etc/apt/sources.list.d/debian-stretch.list')
   c.run('apt update')
+  c.run('apt-get install --assume-yes libcurl3')
 
   c.run('apt-get install --assume-yes build-essential git man ntp vim')
+  curl(c)
 
   c.run('apt-get install --assume-yes chromium')
   c.run('sysctl -w kernel.unprivileged_userns_clone=1')
@@ -261,9 +297,6 @@ def node(c):
 def pm2(c):
   c.run('npm install --global pm2@3.5.1')
   c.run('pm2 startup systemd -u main --hp /home/main')
-  c.run('su - main -c "cd mes-aides-ui && pm2 install pm2-logrotate"')
-  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:max_size 50M"')
-  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:compress true"')
 
 
 def python(c):
@@ -276,9 +309,9 @@ def mongodb(c):
   if True or 'Mongo' not in result.stdout:
     c.run('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4')
     c.run('echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org.list')
+    c.run('apt-get update')
   else:
     print('MongoDB packages already setup')
-  c.run('apt-get install --assume-yes libcurl3')
   c.run('apt-get install --assume-yes mongodb-org')
   c.run('service mongod start')
   c.run('systemctl enable mongod')
@@ -303,6 +336,9 @@ def app_setup(c):
   test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'backend/lib/stats\'"', warn=True)
   if test.exited:
     c.run('su - main -c \'(crontab -l 2>/dev/null; echo "23 2 * * * /usr/bin/node /home/main/mes-aides-ui/backend/lib/stats") | crontab -\'')
+  c.run('su - main -c "cd mes-aides-ui && pm2 install pm2-logrotate"')
+  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:max_size 50M"')
+  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:compress true"')
 
 
 def app_refresh(c):

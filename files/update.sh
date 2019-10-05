@@ -8,7 +8,8 @@ cd `dirname $0`
 echo "Your SSH connection ($1) triggered a shell script ($0)."
 case "$1" in
     deploy)
-        fab refresh --host localhost
+        cd ops
+        fab refresh --host localhost --identity $HOME/.ssh/id_rsa
         ;;
     *)
         echo $"Usage: deploy"

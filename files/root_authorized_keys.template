@@ -1,6 +1,9 @@
 # MANAGED BY MES AIDES OPS
 # Modifications should be made in that template
 
+# Root key for local connection
+{{ root }}
+
 # User keys
 {% for user in users %}
 # {{ user.name }}
