@@ -104,14 +104,27 @@ def regenerate_nginx_hosts(ctx, host):
   nginx_all_sites(c, fullname)
 
 
-def test(c, name=None):
-  print(name)
+remote_location = '/home/main/mes-aides-ui/backend/config/production.js'
+local_location = 'production.config.js'
+@task
+def production_config_get(ctx, host='mes-aides.gouv.fr'):
+  c = Connection(host=host, user=USER)
+  c.get(remote_location, local_location)
+
+
+@task
+def production_config_put(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.put(local_location, remote_location)
+  app_restart(c)
+
 
 # Live hack task
 @task
 def fallback(ctx, host, name=None):
   c = Connection(host=host, user=USER)
-  test(c, 'fullname')
+  c.config = ctx.config
+  ssh_access(c)
 
 
 def curl(c):
@@ -178,6 +191,7 @@ def ssh_access(c):
     'root': c.run('cat ~/.ssh/id_rsa.pub', hide=True, warn=True).stdout,
     'users': [{ 'name': u, 'ssh_keys': requests.get("https://github.com/%s.keys" % u).text} for u in users]
   }
+  c.put('files/update.sh', '/opt/mes-aides/update.sh')
   with write_template('files/root_authorized_keys.template', conf) as fp:
     c.put(fp, 'authorized_keys')
   c.sudo('mkdir --parents /root/.ssh')
@@ -345,6 +359,9 @@ def app_refresh(c):
   c.run('su - main -c "cd mes-aides-ui && git pull"')
   c.run('su - main -c "cd mes-aides-ui && npm ci"')
   c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
+  app_restart(c)
+
+def app_restart(c):
   c.run('su - main -c "cd mes-aides-ui && pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
   c.run('su - main -c "cd mes-aides-ui && pm2 save"')
 
