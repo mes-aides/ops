@@ -1,13 +1,4 @@
-
 $instance_name = 'metal'
-
-file { '/opt/mes-aides/update.sh':
-    ensure => file,
-    group  => 'root',
-    mode   => '700',
-    owner  => 'root',
-    source => 'puppet:///modules/mesaides/update.sh',
-}
 
 # ^[ ^]* prefix in file_line REGEXes is used to prevent matching on legitimate textual comments
 file_line { '/etc/ssh/sshd_config ChallengeResponseAuthentication':
@@ -33,8 +24,6 @@ file_line { '/etc/ssh/sshd_config UsePAM':
     match  => '^[ ^]*UsePAM',
     notify => [ Service['ssh'] ],
 }
-
-include ntp
 
 file_line { '/etc/nginx/mime.types WOFF':
     ensure  => present,

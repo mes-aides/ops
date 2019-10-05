@@ -5,7 +5,6 @@ Description=Service in charge of mes-aides.gouv.fr monitoring webserver
 User=main
 Group=main
 WorkingDirectory=/opt/mes-aides
-EnvironmentFile=-/home/main/.mes-aides-secrets
 ExecStart=/usr/bin/node monitor-server
 
 [Install]

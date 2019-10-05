@@ -234,12 +234,12 @@ def system(c, name=None):
   if name:
     c.run('hostname %s' % name)
 
-  # This source is required for MongoDB
+  # This source list is required for MongoDB
   # Once added, curl is tricky to install
   c.run('echo "deb http://deb.debian.org/debian/ stretch main" | tee /etc/apt/sources.list.d/debian-stretch.list')
   c.run('apt update')
 
-  c.run('apt-get install --assume-yes build-essential git man vim')
+  c.run('apt-get install --assume-yes build-essential git man ntp vim')
 
   c.run('apt-get install --assume-yes chromium')
   c.run('sysctl -w kernel.unprivileged_userns_clone=1')
