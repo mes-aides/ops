@@ -52,41 +52,6 @@ file_line { '/etc/nginx/mime.types TTF':
     require => [ Class['nginx'] ],
 }
 
-file { '/home/main/setup-pm2.sh':
-    ensure => file,
-    group  => 'main',
-    mode   => '700',
-    owner  => 'main',
-    source => 'puppet:///modules/mesaides/setup-pm2.sh',
-    require => [ User['main'] ]
-}
-
-exec { 'pm2 install pm2-logrotate':
-    command     => '/home/main/setup-pm2.sh /usr/bin/pm2',
-    cwd         => '/home/main/mes-aides-ui',
-    environment => ['HOME=/home/main'],
-    require     => [ File['/home/main/setup-pm2.sh'], Exec['chown pm2 home'] ],
-    user        => 'main',
-}
-
 # Currently required - Failure during npm ci
 # mes-aides-ui > betagouv-mes-aides-api > ludwig-api > connect-mongo > mongodb > kerberos
 package { 'libkrb5-dev': }
-
-# Install libfontconfig to generate PDFs with PhantomJS
-package { 'libfontconfig': }
-
-# Install Chromium to have Puppeteer dependencies installed as well
-package { 'chromium-browser':
-    ensure => 'present',
-}
-
-# https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#alternative-setup-setuid-sandbox
-exec { 'setup setuid sandbox':
-    command => 'chown root:root node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox && chmod 4755 node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox && cp -p node_modules/puppeteer/.local-chromium/linux-*/chrome-linux/chrome_sandbox /usr/local/sbin/chrome-devel-sandbox',
-    path    => [ '/usr/local/bin', '/usr/bin', '/bin' ],
-    cwd     => '/home/main/mes-aides-ui',
-    user    => 'root',
-    creates => '/usr/local/sbin/chrome-devel-sandbox',
-    onlyif  => 'test -d node_modules/puppeteer'
-}

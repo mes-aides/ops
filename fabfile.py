@@ -5,9 +5,6 @@ import os
 import requests
 import tempfile
 
-SERVER_IP="54.36.180.23"
-HOSTPREFIX='vps515386.'
-
 USER="root"
 WEBROOT_PATH="/var/www"
 
@@ -34,25 +31,7 @@ def write_nginx_config(config0):
     yield fp
 
 
-@task
-def vagrant_access(ctx, port, identity):
-  c = Connection('127.0.0.1', 'vagrant', port, connect_kwargs={
-    "key_filename": identity,
-  })
-  c.config = ctx.config
-  c.run('hostname')
-  ssh_access(c)
-
-
-@task
-def tell_me_your_name(c, host=SERVER_IP):
-  c = Connection(host=host, user=USER)
-  c.run('hostname')
-  c.run('date')
-  c.run('uname -a')
-  c.run('lsb_release -a')
-
-
+# Core task for full porivisionning
 @task
 def provision(ctx, host, name, dns_ok=False):
   if not dns_ok:
@@ -62,6 +41,60 @@ def provision(ctx, host, name, dns_ok=False):
   c = Connection(host=host, user=USER)
   c.config = ctx.config
   provision_tasks(c, host, name)
+
+
+# Task for continuous deployment
+@task
+def refresh(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.config = ctx.config
+  refresh_tasks(c)
+
+
+# Allow NGINX remote debugging
+@task
+def nginx(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.run('service nginx status', warn=True)
+  c.run('service nginx restart', warn=True)
+  c.run('service nginx status')
+
+
+# Basic task for connection debugging
+@task
+def tell_me_your_name(c, host):
+  c = Connection(host=host, user=USER)
+  c.run('hostname')
+  c.run('date')
+  c.run('uname -a')
+  c.run('lsb_release -a')
+
+
+# Allow Lets Encrypt challenge redirection to
+# move production requests to differente servers
+# without downtime
+@task
+def proxy_challenge(ctx, host, name, challenge_proxy):
+  c = Connection(host=host, user=USER)
+  fullname = '%smes-aides.gouv.fr' % name
+  nginx_all_sites(c, fullname, challenge_proxy=challenge_proxy)
+
+
+# Allow
+@task
+def regenerate_nginx_hosts(ctx, host):
+  c = Connection(host=host, user=USER)
+  fullname = c.run('hostname').stdout.split()[0]
+  print(fullname)
+  nginx_all_sites(c, fullname)
+
+
+# Live hack task
+@task
+def fallback(ctx, host, name=None):
+  c = Connection(host=host, user=USER)
+  c.put('files/monitor/monitor.sh', '/opt/mes-aides/monitor.sh')
+  c.run('/opt/mes-aides/monitor.sh')
 
 
 def provision_tasks(c, host, name):
@@ -86,44 +119,10 @@ def provision_tasks(c, host, name):
   refresh_tasks(c)
 
 
-@task
-def proxy_challenge(ctx, host, name, challenge_proxy):
-  c = Connection(host=host, user=USER)
-  fullname = '%smes-aides.gouv.fr' % name
-  nginx_all_sites(c, fullname, challenge_proxy=challenge_proxy)
-
-
-@task
-def regenerate_nginx_hosts(ctx, host):
-  c = Connection(host=host, user=USER)
-  fullname = c.run('hostname').stdout.split()[0]
-  print(fullname)
-  nginx_all_sites(c, fullname)
-
-@task
-def nginx(ctx, host):
-  c = Connection(host=host, user=USER)
-  c.run('service nginx status', warn=True)
-  c.run('service nginx restart', warn=True)
-  c.run('service nginx status')
-
-
 def print_dns_records(host, name):
   print('DNS records should be updated')
   print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.']]]))
   print('Once it is done add --dns-ok')
-
-
-@task
-def refresh(ctx, host=SERVER_IP):
-  c = Connection(host=host, user=USER)
-  c.config = ctx.config
-  refresh_tasks(c)
-
-
-@task
-def fallback(ctx, host=SERVER_IP, name=None):
-  c = Connection(host=host, user=USER)
 
 
 def refresh_tasks(c):
@@ -234,7 +233,12 @@ def nginx_all_sites(c, fullname, challenge_proxy=None):
 def system(c, name=None):
   if name:
     c.run('hostname %s' % name)
-  c.run('apt-get install --assume-yes curl') # curl=7.52.1-5+deb9u9 may be necessary as Curl versions may conflict
+
+  # This source is required for MongoDB
+  # Once added, curl is tricky to install
+  c.run('echo "deb http://deb.debian.org/debian/ stretch main" | tee /etc/apt/sources.list.d/debian-stretch.list')
+  c.run('apt update')
+
   c.run('apt-get install --assume-yes build-essential git man vim')
 
   c.run('apt-get install --assume-yes chromium')
@@ -257,6 +261,9 @@ def node(c):
 def pm2(c):
   c.run('npm install --global pm2@3.5.1')
   c.run('pm2 startup systemd -u main --hp /home/main')
+  c.run('su - main -c "cd mes-aides-ui && pm2 install pm2-logrotate"')
+  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:max_size 50M"')
+  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:compress true"')
 
 
 def python(c):
@@ -269,8 +276,6 @@ def mongodb(c):
   if True or 'Mongo' not in result.stdout:
     c.run('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4')
     c.run('echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org.list')
-    c.run('echo "deb http://deb.debian.org/debian/ stretch main" | tee /etc/apt/sources.list.d/debian-stretch.list')
-    c.run('apt update')
   else:
     print('MongoDB packages already setup')
   c.run('apt-get install --assume-yes libcurl3')
@@ -305,6 +310,7 @@ def app_refresh(c):
   c.run('su - main -c "cd mes-aides-ui && npm ci"')
   c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
   c.run('su - main -c "cd mes-aides-ui && pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
+  c.run('su - main -c "cd mes-aides-ui && pm2 save"')
 
 
 venv_dir = '/home/main/venv_python3.7'
