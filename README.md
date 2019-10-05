@@ -4,153 +4,65 @@ Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
 
 > Déploie l'infrastructure de Mes Aides.
 
+
 ## Initial provisioning
 
 Prerequisite:
 - Python 3 and virtualenv
+- An SSH connection to the root user of the remote server
 
-```
-virtualenv .venv37 --python=python3.7
-source .venv37/bin/activate
-```
-
-- An SSH access to the remote server to the root user
 
 ```
 SERVER=192.168.56.200
 NAME=vps
-ssh root@<server> -C date -c && # to test your connection
-```
 
-```
+
+virtualenv .venv37 --python=python3.7
 pip install --requirement requirements.txt --upgrade
+ssh root@$SERVER -C date
+
+fab bootstrap --host $SERVER
+fab provision --host $SERVER --name $NAME
+# fab provision --host $SERVER --name $NAME --dns-ok
 ```
-
-
-
-```
-BRANCH_NAME=master
-curl --location --remote-name https://github.com/betagouv/mes-aides-ops/archive/$BRANCH_NAME.tar.gz
-tar -xvf $BRANCH_NAME.tar.gz
-cd mes-aides-ops-$BRANCH_NAME
-./bootstrap.sh origin/master origin/$BRANCH_NAME
-```
-
-`./bootstrap.sh origin/master origin/$BRANCH_NAME` initiates the set-up. By default, `origin/master` is used for both repositories (https://github.com/betagouv/mes-aides-ui and https://github.com/betagouv/mes-aides-ops). That can be overidden by passing *TREEISH* parameters. The first one is the target revision for `mes-aides-ui`and the second one is the target revision for `mes-aides-ops`.
-
-That is why the suggested set of commands above overrides the default target revision of `mes-aides-ops` to rely on the selected branch.
 
 ### Secret environment variables
 
-The main NodeJS server needs some private variables. These can be made available as environment variables set in `/home/main/.mes-aides-secrets`. This file is loaded before starting the NodeJS server.
+The main NodeJS server needs some private variables for production, stored at '/home/main/mes-aides-ui/backend/config/production.js'
 
-Here is an example of `/home/main/.mes-aides-secrets`:
-
-```bash
-LUDWIG_ACCESS_TOKEN=secret_ludwig_access_token
-LUDWIG_GH_CLIENT_SECRET=ludwig_gh_client_secret
-```
-
-### HTTPS configuration
-
-Limitation: The initial setup can't be done with HTTPS enabled because NGINX has to be properly configured on port 80 before requesting an SSL certificate.
-
-Currently, multiple steps are required to have a HTTPS configuration.
-
-```shell
-touch /opt/mes-aides/use_ssl # Puppet relies on that file to enable a HTTPS/SSL configuration
-/opt/mes-aides/update.sh provision # Given use_ssl Puppet will update NGINX configuration to accept Let's Encrypt and request a certificate
-/opt/mes-aides/update.sh provision # This time with a certificate and the use_ssl flag Puppet will switch the HTTPS setup on (with the redirection)
-```
+These variables can be fetched from the current production server with `fab production-config-get`, _--host_ can be specified but default to _mes-aides.gouv.fr_. Then the configuration file can be put on another server with `fab production-config-put --host <hostname>`. 
 
 
-## Continuous provisioning and deployment
+### Continuous deployment
 
-### Provisioning
-
-A private key has been generated so that one can `ssh` to the host and it will automatically trigger:
-- `puppet apply ops.pp` (update of mes-aides-ops on the host)
-- `puppet apply default.pp` (host provisioning with mes-aides-ui deployment)
-
-That private key has been added to CircleCI (mes-aides-ops repository) to allow continuous provisioning.
-
-
-### Deployment
-
-Another private key can `ssh` to the host and it will automatically run `puppet apply default.pp` (host provisioning with mes-aides-ui deployment).
+An private key can `ssh` to the host and it will automatically deploy the application latest version.
 
 That private key has been added to CirclecCI (mes-aides-ui repository) to allow continuous deployment.
-
-
-## Deploy a specific commit
-
-Branch specifications are expected to be done during the initial provisioning as described in the above section. However, revisions can be directly updated on the server. The following script updates mes-aides-ui target revision to `origin/staging` and triggers a redeployment. A similar script could be created to provision the server using a different target revision than `origin/master`.
-
-```shell
-UI_TARGET_REVISION=origin/staging
-echo $UI_TARGET_REVISION > /opt/mes-aides/ui_target_revision
-/opt/mes-aides/update.sh deploy
-```
 
 
 ## Development
 
 Development is done using Vagrant and a Debian 10 (buster).
 
-The `vagrant up` command should give you a fully functioning Mes Aides instance.
+The `vagrant up` command shoudl give you a VM in a similar environment as OVH **clean** instance.
+You have to run provisioning commands to set up the server.
 
 
 Currently, it gives you:
-
 - A MongoDB instance with default settings.
 - Mes Aides on port 8000 (ExpressJS application).
 - OpenFisca on port 2000 (Python via gunicorn).
+- A basic monitor server
 
-And then:
+And via nginx :
+- the application as a default server and on 4 host names:
+    - (www\.)?(<prefix>\.)?mes-aides.gouv.fr,
+- OpenFisca on 2 host names:
+    - (openfisca.)?(<prefix>\.)?mes-aides.gouv.fr,
+- the monitor on 2 host names:
+    - (monitor.)?(<prefix>\.)?mes-aides.gouv.fr,
 
-- Mes Aides on port 80 thanks to NGINX proxy.
-
-or
-
-- A redirection from port 80 to https://metal.mes-aides.gouv.fr
-- Mes Aides on port 433 at hostname metal.mes-aides.gouv.fr
-
-
-### Iterations
-
-By default, the guest instance is available at `192.168.56.100`. The Vagrantfile is set up to make iterations relatively easy. If your repository is checked out in a directory named `n(_label)` where `n` is a number, the guest instance will be available at `192.168.56.(100+n)`.
-
-
-## Details
-
-Currently, applications are set up and run by *ubuntu* user.
-
-
-## TODO
-
-- Check relative path possibilities
-    + vcsrepo { '/home/ubuntu/mes-aides-ui':
-        * /opt alternatives
-        * Absolute paths are required in vcsrepo https://github.com/puppetlabs/puppetlabs-vcsrepo/blob/master/lib/puppet/type/vcsrepo.rb#L162
-    + exec { 'install node modules for mes-aides-ui':
-        * absolute or qualified with path https://docs.puppet.com/puppet/latest/types/exec.html#exec-attribute-command
-- Can we use the user running puppet --apply?
-    + Yes we can and rely on facts "${facts['identity']['user']}"
-    + To prevent explicit user reference
-    + exec { 'install node modules for mes-aides-ui':
-- Comment current Python setup (python:requirements do not accept --upgrade)
-- Surcouche service/upstart
-- Move inline shell scripts to files
-    + bootstrap.sh
-- Create CI deployment script
-    + Add in Circle CI in production
-- Formal test of CI deployment
-- Add Let's Encrypt SSL support (OPT IN for SSL)
-    + Rely on mes-aides.gouv.fr certificate
-    + Prevent renewal
-- Create OpenFisca Puppet module?
-- Create Mes-Aides Puppet module (to make feature branch deployment a breeze)?
-
+HTTPS (and associated redirection) is setup if Let's Encrypt certificates are availables (3 set of certificates)
 
 # Monitor
 
