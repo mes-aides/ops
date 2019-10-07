@@ -13,14 +13,14 @@ Prerequisite:
 
 
 ```
-SERVER=192.168.56.200
-NAME=vps
-
+SERVER=51.38.36.153
+NAME=vps-cl
+ssh root@$SERVER -C date
 
 virtualenv .venv37 --python=python3.7
 pip install --requirement requirements.txt --upgrade
-ssh root@$SERVER -C date
 
+ssh-add ~/.ssh/id_rsa
 fab bootstrap --host $SERVER
 fab provision --host $SERVER --name $NAME
 # fab provision --host $SERVER --name $NAME --dns-ok
