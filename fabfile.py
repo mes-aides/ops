@@ -37,7 +37,7 @@ def bootstrap(ctx, host):
   c = Connection(host=host, user=USER)
   c.config = ctx.config
   c.run('mkdir --parents /opt/mes-aides')
-  c.run('apt-get install --assume-yes openssh-client python3-pip rsync vim')
+  c.run('apt-get install --assume-yes htop openssh-client python3-pip rsync vim')
   c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
   c.run('apt-get update')
   if c.run('test -f $HOME/.ssh/id_rsa', warn=True).exited:
