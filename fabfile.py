@@ -90,9 +90,9 @@ def tell_me_your_name(c, host):
 # move production requests to differente servers
 # without downtime
 @task
-def proxy_challenge(ctx, host, name, challenge_proxy):
+def proxy_challenge(ctx, host, challenge_proxy):
   c = Connection(host=host, user=USER)
-  fullname = get_fullname(name)
+  fullname = c.run('hostname').stdout.split()[0]
   nginx_all_sites(c, fullname, challenge_proxy=challenge_proxy)
 
 
