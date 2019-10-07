@@ -5,13 +5,11 @@ MAX_DISK_USAGE=90  # percentage
 PORT=8000
 OPENFISCA_PORT=2000
 PROTOCOL=https
-PUBLIC_HOST=metal.mes-aides.gouv.fr
+PUBLIC_HOST=`hostname`
+MAIN_PUBLIC_HOST=mes-aides.gouv.fr
 DEPLOYED_DIRECTORY=/home/main/mes-aides-ui
-PROVISIONING_DIRECTORY=/opt/mes-aides/ops
-
 
 failures=0
-
 if ! curl -sL -w "OpenFisca\t GET %{url_effective} -> %{http_code}\\n" http://localhost:$OPENFISCA_PORT -o /dev/null
 then let failures++
 fi
@@ -21,6 +19,10 @@ then let failures++
 fi
 
 if ! curl -sL -w "App (on public internet)\t GET %{url_effective} -> %{http_code}\\n" $PROTOCOL://$PUBLIC_HOST -o /dev/null
+then let failures++
+fi
+
+if ! curl -sL -w "App (on public internet)\t GET %{url_effective} -> %{http_code}\\n" $PROTOCOL://$MAIN_PUBLIC_HOST -o /dev/null
 then let failures++
 fi
 
@@ -41,7 +43,6 @@ function show_repository_stats {
 }
 
 show_repository_stats application $DEPLOYED_DIRECTORY
-show_repository_stats provisioning $PROVISIONING_DIRECTORY
 
 if [[ $failures -gt 0 ]]
 then

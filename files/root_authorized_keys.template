@@ -1,0 +1,16 @@
+# MANAGED BY MES AIDES OPS
+# Modifications should be made in that template
+
+# Root key for local connection
+{{ root }}
+
+# User keys
+{% for user in users %}
+# {{ user.name }}
+{{ user.ssh_keys }}
+{% endfor %}
+
+# Application keys
+# Deployment
+
+command="/opt/mes-aides/update.sh deploy",no-pty,no-port-forwarding,no-agent-forwarding ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDMtPoempzy3iCvs42pQhSh05KsRW9W7I+6ardtQH1GxhOWSSpIuPDZMfEA+2dWDwue8z0H6nsoZ4dlm7R9MJUWInN8xW+QlzYfVytURZw1aumX0OltUnQSXJ/hMN6olAQnSnVwEAO2ohyyQtbPVR5s0uPvbodwUdlF0Nf/eHtL6D/MDJMyErOmDjwNNuKJ0/bptFikVPQnirNd3/dwggRMC8vSDrVJizDANljezz/eXhq+AV41Hs50NHCf1P7BR/+dooLBRVQGnwsAidWQAjj6NSq2TnK2OJHK08xQ05Pq6btTdubfsRBvTDzpMSgnC7asSsKKJ1JJpNT0T/FYLRsB

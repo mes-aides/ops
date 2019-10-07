@@ -1,0 +1,11 @@
+[Unit]
+Description=Service in charge of mes-aides.gouv.fr monitoring webserver
+
+[Service]
+User=main
+Group=main
+WorkingDirectory=/opt/mes-aides
+ExecStart=/usr/bin/node monitor-server
+
+[Install]
+WantedBy=multi-user.target

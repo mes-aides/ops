@@ -1,0 +1,142 @@
+# MANAGED BY MES AIDES OPS
+# Modifications should be made in that template
+
+{% macro ssl_section() -%}
+  ssl_certificate     /etc/letsencrypt/live/{{ name }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ name }}/privkey.pem;
+  include snippets/ssl_params.conf;
+{%- endmacro %}
+
+{% macro proxy_section(pass) -%}
+    # Enable Keepalive Connections
+    # https://www.nginx.com/blog/tuning-nginx/#keepalive
+    # A number of connections may be defined for each upstream in /etc/nginx/conf.d/upstreams.conf
+    proxy_set_header Connection        "";
+    proxy_set_header Host              $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version                 1.1;
+
+    proxy_pass        {{ pass }};
+    proxy_redirect    off;
+{%- endmacro %}
+
+{% macro well_known_section(webroot_path, proxy) -%}
+  location /.well-known {
+
+  {% if proxy %}
+    {{ proxy_section(proxy) }}
+  {% else %}
+    root              {{ webroot_path }};
+  {% endif %}
+  }
+{%- endmacro %}
+
+{% if ssl_exists %}
+# REDIRECT HTTP TRAFFIC ON {{ name }} TO HTTPS
+server {
+
+  listen              *:80{% if default_server %} default_server{% endif %};
+  server_name         {{ name }};
+
+  {{ well_known_section(webroot_path, challenge_proxy) }}
+
+  location / {
+    return            302 https://{{ name }}$request_uri;
+  }
+}
+{% endif %}
+
+{% if add_www_subdomain %}
+  {% if ssl_exists %}
+# REDIRECT HTTP TRAFFIC ON www.{{ name }} TO {{ name }} ON HTTPS
+server {
+
+  server_name         www.{{ name }};
+
+  {{ well_known_section(webroot_path, challenge_proxy) }}
+
+  listen              *:80;
+  access_log          /var/log/nginx/{{ name }}.access.log combined;
+  error_log           /var/log/nginx/{{ name }}.error.log;
+
+  location / {
+    return            302 https://{{ name }}$request_uri;
+  }
+}
+  {% endif %}
+
+# REDIRECT TRAFFIC ON www.{{ name }} TO {{ name }}
+server {
+  server_name         www.{{ name }};
+
+  {{ well_known_section(webroot_path, challenge_proxy) }}
+
+  {% if ssl_exists %}
+  listen              443 ssl;
+  {{ ssl_section() }}
+  access_log          /var/log/nginx/{{ name }}.ssl.access.log combined;
+  error_log           /var/log/nginx/{{ name }}.ssl.error.log;
+
+  location / {
+    return            302 https://{{ name }}$request_uri;
+  }
+  {% else %}
+  listen              *:80;
+  access_log          /var/log/nginx/{{ name }}.access.log combined;
+  error_log           /var/log/nginx/{{ name }}.error.log;
+
+  location / {
+    return            302 http://{{ name }}$request_uri;
+  }
+  {% endif %}
+}
+{% endif %}
+
+# MAIN SERVER
+server {
+
+  server_name         {{ name }};
+
+  {% if ssl_exists %}
+  listen              443 ssl;
+  {{ ssl_section() }}
+  access_log          /var/log/nginx/{{ name }}.ssl.access.log combined;
+  error_log           /var/log/nginx/{{ name }}.ssl.error.log;
+  {% else %}
+  listen              *:80{% if is_default and not ssl_exists %} default_server{% endif %};
+  access_log          /var/log/nginx/{{ name }}.access.log combined;
+  error_log           /var/log/nginx/{{ name }}.error.log;
+  {% endif %}
+
+  {{ well_known_section(webroot_path, challenge_proxy) }}
+
+  gzip                on;
+  gzip_proxied        any;
+  gzip_types          application/json
+                      application/javascript
+                      text/css
+                      text/plain
+                      text/xml;
+  gzip_vary           on;
+
+  {% if nginx_root %}
+  root {{ nginx_root }};
+
+  include snippets/mes-aides-static.conf;
+
+  # WARNING
+  # Everything in app/ or dist/ will be served directly by Nginx
+  # Do not put any sensitive file there
+  location / {
+    try_files /dist$uri /app$uri @default;
+  }
+
+  location @default {
+    {{ proxy_section('http://' + upstream_name ) }}
+  }
+  {% else %}
+  location / {
+    {{ proxy_section('http://' + upstream_name ) }}
+  }
+  {% endif %}
+}

@@ -1,4 +1,5 @@
 .librarian
+production.config.js
 .tmp
 .vagrant
-Puppetfile.lock
+.venv*
