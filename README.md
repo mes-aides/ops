@@ -13,8 +13,8 @@ Prerequisite:
 
 
 ```
-SERVER=51.38.36.153
-NAME=vps-cl
+SERVER=37.187.147.133
+NAME=metal-mex
 ssh root@$SERVER -C date
 
 virtualenv .venv37 --python=python3.7

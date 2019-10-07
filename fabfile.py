@@ -293,6 +293,9 @@ def system(c, name=None):
 
   c.run('apt-get install --assume-yes chromium')
   c.run('sysctl -w kernel.unprivileged_userns_clone=1')
+
+  c.run('ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime')
+  c.run('dpkg-reconfigure -f noninteractive tzdata')
   usermain(c)
 
 
