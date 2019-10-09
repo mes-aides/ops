@@ -47,6 +47,12 @@ def bootstrap(ctx, host):
   c.run('cd /opt/mes-aides/ops && fab tell-me-your-name --host localhost --identity $HOME/.ssh/id_rsa')
 
 
+@task
+def sync(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
+
+
 # Core task for full porivisionning
 @task
 def provision(ctx, host, name, dns_ok=False):
@@ -343,29 +349,34 @@ def monitor(c):
   c.run('systemctl enable ma-monitor')
 
 
-def app_setup(c):
-  c.run('su - main -c "git clone https://github.com/betagouv/mes-aides-ui.git"')
-  production_path = '/home/main/mes-aides-ui/backend/config/production.js'
+def app_setup(c, folder='mes-aides-ui', branch='master'):
+  c.run('su - main -c "git clone https://github.com/betagouv/mes-aides-ui.git %s"' % folder)
+  c.run('su - main -c "cd %s && git checkout %s"' % (folder, branch))
+  production_path = '/home/main/%s/backend/config/production.js' % folder
   result = c.run('[ -f %s ]' % production_path, warn=True)
   if result.exited:
-    c.run('su - main -c "cp /home/main/mes-aides-ui/backend/config/continuous_integration.js %s"' % production_path)
+    c.run('su - main -c "cp /home/main/%s/backend/config/continuous_integration.js %s"' % (folder, production_path))
   test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'backend/lib/stats\'"', warn=True)
   if test.exited:
-    c.run('su - main -c \'(crontab -l 2>/dev/null; echo "23 2 * * * /usr/bin/node /home/main/mes-aides-ui/backend/lib/stats") | crontab -\'')
-  c.run('su - main -c "cd mes-aides-ui && pm2 install pm2-logrotate"')
-  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:max_size 50M"')
-  c.run('su - main -c "cd mes-aides-ui && pm2 set pm2-logrotate:compress true"')
+    c.run('su - main -c \'(crontab -l 2>/dev/null; echo "23 2 * * * /usr/bin/node /home/main/%s/backend/lib/stats") | crontab -\'' % folder)
+  c.run('su - main -c "cd %s && pm2 install pm2-logrotate"' % folder)
+  c.run('su - main -c "cd %s && pm2 set pm2-logrotate:max_size 50M"' % folder)
+  c.run('su - main -c "cd %s && pm2 set pm2-logrotate:compress true"' % folder)
 
 
-def app_refresh(c):
-  c.run('su - main -c "cd mes-aides-ui && git pull"')
-  c.run('su - main -c "cd mes-aides-ui && npm ci"')
-  c.run('su - main -c "cd mes-aides-ui && npm run prestart"')
-  app_restart(c)
+def app_refresh(c, folder='mes-aides-ui'):
+  startHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
+  c.run('su - main -c "cd %s && git pull"' % folder)
+  refreshHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
+  if startHash != refreshHash:
+    c.run('su - main -c "cd %s && npm ci"' % folder)
+    c.run('su - main -c "cd %s && npm run prestart"' % folder)
+    app_restart(c, folder)
 
-def app_restart(c):
-  c.run('su - main -c "cd mes-aides-ui && pm2 startOrReload /home/main/mes-aides-ui/pm2_config.yaml --update-env"')
-  c.run('su - main -c "cd mes-aides-ui && pm2 save"')
+
+def app_restart(c, folder):
+  c.run('su - main -c "cd %s && pm2 startOrReload /home/main/%s/pm2_config.yaml --update-env"' % (folder, folder))
+  c.run('su - main -c "cd %s && pm2 save"' % folder)
 
 
 venv_dir = '/home/main/venv_python3.7'
