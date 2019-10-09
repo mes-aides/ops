@@ -123,8 +123,7 @@ def production_config_put(ctx, host):
 @task
 def fallback(ctx, host, name=None):
   c = Connection(host=host, user=USER)
-  c.config = ctx.config
-  ssh_access(c)
+  openfisca_config(c)
 
 
 def curl(c):
@@ -378,11 +377,11 @@ def openfisca_config(c):
   with write_template('files/openfisca.service.template', { 'venv_dir': venv_dir }) as fp:
     c.put(fp, '/etc/systemd/system/openfisca.service')
   c.run('systemctl daemon-reload')
-  c.run('service openfisca restart')
+  c.run('service openfisca reload')
   c.run('systemctl enable openfisca')
 
 
 def openfisca_refresh(c):
   c.run('su - main -c "%s/bin/pip3 install --upgrade pip"' % venv_dir)
   c.run('su - main -c "cd mes-aides-ui && %s/bin/pip3 install --upgrade -r openfisca/requirements.txt"' % venv_dir)
-  c.run('service openfisca restart')
+  c.run('service openfisca reload')
