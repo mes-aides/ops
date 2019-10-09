@@ -47,6 +47,12 @@ def bootstrap(ctx, host):
   c.run('cd /opt/mes-aides/ops && fab tell-me-your-name --host localhost --identity $HOME/.ssh/id_rsa')
 
 
+@task
+def sync(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
+
+
 # Core task for full porivisionning
 @task
 def provision(ctx, host, name, dns_ok=False):
