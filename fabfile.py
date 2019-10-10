@@ -7,6 +7,7 @@ import tempfile
 
 USER="root"
 WEBROOT_PATH="/var/www"
+NEXT_FOLDER="mes-aides-vue"
 
 loader = Environment(loader=FileSystemLoader('.'))
 
@@ -129,7 +130,9 @@ def production_config_put(ctx, host):
 @task
 def fallback(ctx, host, name=None):
   c = Connection(host=host, user=USER)
-  openfisca_config(c)
+  nginx_setup(c)
+  fullname = c.run('hostname').stdout.split()[0]
+  nginx_all_sites(c, fullname)
 
 
 def curl(c):
@@ -170,9 +173,16 @@ def get_fullname(name):
   return "%s.mes-aides.gouv.fr" % name
 
 
+@task
+def add_next(ctx, host):
+  c = Connection(host=host, user=USER)
+  app_setup(c, NEXT_FOLDER, 'vue')
+  app_refresh(c, NEXT_FOLDER)
+
+
 def print_dns_records(host, name):
   print('DNS records should be updated')
-  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.']]]))
+  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.', 'next.']]]))
   print('Once it is done add --dns-ok')
 
 
@@ -180,6 +190,7 @@ def refresh_tasks(c):
   ssh_access(c)
   app_refresh(c)
   openfisca_refresh(c)
+  app_refresh(c, NEXT_FOLDER)
 
 
 def ssl_setup(c):
@@ -210,12 +221,16 @@ def nginx_setup(c):
   c.put('files/nginx.ssl_params.conf', '/etc/nginx/snippets/ssl_params.conf')
   c.put('files/nginx.upstreams.conf', '/etc/nginx/conf.d/upstreams.conf')
   c.put('files/nginx_mesaides_static.conf', '/etc/nginx/snippets/mes-aides-static.conf')
-
+  nginx_reload(c)
   c.run('rm -f /etc/nginx/sites-enabled/default')
-  c.run('service nginx reload')
   c.run('mkdir --parents %s' % WEBROOT_PATH)
 
   ssl_setup(c)
+
+
+def nginx_reload(c):
+  c.run('nginx -t')
+  c.run('service nginx reload')
 
 
 def letsencrypt(c):
@@ -233,7 +248,7 @@ def nginx_site(c, config):
   if missing_certificate:
     with write_nginx_config(config) as fp:
       c.put(fp, '/etc/nginx/sites-enabled/%s.conf' % fullname)
-    c.run('service nginx reload')
+    nginx_reload(c)
 
     letsencrypt_args = '--cert-name %s -d %s %s --webroot-path %s' % (fullname, fullname, ' --expand -d www.%s' % fullname if add_www_subdomain else '', WEBROOT_PATH)
     letsencrypt_command = 'certbot certonly --webroot --non-interactive %s' % letsencrypt_args
@@ -247,7 +262,7 @@ def nginx_site(c, config):
 
   with write_nginx_config({'ssl_exists': ssl_exists, **config}) as fp:
     c.put(fp, '/etc/nginx/sites-enabled/%s.conf' % fullname)
-  c.run('service nginx reload')
+  nginx_reload(c)
 
 
 def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
@@ -268,6 +283,14 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
   }
   nginx_site(c, main)
 
+  next_ = {
+    'name': 'next.%s' % fullname,
+    'upstream_name' : 'mes_aides_vue',
+    'nginx_root': '/home/main/mes-aides-vue',
+    'challenge_proxy': challenge_proxy,
+  }
+  nginx_site(c, next_)
+
   openfisca = {
     'name': 'openfisca.%s' % fullname,
     'upstream_name' : 'openfisca',
@@ -275,7 +298,7 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
   }
   nginx_site(c, openfisca)
 
-  c.run('service nginx reload')
+  nginx_reload(c)
 
 
 def nginx_all_sites(c, fullname, challenge_proxy=None):

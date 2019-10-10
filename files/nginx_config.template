@@ -128,7 +128,7 @@ server {
   # Everything in app/ or dist/ will be served directly by Nginx
   # Do not put any sensitive file there
   location / {
-    try_files /dist$uri /app$uri @default;
+    try_files /dist$uri /dist$uri/index.html /app$uri @default;
   }
 
   location @default {
