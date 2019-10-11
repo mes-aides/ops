@@ -188,8 +188,8 @@ def print_dns_records(host, name):
 
 def refresh_tasks(c):
   ssh_access(c)
-  app_refresh(c)
-  openfisca_refresh(c)
+  if app_refresh(c):
+    openfisca_refresh(c)
   app_refresh(c, NEXT_FOLDER)
 
 
@@ -395,6 +395,8 @@ def app_refresh(c, folder='mes-aides-ui'):
     c.run('su - main -c "cd %s && npm ci"' % folder)
     c.run('su - main -c "cd %s && npm run prestart"' % folder)
     app_restart(c, folder)
+
+  return startHash != refreshHash
 
 
 def app_restart(c, folder):
