@@ -32,6 +32,15 @@ fab provision --host $SERVER --name $NAME
 fab sync --host=mes-aides.gouv.fr
 ```
 
+## Rune provisioning from personal computer
+
+
+cf. files/update.sh and deploy CircleCI workflow in main repository
+
+```
+fab refresh --host mes-aides.gouv.fr
+```
+
 ### Secret environment variables
 
 The main NodeJS server needs some private variables for production, stored at '/home/main/mes-aides-ui/backend/config/production.js'
