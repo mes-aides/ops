@@ -26,6 +26,12 @@ fab provision --host $SERVER --name $NAME
 # fab provision --host $SERVER --name $NAME --dns-ok
 ```
 
+## Update production provisioning
+
+```
+fab sync --host=mes-aides.gouv.fr
+```
+
 ### Secret environment variables
 
 The main NodeJS server needs some private variables for production, stored at '/home/main/mes-aides-ui/backend/config/production.js'
