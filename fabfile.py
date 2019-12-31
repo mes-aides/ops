@@ -8,7 +8,6 @@ import tempfile
 USER="root"
 WEBROOT_PATH="/var/www"
 
-NEXT_FOLDER="mes-aides-vue"
 ANGULAR_FOLDER="mes-aides-angular"
 
 loader = Environment(loader=FileSystemLoader('.'))
@@ -184,7 +183,7 @@ def add_next(ctx, host):
 
 def print_dns_records(host, name):
   print('DNS records should be updated')
-  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.', 'next.', 'v1.']]]))
+  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.', 'v1.']]]))
   print('Once it is done add --dns-ok')
 
 
@@ -197,7 +196,6 @@ def refresh_tasks(c):
   ssh_access(c)
   if app_refresh(c):
     openfisca_refresh(c)
-  app_refresh(c, NEXT_FOLDER)
   app_refresh(c, ANGULAR_FOLDER)
 
 
@@ -290,14 +288,6 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
     'challenge_proxy': challenge_proxy,
   }
   nginx_site(c, main)
-
-  next_ = {
-    'name': 'next.%s' % fullname,
-    'upstream_name' : 'mes_aides_vue',
-    'nginx_root': '/home/main/mes-aides-vue',
-    'challenge_proxy': challenge_proxy,
-  }
-  nginx_site(c, next_)
 
   angular_ = {
     'name': 'v1.%s' % fullname,
