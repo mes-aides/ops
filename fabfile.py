@@ -8,7 +8,7 @@ import tempfile
 USER="root"
 WEBROOT_PATH="/var/www"
 
-ANGULAR_FOLDER="mes-aides-angular"
+# ANGULAR_FOLDER="mes-aides-angular"
 
 loader = Environment(loader=FileSystemLoader('.'))
 
@@ -177,8 +177,8 @@ def get_fullname(name):
 @task
 def add_next(ctx, host):
   c = Connection(host=host, user=USER)
-  app_setup(c, ANGULAR_FOLDER, 'angular')
-  app_refresh(c, ANGULAR_FOLDER)
+  # app_setup(c, ANGULAR_FOLDER, 'angular')
+  # app_refresh(c, ANGULAR_FOLDER)
 
 
 def print_dns_records(host, name):
@@ -196,7 +196,7 @@ def refresh_tasks(c):
   ssh_access(c)
   if app_refresh(c):
     openfisca_refresh(c)
-  app_refresh(c, ANGULAR_FOLDER)
+  # app_refresh(c, ANGULAR_FOLDER)
 
 
 def ssl_setup(c):
@@ -289,13 +289,13 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
   }
   nginx_site(c, main)
 
-  angular_ = {
-    'name': 'v1.%s' % fullname,
-    'upstream_name' : 'mes_aides_angular',
-    'nginx_root': '/home/main/mes-aides-angular',
-    'challenge_proxy': challenge_proxy,
-  }
-  nginx_site(c, angular_)
+  # angular_ = {
+  #   'name': 'v1.%s' % fullname,
+  #   'upstream_name' : 'mes_aides_angular',
+  #   'nginx_root': '/home/main/mes-aides-angular',
+  #   'challenge_proxy': challenge_proxy,
+  # }
+  # nginx_site(c, angular_)
 
   openfisca = {
     'name': 'openfisca.%s' % fullname,
