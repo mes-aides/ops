@@ -6,7 +6,7 @@ PORT=8000
 OPENFISCA_PORT=2000
 PROTOCOL=https
 PUBLIC_HOST=`hostname`
-MAIN_PUBLIC_HOST=mes-aides.gouv.fr
+MAIN_PUBLIC_HOST=mes-aides.org
 DEPLOYED_DIRECTORY=/home/main/mes-aides-ui
 
 failures=0

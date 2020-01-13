@@ -1,5 +1,5 @@
 [Unit]
-Description=Service in charge of mes-aides.gouv.fr monitoring webserver
+Description=Service in charge of mes-aides.org monitoring webserver
 
 [Service]
 User=main

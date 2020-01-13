@@ -1,6 +1,5 @@
-host: 51.254.223.109
-name: vps275796.mes-aides.gouv.fr
+host: 51.91.78.117
+name: wiru.mes-aides.org
 github:
-  - alexsegura
-  - Flightan
+  - ManonLger
   - guillett
