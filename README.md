@@ -18,12 +18,13 @@ NAME=wiru
 ssh root@$SERVER -C date
 
 virtualenv .venv37 --python=python3.7
+source .venv37/bin/activate
 pip install --requirement requirements.txt --upgrade
 
 ssh-add ~/.ssh/id_rsa
 fab bootstrap --host $SERVER
 fab provision --host $SERVER --name $NAME
-# fab provision --host $SERVER --name $NAME --dns-ok
+# fab provision --host $SERVER --name $NAME --dns-ok # Once DNS have been updated
 ```
 
 ## Update production provisioning

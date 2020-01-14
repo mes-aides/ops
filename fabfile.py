@@ -60,6 +60,7 @@ def sync(ctx, host):
 def provision(ctx, host, name, dns_ok=False):
   if not dns_ok:
     print_dns_records(host, name)
+    print_dns_records(host, '')
     return
 
   c = Connection(host=host, user=USER)
@@ -167,7 +168,7 @@ def provision_tasks(c, host, name):
   letsencrypt(c)
   nginx_all_sites(c, fullname)
 
-  refresh_tasks(c)
+  refresh_tasks(c, force=True)
 
 
 def get_fullname(name):
@@ -183,7 +184,8 @@ def add_next(ctx, host):
 
 def print_dns_records(host, name):
   print('DNS records should be updated')
-  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.', 'v1.']]]))
+  suffix = '.' if len(name) else ''
+  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www%s' % suffix , 'openfisca%s' % suffix, 'monitor%s' % suffix]]])) #, 'v1.']]]))
   print('Once it is done add --dns-ok')
 
 
@@ -192,9 +194,9 @@ def show_dns(ctx, host, name):
   print_dns_records(host, name)
 
 
-def refresh_tasks(c):
+def refresh_tasks(c, force=False):
   ssh_access(c)
-  if app_refresh(c):
+  if app_refresh(c, force=force):
     openfisca_refresh(c)
   # app_refresh(c, ANGULAR_FOLDER)
 
@@ -402,11 +404,11 @@ def app_setup(c, folder='mes-aides-ui', branch='master'):
   c.run('su - main -c "cd %s && pm2 set pm2-logrotate:compress true"' % folder)
 
 
-def app_refresh(c, folder='mes-aides-ui'):
+def app_refresh(c, folder='mes-aides-ui', force=False):
   startHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
   c.run('su - main -c "cd %s && git pull"' % folder)
   refreshHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
-  if startHash != refreshHash:
+  if force or startHash != refreshHash:
     c.run('su - main -c "cd %s && npm ci"' % folder)
     c.run('su - main -c "cd %s && npm run prestart"' % folder)
     app_restart(c, folder)
@@ -424,15 +426,21 @@ def openfisca_setup(c):
   c.run('su - main -c "python3.7 -m venv %s"' % venv_dir)
 
 
+def openfisca_reload(c):
+  result = c.run('service openfisca reload', warn=True)
+  if result.exited:
+    c.run('service openfisca start')
+
+
 def openfisca_config(c):
   with write_template('files/openfisca.service.template', { 'venv_dir': venv_dir }) as fp:
     c.put(fp, '/etc/systemd/system/openfisca.service')
   c.run('systemctl daemon-reload')
-  c.run('service openfisca reload')
+  openfisca_reload(c)
   c.run('systemctl enable openfisca')
 
 
 def openfisca_refresh(c):
   c.run('su - main -c "%s/bin/pip3 install --upgrade pip"' % venv_dir)
   c.run('su - main -c "cd mes-aides-ui && %s/bin/pip3 install --upgrade -r openfisca/requirements.txt"' % venv_dir)
-  c.run('service openfisca reload')
+  openfisca_reload(c)
