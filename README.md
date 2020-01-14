@@ -1,6 +1,6 @@
 # Mes Aides ops
 
-Set up the [Mes Aides](https://mes-aides.gouv.fr) stack.
+Set up the [Mes Aides](https://mes-aides.org) stack.
 
 > Déploie l'infrastructure de Mes Aides.
 
@@ -13,23 +13,24 @@ Prerequisite:
 
 
 ```
-SERVER=37.187.147.133
-NAME=metal-mex
+SERVER=51.91.78.117
+NAME=wiru
 ssh root@$SERVER -C date
 
 virtualenv .venv37 --python=python3.7
+source .venv37/bin/activate
 pip install --requirement requirements.txt --upgrade
 
 ssh-add ~/.ssh/id_rsa
 fab bootstrap --host $SERVER
 fab provision --host $SERVER --name $NAME
-# fab provision --host $SERVER --name $NAME --dns-ok
+# fab provision --host $SERVER --name $NAME --dns-ok # Once DNS have been updated
 ```
 
 ## Update production provisioning
 
 ```
-fab sync --host=mes-aides.gouv.fr
+fab sync --host=mes-aides.org
 ```
 
 ## Rune provisioning from personal computer
@@ -38,14 +39,14 @@ fab sync --host=mes-aides.gouv.fr
 cf. files/update.sh and deploy CircleCI workflow in main repository
 
 ```
-fab refresh --host mes-aides.gouv.fr
+fab refresh --host mes-aides.org
 ```
 
 ### Secret environment variables
 
 The main NodeJS server needs some private variables for production, stored at '/home/main/mes-aides-ui/backend/config/production.js'
 
-These variables can be fetched from the current production server with `fab production-config-get`, _--host_ can be specified but default to _mes-aides.gouv.fr_. Then the configuration file can be put on another server with `fab production-config-put --host <hostname>`. 
+These variables can be fetched from the current production server with `fab production-config-get`, _--host_ can be specified but default to _mes-aides.org_. Then the configuration file can be put on another server with `fab production-config-put --host <hostname>`. 
 
 
 ### Continuous deployment
@@ -71,11 +72,11 @@ Currently, it gives you:
 
 And via nginx :
 - the application as a default server and on 4 host names:
-    - (www\.)?(<prefix>\.)?mes-aides.gouv.fr,
+    - (www\.)?(<prefix>\.)?mes-aides.org,
 - OpenFisca on 2 host names:
-    - (openfisca.)?(<prefix>\.)?mes-aides.gouv.fr,
+    - (openfisca.)?(<prefix>\.)?mes-aides.org,
 - the monitor on 2 host names:
-    - (monitor.)?(<prefix>\.)?mes-aides.gouv.fr,
+    - (monitor.)?(<prefix>\.)?mes-aides.org,
 
 HTTPS (and associated redirection) is setup if Let's Encrypt certificates are availables (3 set of certificates)
 

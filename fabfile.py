@@ -43,7 +43,7 @@ def bootstrap(ctx, host):
   c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
   c.run('apt-get update')
   if c.run('test -f $HOME/.ssh/id_rsa', warn=True).exited:
-    c.run('ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "contact@mes-aides.gouv.fr"')
+    c.run('ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "equipe@mes-aides.org"')
   c.run('cd /opt/mes-aides/ops && pip3 install --requirement requirements.txt')
   ssh_access(c)
   c.run('cd /opt/mes-aides/ops && fab tell-me-your-name --host localhost --identity $HOME/.ssh/id_rsa')
@@ -60,6 +60,7 @@ def sync(ctx, host):
 def provision(ctx, host, name, dns_ok=False):
   if not dns_ok:
     print_dns_records(host, name)
+    print_dns_records(host, '')
     return
 
   c = Connection(host=host, user=USER)
@@ -115,7 +116,7 @@ def regenerate_nginx_hosts(ctx, host):
 remote_location = '/home/main/mes-aides-ui/backend/config/production.js'
 local_location = 'production.config.js'
 @task
-def production_config_get(ctx, host='mes-aides.gouv.fr'):
+def production_config_get(ctx, host='mes-aides.org'):
   c = Connection(host=host, user=USER)
   c.get(remote_location, local_location)
 
@@ -167,11 +168,11 @@ def provision_tasks(c, host, name):
   letsencrypt(c)
   nginx_all_sites(c, fullname)
 
-  refresh_tasks(c)
+  refresh_tasks(c, force=True)
 
 
 def get_fullname(name):
-  return "%s.mes-aides.gouv.fr" % name
+  return "%s.mes-aides.org" % name
 
 
 @task
@@ -183,7 +184,8 @@ def add_next(ctx, host):
 
 def print_dns_records(host, name):
   print('DNS records should be updated')
-  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www.', 'openfisca.', 'monitor.', 'v1.']]]))
+  suffix = '.' if len(name) else ''
+  print('\n'.join(['%s 3600 IN A %s' % (item.ljust(25), host) for item in ['%s%s' % (prefix, name) for prefix in ['', 'www%s' % suffix , 'openfisca%s' % suffix, 'monitor%s' % suffix]]])) #, 'v1.']]]))
   print('Once it is done add --dns-ok')
 
 
@@ -192,9 +194,9 @@ def show_dns(ctx, host, name):
   print_dns_records(host, name)
 
 
-def refresh_tasks(c):
+def refresh_tasks(c, force=False):
   ssh_access(c)
-  if app_refresh(c):
+  if app_refresh(c, force=force):
     openfisca_refresh(c)
   # app_refresh(c, ANGULAR_FOLDER)
 
@@ -241,7 +243,7 @@ def nginx_reload(c):
 
 def letsencrypt(c):
   c.run('apt-get install --assume-yes certbot')
-  c.run('certbot register --non-interactive --agree-tos --email contact@mes-aides.gouv.fr')
+  c.run('certbot register --non-interactive --agree-tos --email contact@mes-aides.org')
 
 
 def nginx_site(c, config):
@@ -309,7 +311,7 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
 
 def nginx_all_sites(c, fullname, challenge_proxy=None):
   nginx_sites(c, fullname, is_default=False, challenge_proxy=challenge_proxy)
-  nginx_sites(c, 'mes-aides.gouv.fr', is_default=True, challenge_proxy=challenge_proxy)
+  nginx_sites(c, 'mes-aides.org', is_default=True, challenge_proxy=challenge_proxy)
 
 
 def system(c, name=None):
@@ -381,7 +383,7 @@ def monitor(c):
 
 
 def app_setup(c, folder='mes-aides-ui', branch='master'):
-  c.run('su - main -c "git clone https://github.com/betagouv/mes-aides-ui.git %s"' % folder)
+  c.run('su - main -c "git clone https://github.com/mes-aides/simulateur.git %s"' % folder)
   c.run('su - main -c "cd %s && git checkout %s"' % (folder, branch))
   production_path = '/home/main/%s/backend/config/production.js' % folder
   result = c.run('[ -f %s ]' % production_path, warn=True)
@@ -402,11 +404,11 @@ def app_setup(c, folder='mes-aides-ui', branch='master'):
   c.run('su - main -c "cd %s && pm2 set pm2-logrotate:compress true"' % folder)
 
 
-def app_refresh(c, folder='mes-aides-ui'):
+def app_refresh(c, folder='mes-aides-ui', force=False):
   startHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
   c.run('su - main -c "cd %s && git pull"' % folder)
   refreshHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
-  if startHash != refreshHash:
+  if force or startHash != refreshHash:
     c.run('su - main -c "cd %s && npm ci"' % folder)
     c.run('su - main -c "cd %s && npm run prestart"' % folder)
     app_restart(c, folder)
@@ -424,15 +426,21 @@ def openfisca_setup(c):
   c.run('su - main -c "python3.7 -m venv %s"' % venv_dir)
 
 
+def openfisca_reload(c):
+  result = c.run('service openfisca reload', warn=True)
+  if result.exited:
+    c.run('service openfisca start')
+
+
 def openfisca_config(c):
   with write_template('files/openfisca.service.template', { 'venv_dir': venv_dir }) as fp:
     c.put(fp, '/etc/systemd/system/openfisca.service')
   c.run('systemctl daemon-reload')
-  c.run('service openfisca reload')
+  openfisca_reload(c)
   c.run('systemctl enable openfisca')
 
 
 def openfisca_refresh(c):
   c.run('su - main -c "%s/bin/pip3 install --upgrade pip"' % venv_dir)
   c.run('su - main -c "cd mes-aides-ui && %s/bin/pip3 install --upgrade -r openfisca/requirements.txt"' % venv_dir)
-  c.run('service openfisca reload')
+  openfisca_reload(c)

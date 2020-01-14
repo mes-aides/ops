@@ -1,5 +1,5 @@
 [Unit]
-Description=Service in charge of OpenFisca Web API for mes-aides.gouv.fr
+Description=Service in charge of OpenFisca Web API for mes-aides.org
 
 [Service]
 User=main
