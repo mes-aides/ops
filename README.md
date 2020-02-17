@@ -33,14 +33,13 @@ fab provision --host $SERVER --name $NAME
 fab sync --host=mes-aides.org
 ```
 
-## Rune provisioning from personal computer
-
-
-cf. files/update.sh and deploy CircleCI workflow in main repository
+## Run provisioning from personal computer
 
 ```
 fab refresh --host mes-aides.org
 ```
+
+cf. files/update.sh and deploy CircleCI workflow in main repository
 
 ### Secret environment variables
 

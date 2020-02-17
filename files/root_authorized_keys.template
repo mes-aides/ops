@@ -12,4 +12,5 @@
 
 # Application keys
 # Deployment
-# TODO
+
+command="/opt/mes-aides/update.sh deploy",no-pty,no-port-forwarding,no-agent-forwarding ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDuOCF3voJYpTpqCRiD1Yf9QJ7y+LBopso7l4BWkCCUdFAGcq6ubFqAwMYJiaiR+g/jGAuFwyYS9Qntb6/tYccGhEerBb2Yl40sJS4DPTNDtjnFNNewYjexk53W5BQUwzeYyhAwDZyWPkrRSAobi1IgUBiJNIz7wYacrRVUbv1RecMDRQDKizQlWJ85vvAZ3hE91L8BGaFiFRJrhzhL5ZEJaihqyK9t/WipE3diZFq5Nv7huinRGF4PpfPF2cKX8XpFtlbP7xVXh5D4fqrL26V3lw08wYMrASuvOqP99zTqf5lwRjtmVRIy9F0TF+xJbXdrJabvrc1kSEvmkVj45RFv
