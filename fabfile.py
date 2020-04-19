@@ -70,10 +70,10 @@ def provision(ctx, host, name, dns_ok=False):
 
 # Task for continuous deployment
 @task
-def refresh(ctx, host):
+def refresh(ctx, host, force=False):
   c = Connection(host=host, user=USER)
   c.config = ctx.config
-  refresh_tasks(c)
+  refresh_tasks(c, force)
 
 
 # Allow NGINX remote debugging
@@ -413,7 +413,7 @@ def app_refresh(c, folder='mes-aides-ui', force=False):
     c.run('su - main -c "cd %s && npm run prestart"' % folder)
     app_restart(c, folder)
 
-  return startHash != refreshHash
+  return force or startHash != refreshHash
 
 
 def app_restart(c, folder):
