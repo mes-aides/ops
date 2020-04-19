@@ -394,9 +394,9 @@ def app_setup(c, folder='mes-aides-ui', branch='master'):
   if test.exited:
     c.run('su - main -c \'(crontab -l 2>/dev/null; echo "23 2 * * * /usr/bin/node /home/main/%s/backend/lib/stats") | crontab -\'' % folder)
 
-  test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'%s/backend/lib/survey\'"' % folder, warn=True)
+  test = c.run('su - main -c "crontab -l 2>/dev/null | grep -q \'%s/backend/lib/email\'"' % folder, warn=True)
   if test.exited:
-    cmd = "8 4 * * * (NODE_ENV=production /usr/bin/node /home/main/%s/backend/lib/survey.js send --multiple 1000 >> /var/log/main/surveys.log)" % folder
+    cmd = "8 4 * * * (NODE_ENV=production /usr/bin/node /home/main/%s/backend/lib/email.js send survey --multiple 1000 >> /var/log/main/emails.log)" % folder
     c.run('su - main -c \'(crontab -l 2>/dev/null; echo "%s") | crontab -\'' % cmd)
 
   c.run('su - main -c "cd %s && pm2 install pm2-logrotate"' % folder)
