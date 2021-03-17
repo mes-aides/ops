@@ -1,10 +1,10 @@
 [Unit]
-Description=Service in charge of OpenFisca Web API for mes-aides.org
+Description=Service in charge of OpenFisca Web API for mes-aides.1jeune1solution.beta.gouv.fr
 
 [Service]
 User=main
 Group=main
-WorkingDirectory=/home/main/mes-aides-ui/openfisca
+WorkingDirectory=/home/main/aides-jeunes/openfisca
 ExecStart={{ venv_dir }}/bin/gunicorn api --config config.py
 ExecReload=/bin/kill -HUP $MAINPID
 

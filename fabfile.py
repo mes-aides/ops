@@ -43,7 +43,7 @@ def bootstrap(ctx, host):
   c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
   c.run('apt-get update')
   if c.run('test -f $HOME/.ssh/id_rsa', warn=True).exited:
-    c.run('ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "equipe@mes-aides.org"')
+    c.run('ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "aides-jeunes@beta.gouv.fr"')
   c.run('cd /opt/mes-aides/ops && pip3 install --requirement requirements.txt')
   ssh_access(c)
   c.run('cd /opt/mes-aides/ops && fab tell-me-your-name --host localhost --identity $HOME/.ssh/id_rsa')
@@ -113,10 +113,10 @@ def regenerate_nginx_hosts(ctx, host):
   nginx_all_sites(c, fullname)
 
 
-remote_location = '/home/main/mes-aides-ui/backend/config/production.js'
+remote_location = '/home/main/aides-jeunes/backend/config/production.js'
 local_location = 'production.config.js'
 @task
-def production_config_get(ctx, host='mes-aides.org'):
+def production_config_get(ctx, host='mes-aides.1jeune1solution.beta.gouv.fr'):
   c = Connection(host=host, user=USER)
   c.get(remote_location, local_location)
 
@@ -172,7 +172,7 @@ def provision_tasks(c, host, name):
 
 
 def get_fullname(name):
-  return "%s.mes-aides.org" % name
+  return "%s.mes-aides.1jeune1solution.beta.gouv.fr" % name
 
 
 @task
@@ -243,7 +243,7 @@ def nginx_reload(c):
 
 def letsencrypt(c):
   c.run('apt-get install --assume-yes certbot')
-  c.run('certbot register --non-interactive --agree-tos --email contact@mes-aides.org')
+  c.run('certbot register --non-interactive --agree-tos --email aides-jeunes@beta.gouv.fr')
 
 
 def nginx_site(c, config):
@@ -286,7 +286,7 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
     'add_www_subdomain': True,
     'is_default': is_default,
     'upstream_name' : 'mes_aides',
-    'nginx_root': '/home/main/mes-aides-ui',
+    'nginx_root': '/home/main/aides-jeunes',
     'challenge_proxy': challenge_proxy,
   }
   nginx_site(c, main)
@@ -311,7 +311,7 @@ def nginx_sites(c, fullname, is_default=False, challenge_proxy=None):
 
 def nginx_all_sites(c, fullname, challenge_proxy=None):
   nginx_sites(c, fullname, is_default=False, challenge_proxy=challenge_proxy)
-  nginx_sites(c, 'mes-aides.org', is_default=True, challenge_proxy=challenge_proxy)
+  nginx_sites(c, 'mes-aides.1jeune1solution.beta.gouv.fr', is_default=True, challenge_proxy=challenge_proxy)
 
 
 def system(c, name=None):
@@ -382,8 +382,8 @@ def monitor(c):
   c.run('systemctl enable ma-monitor')
 
 
-def app_setup(c, folder='mes-aides-ui', branch='master'):
-  c.run('su - main -c "git clone https://github.com/mes-aides/simulateur.git %s"' % folder)
+def app_setup(c, folder='aides-jeunes', branch='master'):
+  c.run('su - main -c "git clone https://github.com/betagouv/aides-jeunes.git %s"' % folder)
   c.run('su - main -c "cd %s && git checkout %s"' % (folder, branch))
   production_path = '/home/main/%s/backend/config/production.js' % folder
   result = c.run('[ -f %s ]' % production_path, warn=True)
@@ -404,7 +404,7 @@ def app_setup(c, folder='mes-aides-ui', branch='master'):
   c.run('su - main -c "cd %s && pm2 set pm2-logrotate:compress true"' % folder)
 
 
-def app_refresh(c, folder='mes-aides-ui', force=False):
+def app_refresh(c, folder='aides-jeunes', force=False):
   startHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
   c.run('su - main -c "cd %s && git pull"' % folder)
   refreshHash = c.run('su - main -c "cd %s && git rev-parse HEAD"' % folder).stdout
@@ -442,5 +442,5 @@ def openfisca_config(c):
 
 def openfisca_refresh(c):
   c.run('su - main -c "%s/bin/pip3 install --upgrade pip"' % venv_dir)
-  c.run('su - main -c "cd mes-aides-ui && %s/bin/pip3 install --upgrade -r openfisca/requirements.txt"' % venv_dir)
+  c.run('su - main -c "cd aides-jeunes && %s/bin/pip3 install --upgrade -r openfisca/requirements.txt"' % venv_dir)
   openfisca_reload(c)

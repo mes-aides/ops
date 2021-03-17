@@ -6,8 +6,8 @@ PORT=8000
 OPENFISCA_PORT=2000
 PROTOCOL=https
 PUBLIC_HOST=`hostname`
-MAIN_PUBLIC_HOST=mes-aides.org
-DEPLOYED_DIRECTORY=/home/main/mes-aides-ui
+MAIN_PUBLIC_HOST=mes-aides.1jeune1solution.beta.gouv.fr
+DEPLOYED_DIRECTORY=/home/main/aides-jeunes
 
 failures=0
 if ! curl -sL -w "OpenFisca\t GET %{url_effective} -> %{http_code}\\n" http://localhost:$OPENFISCA_PORT -o /dev/null

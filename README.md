@@ -1,6 +1,6 @@
 # Mes Aides ops
 
-Set up the [Mes Aides](https://mes-aides.org) stack.
+Set up the [Mes Aides](https://mes-aides.1jeune1solution.beta.gouv.fr) stack.
 
 > Déploie l'infrastructure de Mes Aides.
 
@@ -30,29 +30,29 @@ fab provision --host $SERVER --name $NAME
 ## Update production provisioning
 
 ```
-fab sync --host=mes-aides.org
+fab sync --host=mes-aides.1jeune1solution.beta.gouv.fr
 ```
 
 ## Run provisioning from personal computer
 
 ```
-fab refresh --host mes-aides.org
+fab refresh --host mes-aides.1jeune1solution.beta.gouv.fr
 ```
 
 cf. files/update.sh and deploy CircleCI workflow in main repository
 
 ### Secret environment variables
 
-The main NodeJS server needs some private variables for production, stored at '/home/main/mes-aides-ui/backend/config/production.js'
+The main NodeJS server needs some private variables for production, stored at '/home/main/aides-jeunes/backend/config/production.js'
 
-These variables can be fetched from the current production server with `fab production-config-get`, _--host_ can be specified but default to _mes-aides.org_. Then the configuration file can be put on another server with `fab production-config-put --host <hostname>`. 
+These variables can be fetched from the current production server with `fab production-config-get`, _--host_ can be specified but default to _mes-aides.1jeune1solution.beta.gouv.fr_. Then the configuration file can be put on another server with `fab production-config-put --host <hostname>`.
 
 
 ### Continuous deployment
 
 An private key can `ssh` to the host and it will automatically deploy the application latest version.
 
-That private key has been added to CirclecCI (mes-aides-ui repository) to allow continuous deployment.
+That private key has been added to CirclecCI (aides-jeunes repository) to allow continuous deployment.
 
 
 ## Development
@@ -71,11 +71,11 @@ Currently, it gives you:
 
 And via nginx :
 - the application as a default server and on 4 host names:
-    - (www\.)?(<prefix>\.)?mes-aides.org,
+    - (www\.)?(<prefix>\.)?mes-aides.1jeune1solution.beta.gouv.fr,
 - OpenFisca on 2 host names:
-    - (openfisca.)?(<prefix>\.)?mes-aides.org,
+    - (openfisca.)?(<prefix>\.)?mes-aides.1jeune1solution.beta.gouv.fr,
 - the monitor on 2 host names:
-    - (monitor.)?(<prefix>\.)?mes-aides.org,
+    - (monitor.)?(<prefix>\.)?mes-aides.1jeune1solution.beta.gouv.fr,
 
 HTTPS (and associated redirection) is setup if Let's Encrypt certificates are availables (3 set of certificates)
 

@@ -6,16 +6,16 @@ CIRCLE_SHA1=0e3fe3ce87d8edb6295e28fccc0f2265089b4b51
 NAME=vagrant-local.
 
 function test_endpoints {
-  wget --quiet --header "Host: openfisca.${1}mes-aides.org" --output-document=- 0.0.0.0/variable/parisien | grep --silent openfisca_paris/paris.py
-  wget --quiet --header "Host: monitor.${1}mes-aides.org" --content-on-error --output-document=- 0.0.0.0 | grep --silent $CIRCLE_SHA1
+  wget --quiet --header "Host: openfisca.${1}mes-aides.1jeune1solution.beta.gouv.fr" --output-document=- 0.0.0.0/variable/parisien | grep --silent openfisca_paris/paris.py
+  wget --quiet --header "Host: monitor.${1}mes-aides.1jeune1solution.beta.gouv.fr" --content-on-error --output-document=- 0.0.0.0 | grep --silent $CIRCLE_SHA1
 }
 
 mkdir --parents /tmp/artifacts
 wget --retry-connrefused --tries=10 -O /tmp/artifacts/node.out 0.0.0.0:8000 2>/tmp/artifacts/wget.log
-cat /tmp/artifacts/node.out | grep --silent 'mes-aides.org'
+cat /tmp/artifacts/node.out | grep --silent 'mes-aides.1jeune1solution.beta.gouv.fr'
 wget --retry-connrefused --tries=10 -O /tmp/artifacts/nginx.out 0.0.0.0 2>/tmp/artifacts/wget.log
 wget 0.0.0.0/fonts/fontawesome-webfont.woff --quiet --spider --server-response 2>&1 | grep --silent "HTTP/1.1 200 OK"
-cat /tmp/artifacts/nginx.out | grep --silent 'mes-aides.org'
+cat /tmp/artifacts/nginx.out | grep --silent 'mes-aides.1jeune1solution.beta.gouv.fr'
 wget --quiet --output-document=- 0.0.0.0:2000/variable/parisien 2>&1 | grep --silent openfisca_paris/paris.py
 
 test_endpoints $NAME

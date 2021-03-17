@@ -8,7 +8,7 @@ apt-get install --assume-yes openssh-client python3-pip rsync vim
 mkdir --parents /opt/mes-aides
 rsync -r /vagrant/ /opt/mes-aides/ops
 
-ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "contact@mes-aides.org"
+ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -m PEM -N "" -C "aides-jeunes@beta.gouv.fr"
 cd /opt/mes-aides/ops
 pip3 install --requirement requirements.txt
 cat "$HOME/.ssh/id_rsa.pub" >>  "$HOME/.ssh/authorized_keys"
