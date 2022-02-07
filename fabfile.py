@@ -344,7 +344,7 @@ def usermain(c):
 
 
 def node(c):
-  c.run('curl --silent --location https://deb.nodesource.com/setup_12.x | bash -')
+  c.run('curl --silent --location https://deb.nodesource.com/setup_16.x | bash -')
   c.run('apt-get install --assume-yes nodejs')
   pm2(c)
 
