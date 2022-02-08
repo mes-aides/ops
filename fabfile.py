@@ -196,6 +196,7 @@ def show_dns(ctx, host, name):
 
 def refresh_tasks(c, force=False):
   ssh_access(c)
+  nginx_reload(c)
   if app_refresh(c, force=force):
     openfisca_refresh(c)
   # app_refresh(c, ANGULAR_FOLDER)
