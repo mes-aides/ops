@@ -207,6 +207,12 @@ def ssl_setup(c):
   if missing:
     c.run('/usr/bin/openssl dhparam -out %s 2048' % dhparam_path)
 
+@task
+def ssh_reset(ctx, host):
+  c = Connection(host=host, user=USER)
+  c.local('date')
+  c.config = ctx.config
+  ssh_access(c)
 
 def ssh_access(c):
   users = c.config.get('github', [])
