@@ -52,7 +52,7 @@ def bootstrap(ctx, host):
 @task
 def sync(ctx, host):
   c = Connection(host=host, user=USER)
-  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 --exclude .vagrant -v' % (USER, host))
+  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude={.git,.venv,.venv37,.vagrant} -v' % (USER, host))
 
 
 # Core task for full porivisionning
@@ -196,6 +196,7 @@ def show_dns(ctx, host, name):
 
 def refresh_tasks(c, force=False):
   ssh_access(c)
+  nginx_reload(c)
   if app_refresh(c, force=force):
     openfisca_refresh(c)
   # app_refresh(c, ANGULAR_FOLDER)
