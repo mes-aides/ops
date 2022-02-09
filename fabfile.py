@@ -52,7 +52,7 @@ def bootstrap(ctx, host):
 @task
 def sync(ctx, host):
   c = Connection(host=host, user=USER)
-  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude .git --exclude .venv37 .venv --exclude .vagrant -v' % (USER, host))
+  c.local('rsync -r . %s@%s:/opt/mes-aides/ops --exclude={.git,.venv,.venv37,.vagrant} -v' % (USER, host))
 
 
 # Core task for full porivisionning
