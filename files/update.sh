@@ -5,11 +5,11 @@ set -e
 
 cd `dirname $0`
 
-echo "Your SSH connection ($1) triggered a shell script ($0)."
+echo "Your SSH connection triggered a shell script ($0 $@)."
 case "$1" in
     deploy)
         cd ops
-        fab refresh --host localhost --identity $HOME/.ssh/id_rsa
+        fab refresh --identity $HOME/.ssh/id_rsa --application $2
         ;;
     *)
         echo $"Usage: deploy"

@@ -1,0 +1,21 @@
+host: 5.135.137.147
+fullname: solstice.mes-aides.1jeune1solution.beta.gouv.fr
+dns_root: beta.gouv.fr
+email: aides-jeunes@beta.gouv.fr
+github:
+  - Cugniere
+  - guillett
+  - Kout95
+  - sandcha
+  - Vanessa-D
+applications:
+  - name: aides_jeunes
+    repository: https://github.com/betagouv/aides-jeunes.git
+    branch: master
+    default_site: true
+    https: true
+    domain: mes-aides.1jeune1solution.beta.gouv.fr
+    node_server_port: 8001
+    node_instance_number: 4
+    openfisca_server_port: 2001
+    openfisca_worker_number: 4

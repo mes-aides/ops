@@ -17,6 +17,8 @@ SERVER=51.91.78.117
 NAME=wiru
 ssh root@$SERVER -C date
 
+cp aides_jeunes_fabric.yml fabric.yml
+
 virtualenv .venv37 --python=python3.7
 source .venv37/bin/activate
 pip install --requirement requirements.txt --upgrade
@@ -61,6 +63,22 @@ Development is done using Vagrant and a Debian 10 (buster).
 
 The `vagrant up` command shoudl give you a VM in a similar environment as OVH **clean** instance.
 You have to run provisioning commands to set up the server.
+
+```
+SERVER=192.168.56.200
+NAME=testa
+ssh root@$SERVER -C date
+
+virtualenv .venv37 --python=python3.7
+source .venv37/bin/activate
+pip install --requirement requirements.txt --upgrade
+
+cp aides_jeunes_fabric.yml fabric.yml
+
+ssh-add ~/.ssh/id_rsa
+fab bootstrap --host $SERVER
+fab provision --host $SERVER
+```
 
 
 Currently, it gives you:
