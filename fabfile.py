@@ -481,28 +481,28 @@ def node_setup(c, application):
         c.put(fp, config_path)
         c.run(f"chown main:main {config_path}")
 
-    production_path = f"{repo_folder}/backend/config/production.js"
+    production_path = f"{repo_folder}/dist-server/backend/config/production.js"
     result = c.run(f"[ -f {production_path} ]", warn=True)
     if result.exited:
         c.run(
-            f'su - main -c "cp {repo_folder}/backend/config/continuous-integration.js {production_path}"'
+            f'su - main -c "cp {repo_folder}/dist-server/backend/config/continuous-integration.js {production_path}"'
         )
 
     envvar_prefix = f"NODE_ENV=production MONGODB_URL=mongodb://localhost/db_{application.get('name')}"
     test = c.run(
-        f"su - main -c \"crontab -l 2>/dev/null | grep -q '{repo_folder}/backend/lib/stats'\"",
+        f"su - main -c \"crontab -l 2>/dev/null | grep -q '{repo_folder}/dist-server/backend/lib/stats'\"",
         warn=True,
     )
     if test.exited:
-        cmd = f"23 2 * * * ({envvar_prefix} /usr/bin/node {repo_folder}/backend/lib/stats)"
+        cmd = f"23 2 * * * ({envvar_prefix} /usr/bin/node {repo_folder}/dist-server/backend/lib/stats)"
         c.run(f"su - main -c '(crontab -l 2>/dev/null; echo \"{cmd}\") | crontab -'")
 
     test = c.run(
-        f"su - main -c \"crontab -l 2>/dev/null | grep -q '{repo_folder}/backend/lib/email'\"",
+        f"su - main -c \"crontab -l 2>/dev/null | grep -q '{repo_folder}/dist-server/backend/lib/email'\"",
         warn=True,
     )
     if test.exited:
-        cmd = f"8 4 * * * ({envvar_prefix} /usr/bin/node {repo_folder}/backend/lib/email.js send survey --multiple 1000 >> /var/log/main/emails.log)"
+        cmd = f"8 4 * * * ({envvar_prefix} /usr/bin/node {repo_folder}/dist-server/backend/lib/email.js send survey --multiple 1000 >> /var/log/main/emails.log)"
         c.run(f"su - main -c '(crontab -l 2>/dev/null; echo \"{cmd}\") | crontab -'")
 
 
