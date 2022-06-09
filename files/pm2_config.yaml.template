@@ -1,6 +1,6 @@
 apps:
   - name: {{ application.name }}-node-server
-    cwd: /home/main/{{ application.name }}/repository
+    cwd: /home/main/{{ application.name }}/repository/dist-server
     script: server.js
     instances: {{ application.node_instance_number }}
     exec_mode: cluster
