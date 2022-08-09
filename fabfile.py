@@ -518,7 +518,7 @@ def node_refresh(c, application, force=False):
     )
     refreshHash = c.run(f'su - main -c "cd {folder} && git rev-parse HEAD"').stdout
     if force or startHash != refreshHash:
-        envvar = f"MES_AIDES_ROOT_URL=http{'s' if application['https'] else ''}://{ application['domain'] }"
+        envvar = f"NODE_ENV=production MES_AIDES_ROOT_URL=http{'s' if application['https'] else ''}://{ application['domain'] }"
         c.run(f'su - main -c "cd {folder} && npm ci"')
         c.run(f'su - main -c "cd {folder} && {envvar} npm run prestart"')
         node_restart(c, application)
