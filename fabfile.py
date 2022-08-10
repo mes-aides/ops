@@ -72,7 +72,7 @@ def provision(ctx, host):
 
 # Task for continuous deployment
 @task
-def refresh(ctx, application=None, force=False):
+def refresh(ctx, application=None, force=True):
     c = Connection(host=ctx.config.get("host"), user=USER)
     c.config = ctx.config
     refresh_tasks(c, force=force, application=get_application(c, application))

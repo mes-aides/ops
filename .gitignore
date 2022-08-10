@@ -4,3 +4,4 @@ production.config.js
 .tmp
 .vagrant
 .venv*
+.idea

@@ -29,28 +29,46 @@ fab provision --host $SERVER --name $NAME
 # fab provision --host $SERVER --name $NAME --dns-ok # Once DNS have been updated
 ```
 
-## Update production provisioning
+## Deploy project (Aides-Jeunes)
+
+### Installation for deployment
+
+In your machine clone aides-jeunes-ops and run the following command:
+
+```
+cp aides_jeunes_fabric.yml fabric.yml
+
+virtualenv .venv37 --python=python3.7
+source .venv37/bin/activate
+pip install --requirement requirements.txt --upgrade
+```
+
+### Update production provisioning
+
+Run the following command in your machine:
 
 ```
 fab sync --host=mes-aides.1jeune1solution.beta.gouv.fr
 ```
 
-## Run provisioning from personal computer
+### Run provisioning from personal computer
+
+Run the following command in your machine:
 
 ```
-fab refresh --host mes-aides.1jeune1solution.beta.gouv.fr
+fab refresh
 ```
 
 cf. files/update.sh and deploy CircleCI workflow in main repository
 
-### Secret environment variables
+#### Secret environment variables
 
 The main NodeJS server needs some private variables for production, stored at '/home/main/aides-jeunes/backend/config/production.js'
 
 These variables can be fetched from the current production server with `fab production-config-get`, _--host_ can be specified but default to _mes-aides.1jeune1solution.beta.gouv.fr_. Then the configuration file can be put on another server with `fab production-config-put --host <hostname>`.
 
 
-### Continuous deployment
+#### Continuous deployment
 
 An private key can `ssh` to the host and it will automatically deploy the application latest version.
 
