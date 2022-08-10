@@ -6,8 +6,7 @@ github:
   - Cugniere
   - guillett
   - Kout95
-  - sandcha
-  - Vanessa-D
+  - Valandr
 applications:
   - name: aides_jeunes
     repository: https://github.com/betagouv/aides-jeunes.git
