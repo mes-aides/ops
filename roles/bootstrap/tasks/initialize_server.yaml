@@ -1,0 +1,43 @@
+---
+- name: Set server hostname
+  ansible.builtin.hostname:
+    name: "{{ fullname }}"
+  when: ansible_facts.virtualization_type not in ('docker', 'container', 'containerd')
+- name: Apt-get update
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+- name: Install maintenance tools
+  ansible.builtin.apt:
+    name: [htop, vim]
+    state: present
+- name: Install build tools
+  ansible.builtin.apt:
+    name: [rsync, python3-pip, build-essential, git, man, ntp]
+    state: present
+- name: Add gnupg in order to add PPA with apt # required for node, python, mongo
+  ansible.builtin.apt:
+    name: [gnupg]
+    state: present
+    install_recommends: false
+- name: Set timezone to Europe/Paris
+  community.general.timezone:
+    name: Europe/Paris
+- name: Create a user group
+  ansible.builtin.group:
+    name: "{{ server_user_group }}"
+    state: present
+- name: Create user {{ server_user_name }}
+  ansible.builtin.user:
+    name: "{{ server_user_name }}"
+    group: "{{ server_user_group }}"
+    shell: /bin/bash
+    password: "*" # disable user password
+  register: server_user
+- name: Create log directory for user {{ server_user_name }}
+  ansible.builtin.file:
+    path: /var/log/{{ server_user_name }}
+    state: directory
+    mode: "0644"
+    owner: "{{ server_user_name }}"
+    group: "{{ server_user_group }}"

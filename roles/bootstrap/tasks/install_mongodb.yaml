@@ -1,0 +1,35 @@
+---
+- name: Install mongoDB 6.x
+  block:
+    - name: Add mongoDB 6.x apt key
+      ansible.builtin.apt_key:
+        url: https://www.mongodb.org/static/pgp/server-6.0.asc
+        state: present
+    - name: Add mongoDB 6.x ppa for apt repo - arm64
+      ansible.builtin.apt_repository:
+        repo: deb https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/6.0 multiverse
+        update_cache: true
+      when: ansible_facts.machine == 'aarch64'
+    - name: Add mongoDB 6.x ppa for apt repo - amd64
+      ansible.builtin.apt_repository:
+        repo: deb https://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main
+        update_cache: true
+      when: ansible_facts.machine != 'aarch64'
+    - name: Install mongoDB
+      ansible.builtin.apt:
+        update_cache: true
+        name: mongodb-org
+      notify: Reload systemd
+    - name: Start mongod service if not started
+      become: true
+      become_method: sudo
+      ansible.builtin.service:
+        name: mongod
+        state: started
+    - name: Enable mongod service
+      become: true
+      become_method: sudo
+      ansible.builtin.systemd:
+        name: mongod
+        enabled: true
+        daemon_reload: true

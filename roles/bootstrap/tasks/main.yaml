@@ -1,0 +1,56 @@
+---
+## Initialize
+- name: Initialize server
+  ansible.builtin.include_tasks: initialize_server.yaml
+
+## Setup nginx
+- name: Install and configure nginx
+  ansible.builtin.include_tasks: install_nginx.yaml
+
+## Setup node
+- name: Install nodeJS 18.x
+  ansible.builtin.include_tasks: install_node.yaml
+
+## Setup pm2
+- name: Install and setup pm2
+  ansible.builtin.include_tasks: install_pm2.yaml
+
+## Setup Python
+- name: Install python 3.8
+  ansible.builtin.include_tasks: install_python.yaml
+
+## Setup Mongo
+- name: Install mongoDB 6.x
+  ansible.builtin.include_tasks: install_mongodb.yaml
+
+## Setup Let's encrypt / Certbot
+- name: Install and configure certbot
+  ansible.builtin.include_tasks: install_certbot.yaml
+
+## Setup Monitoring service
+- name: Configure monitoring service
+  ansible.builtin.include_tasks: setup_monitor.yaml
+  when: monitor and monitor.port
+
+## Provision and setup all applications
+- name: Setup default application site
+  ansible.builtin.include_tasks: nginx_application_default_site.yaml
+  with_items: "{{ applications }}"
+  when: not(item.default_site is not defined or item.default_site is false)
+- name: Setup monitoring site
+  ansible.builtin.include_tasks: nginx_site.yaml
+  vars:
+    - name: monitor.{{ fullname }}
+    - upstream_name: monitor
+- name: Provision tasks
+  ansible.builtin.include_tasks: nginx_application_sites.yaml
+  with_items: "{{ applications }}"
+- name: Setup all applications sites
+  ansible.builtin.include_tasks: setup_application.yaml
+  with_items: "{{ applications }}"
+- name: Refresh applications
+  ansible.builtin.include_tasks:
+    file: refresh_tasks.yaml
+    apply:
+      tags: update
+  tags: update

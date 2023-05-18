@@ -1,0 +1,28 @@
+---
+- name: Synchronize Ops repository with server
+  become: true
+  hosts: all
+  tasks:
+    - name: Install rsync on host
+      ansible.builtin.apt:
+        name: [rsync]
+        state: present
+    - name: Install ansible on host
+      ansible.builtin.pip:
+        name: ansible
+    - name: Create server-side ops directory
+      ansible.builtin.file:
+        path: /opt/mes-aides/
+        state: directory
+        mode: "0755"
+    - name: Synchronize
+      become: true
+      become_method: sudo
+      ansible.posix.synchronize:
+        src: ./
+        dest: /opt/mes-aides/ops
+        recursive: true
+        rsync_opts: |
+          {% for file in [".git", "local", ".vagrant", ".venv"] %}
+          "--exclude={{ file }}"
+          {% endfor %}

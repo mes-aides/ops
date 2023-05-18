@@ -1,0 +1,14 @@
+---
+- name: Install certbot
+  ansible.builtin.apt:
+    name: [certbot]
+    state: present
+- name: Register certbot
+  ansible.builtin.command: >
+    certbot register
+    --non-interactive
+    --agree-tos
+    --email {{ email }}
+  register: certbot_register
+  changed_when: "'Account registered' not in certbot_register.stdout"
+  failed_when: "'Account registered' not in certbot_register.stdout and 'registration of a duplicate account' not in certbot_register.stderr"
