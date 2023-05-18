@@ -1,4 +1,9 @@
 ---
+- name: Set application openfisca variables
+  ansible.builtin.set_fact:
+    repository_folder: /home/{{ server_user_name }}/{{ item.name }}/repository
+    venv_dir: /home/{{ server_user_name }}/{{ item.name }}/venv
+    openfisca_service_name: "{{ item.name }}_openfisca"
 - name: Openfisca setup and update
   block:
     - name: Create Python virtual env and upgrade pip
