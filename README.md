@@ -78,16 +78,6 @@ In order to perform continuous deployment on the server, you will need to synchr
 
 Run `ansible-playbook -i ./inventories/vps.yaml synchronize.yaml` to create an exact copy of this repository in the folder `/opt/mes-aides/ops` of your server.
 
-### Update SSH access (non mandatory)
-
-To manage the access to the server through ssh, run the command `ansible-playbook -i ./inventories/vps.yaml ssh-access.yaml`.
-
-This will automatically allow all the users specified in the `github` section of the configuration to connect to the server with their respective private key used to identify to github.
-
-This will also add the public key currently used to connect to the server with Ansible.
-
-**Note that this command will erase any saved key in the `authorized_keys` file before adding new ones. You will need to run the bootstrap command again if you want to allow continuous deployment.**
-
 ### Bootstrap server stack
 
 Run the command `ansible-playbook -i ./inventories/vps.yaml bootstrap.yaml` in order to bootstrap the server basic configuration.
