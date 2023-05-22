@@ -41,21 +41,17 @@
     mode: "0644"
     owner: "{{ server_user_name }}"
     group: "{{ server_user_group }}"
-- name: Manage ssh access on server
-  become: true
-  become_user: "{{ ansible_ssh_user }}"
-  block:
-    - name: Set authorized_keys for users
-      ansible.posix.authorized_key:
-        user: "{{ ansible_ssh_user }}"
-        state: present
-        comment: "# Root key for local connection"
-        key: "{{ lookup('file', ansible_ssh_private_key_file + '.pub') }}"
-        exclusive: true
-    - name: Set authorized_keys for users
-      ansible.posix.authorized_key:
-        user: "{{ ansible_ssh_user }}"
-        state: present
-        comment: "# User key for {{ item }}"
-        key: https://github.com/{{ item }}.keys
-      with_items: "{{ github_users }}"
+- name: Add SSH key currently used by Ansible and delete previously stored keys
+  ansible.posix.authorized_key:
+    user: "{{ ansible_ssh_user }}"
+    state: present
+    comment: "# Root key for local connection"
+    key: "{{ lookup('file', ansible_ssh_private_key_file + '.pub') }}"
+    exclusive: true
+- name: Set authorized_keys for listed github users
+  ansible.posix.authorized_key:
+    user: "{{ ansible_ssh_user }}"
+    state: present
+    comment: "# User key for {{ item }}"
+    key: https://github.com/{{ item }}.keys
+  with_items: "{{ github_users }}"
