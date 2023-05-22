@@ -8,6 +8,15 @@
     - name: Generate certificate if missing
       when: (not certificate.stat.exists) and (https | default(false))
       block:
+        - name: Set SSL state
+          ansible.builtin.set_fact:
+            ssl_exists: false
+        - name: Copy nginx application configuration {{ name }}
+          ansible.builtin.template:
+            src: templates/nginx_config.conf.j2
+            dest: /etc/nginx/sites-enabled/{{ name }}.conf
+            mode: "0644"
+          notify: Restart nginx
         - name: Add www subdomain if required
           when: add_www_subdomain | default(false)
           ansible.builtin.set_fact:
