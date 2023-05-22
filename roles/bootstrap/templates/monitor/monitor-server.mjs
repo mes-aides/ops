@@ -4,7 +4,7 @@ import configuration from "./monitor-config.json" assert { type: "json" }
 
 const services = configuration.applications
 
-function getRemainingDiskSpace() {
+function getDiskUsage() {
   const command = "df | grep /$ | tr -s ' ' | cut -d ' ' -f 5 | tr -d '%'"
   try {
     return execSync(command).toString().trim()
@@ -16,7 +16,9 @@ function getRemainingDiskSpace() {
 
 async function fetchURLStatus(url) {
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      redirect: "follow"
+    })
     return await response.status
   } catch (error) {
     console.error(`Error fetching ${url}:`, error)
@@ -27,7 +29,7 @@ async function fetchURLStatus(url) {
 const port = 8887
 createServer(async (req, res) => {
   const result = {
-    remainingDiskPercentage: await getRemainingDiskSpace(),
+    diskUsagePercentage: await getDiskUsage(),
     services: [],
   }
   for (const {
@@ -39,7 +41,8 @@ createServer(async (req, res) => {
   } of services) {
     const localUrl = `http://127.0.0.1:${node_server_port}`
     const serviceUrl = `http${https ? "s" : ""}://${domain}`
-    const openfiscaUrl = `http://127.0.0.1:${openfisca_server_port}`
+    const openfiscaLocalUrl = `http://127.0.0.1:${openfisca_server_port}`
+    const openfiscaPublicUrl = `http${https ? "s" : ""}://openfisca.${domain}`
 
     result.services.push({
       service: `${name} (local)`,
@@ -56,8 +59,14 @@ createServer(async (req, res) => {
     result.services.push({
       service: `openfisca_${name} (local)`,
       method: "GET",
-      url: openfiscaUrl,
-      status: await fetchURLStatus(openfiscaUrl),
+      url: openfiscaLocalUrl,
+      status: await fetchURLStatus(openfiscaLocalUrl),
+    })
+    result.services.push({
+      service: `openfisca_${name}`,
+      method: "GET",
+      url: openfiscaPublicUrl,
+      status: await fetchURLStatus(openfiscaPublicUrl),
     })
   }
   res.writeHead(200, {

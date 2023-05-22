@@ -9,8 +9,6 @@ WorkingDirectory={{ monitor_folder }}
 ExecStart=/usr/bin/node {{ monitor_filename }}
 ExecReload=/bin/kill -HUP $MAINPID
 Environment="PORT={{ monitor.port }}"
-Restart=on-failure
-RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
