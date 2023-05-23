@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
 		override.ssh.insert_key = true
 		docker.has_ssh = true
 		docker.privileged = true 
-    docker.ports = ["8001:8001"]
+    docker.ports = ["8001:8001", "2001:2001", "8002:8002", "2002:2002", "8887:8887"]
 	end
 
   # Faster startup
