@@ -20,16 +20,12 @@
         - name: Add www subdomain if required
           when: add_www_subdomain | default(false)
           ansible.builtin.set_fact:
-            certbot_www_option: " --expand -d www.{{ name }}"
+            certbot_www_option: " -d www.{{ name }}"
         - name: Issue or renew an SSL certificate with Let's Encrypt
           ansible.builtin.command: >
-            certbot certonly
-            --webroot
-            --non-interactive
-            --cert-name {{ name }}
+            certbot --nginx
             -d {{ name }}
-            {{ certbot_staging_option | default() }}
-            --webroot-path {{ webroot_path }}
+            {{ certbot_www_option }}
           register: lets_encrypt_success
           changed_when: false
           ignore_errors: true
