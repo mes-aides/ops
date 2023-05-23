@@ -32,9 +32,9 @@
     dest: /etc/systemd/system/{{ monitor_service }}.service
     mode: "0644"
   notify: Reload systemd
-- name: Reload or start {{ monitor_service }}
+- name: Restart {{ monitor_service }}
   changed_when: false
   ansible.builtin.service:
     name: "{{ monitor_service }}"
-    state: reloaded
+    state: restarted
     enabled: true
