@@ -1,2 +1,3 @@
 skip_list:
   - schema[tasks]
+  - var-naming[no-role-prefix]

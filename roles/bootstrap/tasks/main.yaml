@@ -40,8 +40,8 @@
 - name: Setup monitoring site
   ansible.builtin.include_tasks: nginx_site.yaml
   vars:
-    - name: monitor.{{ fullname }}
-    - upstream_name: monitor
+    service_domain: monitor.{{ fullname }}
+    upstream_name: monitor
 - name: Provision tasks
   ansible.builtin.include_tasks: nginx_application_sites.yaml
   with_items: "{{ applications }}"

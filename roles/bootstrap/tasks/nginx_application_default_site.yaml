@@ -5,8 +5,8 @@
     - name: Set nginx application default site variables
       ansible.builtin.include_tasks: nginx_application_sites.yaml
       vars:
-        - site_name: "{{ fullname }}"
-        - is_default: true
+        site_name: "{{ fullname }}"
+        is_default: true
     - name: Register default app {{ item.name }}
       ansible.builtin.set_fact:
         default_app: "{{ item.name }}"
