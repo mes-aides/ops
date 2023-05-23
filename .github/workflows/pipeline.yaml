@@ -41,3 +41,25 @@ jobs:
         run: pip freeze
       - name: Run ansible lint
         run: ansible-lint --offline
+  deployment:
+    name: Continuous deployment
+    runs-on: ubuntu-20.04
+    needs: [install, lint]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        id: python-dependencies
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-dependencies-${{ hashFiles('**/requirements.txt') }}
+      - name: VPS Deployment
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.VPS_SERVER_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./inventories/vps.yaml bootstrap.yaml
