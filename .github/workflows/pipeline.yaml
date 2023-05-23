@@ -65,3 +65,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa.pub
           ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./inventories/vps.yaml bootstrap.yaml
+      - name: Synchronize Ops
+        shell: bash
+        run: |
+          ansible-playbook -i ./inventories/vps.yaml synchronize.yaml
+
