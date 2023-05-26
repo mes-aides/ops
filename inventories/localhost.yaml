@@ -1,5 +1,8 @@
 ---
 virtualmachines:
+  vars:
+    mongodb_collections:
+      simulations: '{"created_at": {"$gte": { "$date": "2023-01-01T00:00:00.000Z" }}}'
   hosts:
     aides_jeunes_staging:
       challenge_proxy: http://51.38.232.135
@@ -40,3 +43,9 @@ virtualmachines:
           node_instance_number: 2
           openfisca_server_port: 2002
           openfisca_worker_number: 2
+    server1:
+      ansible_host: vps-45bb7a36.vps.ovh.net
+      ansible_port: 22
+      ansible_ssh_user: debian
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      database_name: db_aides_jeunes
