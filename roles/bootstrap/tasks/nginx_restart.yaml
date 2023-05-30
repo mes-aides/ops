@@ -1,3 +1,4 @@
+---
 - name: Check nginx config
   ansible.builtin.command:
     cmd: nginx -t
