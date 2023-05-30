@@ -1,8 +1,6 @@
 ---
 - name: Restart nginx
-  ansible.builtin.service:
-    name: nginx
-    state: restarted
+  ansible.builtin.include_tasks: nginx_restart.yaml
 - name: Reload systemd
   ansible.builtin.systemd:
     daemon_reload: true
