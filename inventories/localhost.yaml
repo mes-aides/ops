@@ -2,6 +2,7 @@
 virtualmachines:
   hosts:
     aides_jeunes_staging:
+      challenge_proxy: http://51.38.232.135
       ansible_host: localhost
       ansible_port: 2222
       ansible_ssh_user: root
