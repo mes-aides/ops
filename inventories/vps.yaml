@@ -2,6 +2,7 @@
 virtualmachines:
   hosts:
     vps:
+      challenge_proxy: http://51.91.16.19
       ansible_host: vps-45bb7a36.vps.ovh.net
       ansible_port: 22
       ansible_ssh_user: debian
