@@ -33,7 +33,7 @@ virtualmachines:
         - name: aides_jeunes_preprod
           repository: https://github.com/betagouv/aides-jeunes.git
           branch: dev
-          default_site: true
+          default_site: false
           https: true
           domain: preprod.leonides.org
           node_server_port: 8002
