@@ -23,6 +23,6 @@
         dest: /opt/mes-aides/ops
         recursive: true
         rsync_opts: |
-          {% for file in [".git", "local", ".vagrant", ".venv"] %}
+          {% for file in [".git", "local", ".tmp", ".vagrant", ".venv"] %}
           "--exclude={{ file }}"
           {% endfor %}
