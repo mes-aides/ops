@@ -1,0 +1,21 @@
+---
+- name: Dump mongodb collection
+  with_items: "{{ applications }}"
+  when: application.mongodb_collections_migration is defined
+  loop_control:
+    loop_var: application
+  ansible.builtin.include_tasks:
+    file: mongodb-dump.yaml
+    apply:
+      tags: dump
+  tags: [never, dump]
+- name: Restore mongodb collection
+  with_items: "{{ applications }}"
+  when: application.mongodb_collections_migration is defined
+  loop_control:
+    loop_var: application
+  ansible.builtin.include_tasks:
+    file: mongodb-restore.yaml
+    apply:
+      tags: restore
+  tags: [never, restore]

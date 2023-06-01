@@ -1,0 +1,6 @@
+---
+- name: Dump MongoDB collections from Server 1
+  hosts: all
+  become: true
+  roles:
+    - mongodb_migration

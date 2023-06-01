@@ -1,0 +1,28 @@
+---
+- name: Create MongoDB dump directory
+  ansible.builtin.file:
+    path: /tmp/mongodump
+    state: directory
+    mode: "0755"
+- name: Dump MongoDB database with a query
+  ansible.builtin.shell: |
+    mongodump \
+      --db db_{{ application.name }} \
+      --collection {{ item.key }} \
+      --query '{{ item.value }}' \
+      --archive=/tmp/mongodump/{{ application.name }}_{{ item.key }}.tar.gz \
+      --gzip
+  register: dump_result
+  changed_when: dump_result.rc == 0
+  with_dict: "{{ application.mongodb_collections_migration }}"
+- name: Fetch MongoDB dump to local machine
+  ansible.builtin.fetch:
+    src: /tmp/mongodump/{{ application.name }}_{{ item.key }}.tar.gz
+    dest: ./.tmp/
+    flat: true
+  with_dict: "{{ application.mongodb_collections_migration }}"
+- name: Remove MongoDB dump archives from server
+  ansible.builtin.file:
+    path: /tmp/mongodump/{{ application.name }}_{{ item.key }}.tar.gz
+    state: absent
+  with_dict: "{{ application.mongodb_collections_migration }}"
