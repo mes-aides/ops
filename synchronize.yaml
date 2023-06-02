@@ -6,11 +6,6 @@
     - name: Install ansible on host
       ansible.builtin.pip:
         name: ansible
-    - name: Create server-side ops directory
-      ansible.builtin.file:
-        path: /opt/mes-aides/
-        state: directory
-        mode: "0755"
     - name: Clone application repository
       become: true
       become_method: sudo
