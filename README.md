@@ -86,6 +86,33 @@ Once done, every applications should be up and running on the server.
 
 Note that you only need to run this command once, but you can re-run it if you modify either Nginx, Python, Mongo configuration or if the bootstrap process failed at some point. All unaltered steps that ran successfully will be automatically skipped by Ansible.
 
+### Backup mongodb collections
+
+It is possible to dump mongodb collections from a server and restore them on another.
+
+In order do dump data, you will need to had specific configuration lines in your inventory application to specify which mongodb collection to target and with which query :
+```yaml
+mongodb_collections_migration:
+  simulations: '{"created_at": {"$gte": { "$date": "2023-01-01T00:00:00.000Z" }}}'
+  followups: '{"created_at": {"$gte": { "$date": "2023-01-01T00:00:00.000Z" }}}'
+```
+Then run the following command to download the selected collections locally in a `./.tmp` folder :
+```bash
+ansible-playbook -i ./inventories/localhost.yaml --tags="dump" mongodb-migration.yaml
+```
+
+To restore that data on another server you will need to add the following lines to the inventory applications :
+```yaml
+mongodb_collections_migration:
+  simulations: ""
+  followups: ""
+```
+Then run the command :
+```bash
+ansible-playbook -i ./inventories/vps.yaml --tags="restore" mongodb-migration.yaml
+```
+
+
 # Local development
 
 In order to run ansible on a local image you will need to have both Vagrant and Docker installed on your machine. You will also need to have a valid public/secret key pair in your local ssh folder (`~/.ssh/`) called `id_rsa.pub` and `id_rsa`.

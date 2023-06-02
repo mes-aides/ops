@@ -5,7 +5,7 @@
     repository_folder: /home/{{ server_user_name }}/{{ item.name }}/repository
     venv_dir: /home/{{ server_user_name }}/{{ item.name }}/venv
     openfisca_service_name: "{{ item.name }}_openfisca"
-    deploy_command: /opt/mes-aides/ops/scripts/update.sh {{ inventory_file | basename | splitext | first }} {{ item.name }}
+    deploy_command: /opt/mes-aides/scripts/update.sh {{ inventory_file | basename | splitext | first }} {{ item.name }}
     deploy_access_rules: no-pty,no-port-forwarding,no-agent-forwarding
 - name: Fetch repository and sets Cron jobs for {{ item.name }}
   block:

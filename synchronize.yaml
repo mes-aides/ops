@@ -3,10 +3,10 @@
   become: true
   hosts: all
   tasks:
-    - name: Install rsync on host
-      ansible.builtin.apt:
-        name: [rsync]
-        state: present
+    # - name: Install rsync on host
+    #   ansible.builtin.apt:
+    #     name: [rsync]
+    #     state: present
     - name: Install ansible on host
       ansible.builtin.pip:
         name: ansible
@@ -15,14 +15,22 @@
         path: /opt/mes-aides/
         state: directory
         mode: "0755"
-    - name: Synchronize
-      become: true
-      become_method: sudo
-      ansible.posix.synchronize:
-        src: ./
-        dest: /opt/mes-aides/ops
-        recursive: true
-        rsync_opts: |
-          {% for file in [".git", "local", ".tmp", ".vagrant", ".venv"] %}
-          "--exclude={{ file }}"
-          {% endfor %}
+    # - name: Synchronize
+    #   become: true
+    #   become_method: sudo
+    #   ansible.posix.synchronize:
+    #     src: ./
+    #     dest: /opt/mes-aides/ops
+    #     recursive: true
+    #     rsync_opts: |
+    #       {% for file in [".git", "local", ".tmp", ".vagrant", ".venv"] %}
+    #       "--exclude={{ file }}"
+    #       {% endfor %}
+    - name: Clone application repository
+      ansible.builtin.git:
+        repo: "{{ ops.repository }}"
+        dest: "/opt/mes-aides/"
+        update: true
+        clone: true
+        single_branch: true
+        version: "{{ ops.branch | default('main') }}"

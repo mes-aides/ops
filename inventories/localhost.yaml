@@ -43,3 +43,6 @@ virtualmachines:
           node_instance_number: 2
           openfisca_server_port: 2002
           openfisca_worker_number: 2
+      ops:
+        repository: https://github.com/betagouv/aides-jeunes-ops.git
+        branch: update/ansible
