@@ -10,7 +10,7 @@ if [ ! -z $1 ]; then
         --inventory "inventories/$1.yaml" \
         --connection=local \
         synchronize.yaml
-    sudo ansible-playbook \
+    ansible-playbook \
         --inventory "inventories/$1.yaml" \
         --connection=local \
         bootstrap.yaml
