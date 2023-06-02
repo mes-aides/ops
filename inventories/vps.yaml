@@ -46,4 +46,4 @@ virtualmachines:
       ops:
         repository: https://github.com/betagouv/aides-jeunes-ops.git
         branch: update/ansible
-        update_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIErMs6bG+1zpgtSpNjtgJYGRiwhUqqy9IMhoENdBvAFW"
+        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIErMs6bG+1zpgtSpNjtgJYGRiwhUqqy9IMhoENdBvAFW

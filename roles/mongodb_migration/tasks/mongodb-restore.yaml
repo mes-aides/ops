@@ -3,7 +3,7 @@
   ansible.builtin.copy:
     src: ./.tmp/{{ application.name }}_{{ item.key }}.tar.gz
     dest: /tmp/mongodump/
-    mode: '0644'
+    mode: "0644"
   with_dict: "{{ application.mongodb_collections_migration }}"
 - name: Restore MongoDB database from dump
   ansible.builtin.shell: |

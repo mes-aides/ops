@@ -11,7 +11,7 @@
       become_method: sudo
       ansible.builtin.git:
         repo: "{{ ops.repository }}"
-        dest: "/opt/mes-aides/"
+        dest: /opt/mes-aides/
         update: true
         clone: true
         single_branch: true
