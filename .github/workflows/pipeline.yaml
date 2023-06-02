@@ -5,6 +5,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  SSH_HOST: vps-45bb7a36.vps.ovh.net
+  SSH_USER: debian
+
 jobs:
   install:
     name: Install Python requirements
@@ -61,12 +65,5 @@ jobs:
         run: |
           mkdir -p ~/.ssh/
           echo "${{ secrets.VPS_SERVER_KEY }}" > ~/.ssh/id_rsa
-          echo "${{ secrets.VPS_SERVER_KEY_PUB }}" > ~/.ssh/id_rsa.pub
           chmod 600 ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa.pub
-          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./inventories/vps.yaml bootstrap.yaml
-      - name: Synchronize Ops
-        shell: bash
-        run: |
-          ansible-playbook -i ./inventories/vps.yaml synchronize.yaml
-
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} -i ~/.ssh/id_rsa
