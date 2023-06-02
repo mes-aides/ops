@@ -14,5 +14,5 @@ if [ ! -z $1 ]; then
         --inventory "inventories/$1.yaml" \
         --connection=local \
         bootstrap.yaml
-    exit 1
+    exit 0
 fi
