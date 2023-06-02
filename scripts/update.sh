@@ -12,5 +12,7 @@ if [ ! -z $1 ] && [ ! -z $2 ]; then
         --tags="update" \
         --connection=local \
         bootstrap.yaml
-    exit 1
+    exit 0
 fi
+echo "update command is missing arguments"
+exit 1

@@ -6,7 +6,7 @@ set -e
 echo "Your SSH connection triggered a shell script ($0 $@)."
 if [ ! -z $1 ]; then
     cd /opt/mes-aides/
-    sudo ansible-playbook \
+    ansible-playbook \
         --inventory "inventories/$1.yaml" \
         --connection=local \
         synchronize.yaml
@@ -16,3 +16,5 @@ if [ ! -z $1 ]; then
         bootstrap.yaml
     exit 0
 fi
+echo "update ops command is missing arguments"
+exit 1
