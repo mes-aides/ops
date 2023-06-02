@@ -6,7 +6,7 @@ set -e
 echo "Your SSH connection triggered a shell script ($0 $@)."
 if [ ! -z $1 ] && [ ! -z $2 ]; then
     cd /opt/mes-aides/
-    ansible-playbook -v \
+    ansible-playbook \
         --inventory "inventories/$1.yaml" \
         --extra-vars "target_application=$2" \
         --tags="update" \

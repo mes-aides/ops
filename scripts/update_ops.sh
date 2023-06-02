@@ -6,11 +6,11 @@ set -e
 echo "Your SSH connection triggered a shell script ($0 $@)."
 if [ ! -z $1 ]; then
     cd /opt/mes-aides/
-    ansible-playbook -v \
+    sudo ansible-playbook \
         --inventory "inventories/$1.yaml" \
         --connection=local \
         synchronize.yaml
-    ansible-playbook -v \
+    sudo ansible-playbook \
         --inventory "inventories/$1.yaml" \
         --connection=local \
         bootstrap.yaml
