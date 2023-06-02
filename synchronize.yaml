@@ -3,10 +3,6 @@
   become: true
   hosts: all
   tasks:
-    # - name: Install rsync on host
-    #   ansible.builtin.apt:
-    #     name: [rsync]
-    #     state: present
     - name: Install ansible on host
       ansible.builtin.pip:
         name: ansible
@@ -15,18 +11,9 @@
         path: /opt/mes-aides/
         state: directory
         mode: "0755"
-    # - name: Synchronize
-    #   become: true
-    #   become_method: sudo
-    #   ansible.posix.synchronize:
-    #     src: ./
-    #     dest: /opt/mes-aides/ops
-    #     recursive: true
-    #     rsync_opts: |
-    #       {% for file in [".git", "local", ".tmp", ".vagrant", ".venv"] %}
-    #       "--exclude={{ file }}"
-    #       {% endfor %}
     - name: Clone application repository
+      become: true
+      become_method: sudo
       ansible.builtin.git:
         repo: "{{ ops.repository }}"
         dest: "/opt/mes-aides/"
@@ -34,3 +21,24 @@
         clone: true
         single_branch: true
         version: "{{ ops.branch | default('main') }}"
+      when: ops.repository is defined
+    - name: Set deployment variables
+      ansible.builtin.set_fact:
+        deploy_command: /opt/mes-aides/scripts/update_ops.sh {{ inventory_file | basename | splitext | first }}
+        deploy_access_rules: no-pty,no-port-forwarding,no-agent-forwarding
+    - name: Add SSH deployment key
+      ansible.posix.authorized_key:
+        user: "{{ ansible_ssh_user }}"
+        state: present
+        comment: "# Key for deployment"
+        exclusive: true
+        key: "{{ ops.update_key }}"
+        key_options: command="{{ deploy_command }}",{{ deploy_access_rules }}"
+      when: ops.update_key is defined
+    - name: Set authorized_keys for listed github users
+      ansible.posix.authorized_key:
+        user: "{{ ansible_ssh_user }}"
+        state: present
+        comment: "# User key for {{ item }}"
+        key: https://github.com/{{ item }}.keys
+      with_items: "{{ github_users }}"
