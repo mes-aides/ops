@@ -19,7 +19,7 @@
       when: ops.repository is defined
     - name: Set deployment variables
       ansible.builtin.set_fact:
-        deploy_command: /opt/mes-aides/scripts/update_ops.sh {{ inventory_file | basename | splitext | first }}
+        deploy_command: sudo /opt/mes-aides/scripts/update_ops.sh {{ inventory_file | basename | splitext | first }}
         deploy_access_rules: no-pty,no-port-forwarding,no-agent-forwarding
     - name: Add SSH deployment key
       ansible.posix.authorized_key:
