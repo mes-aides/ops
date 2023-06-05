@@ -53,7 +53,6 @@ You can set some basic security settings on your server by running `ansible-play
 This will disable SSH connection to the server using password. This step will not run if the server user file `~/.ssh/authorized_keys` is either empty or missing. The following properties will be modified in `/etc/ssh/sshd_config` :
 - set `PasswordAuthentication no` 
 - set `ChallengeResponseAuthentication no`
-- set `UsePAM no`
 
 It is advised to run this command on a newly installed and if you understand the implication of those parameters. Your hosting service should provide you with an emergency access if you get locked out of the server.
 
@@ -72,11 +71,15 @@ openfisca.aides-jeunes                             3600 IN A 5.135.137.147
 
 Then you will have to add all those entries to the associated domain name DNS record.
 
-### Synchronize Ops repository (non mandatory)
+### Enabling continuous-deployment
 
-In order to perform continuous deployment on the server, you will need to synchronize the content of this repository on your server. Once a continuous deployment pipeline connect to your server it will fetch the latest version of the branch used by the application.
+In order to enable continuous deployment of this ops repository on your server you need to run the following command once:
+```shell
+ansible-playbook -i ./inventories/vps.yaml --skip-tags always synchronize.yaml
+```
+The option `--skip-tags always` will skip the installation of ansible on the server since pip is not available before the boostrap command has been run at least once.
 
-Run `ansible-playbook -i ./inventories/vps.yaml synchronize.yaml` to create an exact copy of this repository in the folder `/opt/mes-aides/ops` of your server.
+A copy of this repository will be created in the folder `/opt/mes-aides` of the server. This repository will be automatically updated and new modifications applied every time an ssh connection is made with the private key associated with the `update_key` defined in the inventory.
 
 ### Bootstrap server stack
 
