@@ -22,13 +22,13 @@
       notify: Reload systemd
     - name: Start mongod service if not started
       become: true
-      become_method: sudo
+      become_method: ansible.builtin.sudo
       ansible.builtin.service:
         name: mongod
         state: started
     - name: Enable mongod service
       become: true
-      become_method: sudo
+      become_method: ansible.builtin.sudo
       ansible.builtin.systemd:
         name: mongod
         enabled: true

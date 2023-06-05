@@ -31,7 +31,7 @@
             remote_src: true
         - name: Build
           become: true
-          become_method: sudo
+          become_method: ansible.builtin.sudo
           changed_when: false
           ansible.builtin.command:
             chdir: /opt/Python-3.8.16/
