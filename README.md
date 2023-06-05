@@ -75,9 +75,8 @@ Then you will have to add all those entries to the associated domain name DNS re
 
 In order to enable continuous deployment of this ops repository on your server you need to run the following command once:
 ```shell
-ansible-playbook -i ./inventories/vps.yaml --skip-tags always synchronize.yaml
+ansible-playbook -i ./inventories/vps.yaml synchronize.yaml
 ```
-The option `--skip-tags always` will skip the installation of ansible on the server since pip is not available before the boostrap command has been run at least once.
 
 A copy of this repository will be created in the folder `/opt/mes-aides` of the server. This repository will be automatically updated and new modifications applied every time an ssh connection is made with the private key associated with the `update_key` defined in the inventory.
 
