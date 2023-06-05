@@ -6,6 +6,9 @@
     - name: Install ansible on host
       ansible.builtin.pip:
         name: ansible
+      # Required to avoid trying to install ansible when pip is not available
+      tags:
+        - always
     - name: Clone application repository
       ansible.builtin.git:
         repo: "{{ ops.repository }}"
