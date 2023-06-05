@@ -14,7 +14,7 @@
       when: authorized_keys.stat.size == 0
     - name: Disable SSH password authentication
       become: true
-      become_method: sudo
+      become_method: ansible.builtin.sudo
       ansible.builtin.lineinfile:
         dest: /etc/ssh/sshd_config
         regexp: "{{ item.regex }}"
