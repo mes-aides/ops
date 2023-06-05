@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  SSH_HOST: vps-45bb7a36.vps.ovh.net
+  SSH_HOST: 51.91.16.19
   SSH_USER: debian
 
 jobs:
