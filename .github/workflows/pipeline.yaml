@@ -60,10 +60,10 @@ jobs:
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-python-dependencies-${{ hashFiles('**/requirements.txt') }}
-      - name: VPS Deployment
+      - name: Eclipse Deployment
         shell: bash
         run: |
           mkdir -p ~/.ssh/
-          echo "${{ secrets.VPS_SERVER_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} -i ~/.ssh/id_rsa
+          echo "${{ secrets.ECLIPSE_PRIVATE_KEY }}" > ~/.ssh/eclipse
+          chmod 600 ~/.ssh/eclipse
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} -i ~/.ssh/eclipse
