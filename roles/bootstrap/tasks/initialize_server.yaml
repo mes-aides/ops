@@ -38,6 +38,6 @@
   ansible.builtin.file:
     path: /var/log/{{ server_user_name }}
     state: directory
-    mode: "0644"
+    mode: "0755"
     owner: "{{ server_user_name }}"
     group: "{{ server_user_group }}"
