@@ -1,0 +1,40 @@
+---
+- name: Set monitor variables
+  ansible.builtin.set_fact:
+    monitor_service: monitor_service
+    monitor_folder: /home/{{ server_user_name }}/monitor
+    monitor_filename: monitor-server.mjs
+    monitor_config_filename: monitor-config.json
+- name: Create directory for monitor service
+  ansible.builtin.file:
+    path: "{{ monitor_folder }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ server_user_name }}"
+    group: "{{ server_user_group }}"
+- name: Copy monitoring server file
+  ansible.builtin.template:
+    src: templates/monitor/monitor-server.mjs
+    dest: "{{ monitor_folder }}/{{ monitor_filename }}"
+    owner: "{{ server_user_name }}"
+    group: "{{ server_user_group }}"
+    mode: "0755"
+- name: Copy monitoring server config file
+  ansible.builtin.template:
+    src: templates/monitor/monitor-config.json.j2
+    dest: "{{ monitor_folder }}/{{ monitor_config_filename }}"
+    owner: "{{ server_user_name }}"
+    group: "{{ server_user_group }}"
+    mode: "0755"
+- name: Setup monitor service
+  ansible.builtin.template:
+    src: templates/monitor.service.j2
+    dest: /etc/systemd/system/{{ monitor_service }}.service
+    mode: "0644"
+  notify: Reload systemd
+- name: Restart {{ monitor_service }}
+  changed_when: false
+  ansible.builtin.service:
+    name: "{{ monitor_service }}"
+    state: restarted
+    enabled: true

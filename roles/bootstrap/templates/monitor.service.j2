@@ -1,0 +1,17 @@
+[Unit]
+Description=Service in charge of monitoring Mes Aides webserver
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ server_user_name }}
+Group={{ server_user_group }}
+Type=simple
+WorkingDirectory={{ monitor_folder }}
+ExecStart=/usr/bin/node {{ monitor_filename }}
+ExecReload=/bin/kill -HUP $MAINPID
+Environment="PORT={{ monitor.port }}"
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

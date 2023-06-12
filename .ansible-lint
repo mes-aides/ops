@@ -1,0 +1,7 @@
+---
+skip_list:
+  - schema[tasks]
+  - var-naming[no-role-prefix]
+exclude_paths:
+  - .git/
+  - .github/

@@ -1,0 +1,59 @@
+---
+- name: Set application sites variables
+  ansible.builtin.set_fact:
+    application_folder: /home/{{ server_user_name }}/{{ item.name }}
+    repository_folder: /home/{{ server_user_name }}/{{ item.name }}/repository
+    venv_dir: /home/{{ server_user_name }}/{{ item.name }}/venv
+    openfisca_service_name: "{{ item.name }}_openfisca"
+    deploy_command: /opt/mes-aides/scripts/update.sh {{ inventory_file | basename | splitext | first }} {{ item.name }}
+    deploy_access_rules: no-pty,no-port-forwarding,no-agent-forwarding
+- name: Fetch repository and sets Cron jobs for {{ item.name }}
+  block:
+    - name: Create application folder
+      ansible.builtin.file:
+        path: "{{ application_folder }}"
+        state: directory
+        owner: "{{ server_user_name }}"
+        group: "{{ server_user_group }}"
+        mode: "755"
+    - name: Generate SSH keypair
+      become_user: "{{ server_user_name }}"
+      community.crypto.openssh_keypair:
+        path: "{{ application_folder }}/id_rsa"
+        type: rsa
+        size: 4096
+        state: present
+        force: false
+      register: ssh_keypair
+    - name: Add application key to authorized_key
+      ansible.posix.authorized_key:
+        user: "{{ ansible_ssh_user }}"
+        state: present
+        key: "{{ ssh_keypair.public_key }}"
+        comment: "# Application deployment key for {{ item.name }}"
+        key_options: command="{{ deploy_command }}",{{ deploy_access_rules }}"
+    - name: Clone application repository
+      become_user: "{{ server_user_name }}"
+      ansible.builtin.git:
+        repo: "{{ item.repository }}"
+        dest: "{{ repository_folder }}"
+        single_branch: true
+        version: "{{ item.branch | default('master') }}"
+    - name: Setup pm2 for application
+      ansible.builtin.template:
+        src: templates/pm2_config.yaml.j2
+        dest: "{{ application_folder }}/pm2_config.yaml"
+        owner: "{{ server_user_name }}"
+        group: "{{ server_user_group }}"
+        mode: "0600"
+    - name: Create configuration file if it doesn't exists
+      ansible.builtin.copy:
+        src: "{{ repository_folder }}/backend/config/continuous-integration.ts"
+        dest: "{{ repository_folder }}/backend/config/production.ts"
+        mode: preserve
+        owner: "{{ server_user_name }}"
+        group: "{{ server_user_group }}"
+        remote_src: true
+        force: false
+    - name: Add cron for application
+      ansible.builtin.include_tasks: setup_cron.yaml

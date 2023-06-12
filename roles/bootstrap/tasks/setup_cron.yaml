@@ -1,0 +1,34 @@
+---
+- name: Set cron env variables
+  ansible.builtin.set_fact:
+    envvar_prefix: NODE_ENV=production MONGODB_URL=mongodb://127.0.0.1/db_{{ item.name }}
+- name: Add a cron job for stats generation
+  become_user: "{{ server_user_name }}"
+  ansible.builtin.cron:
+    name: generate stats for {{ item.name }}
+    minute: "23"
+    hour: "2"
+    job: ({{ envvar_prefix }} /usr/bin/node {{ repository_folder }}/dist-server/backend/lib/stats)
+- name: Add a cron job to send initial survey emails
+  become_user: "{{ server_user_name }}"
+  ansible.builtin.cron:
+    name: send initial survey emails for {{ item.name }}
+    minute: "8"
+    hour: "4"
+    job: |-
+      ({{ envvar_prefix }} {{ repository_folder }}/backend/lib/email.sh >> /var/log/{{ server_user_name }}/{{ item.name }}_emails.log 2>&1)
+- name: Add a cron job to send email
+  become_user: "{{ server_user_name }}"
+  ansible.builtin.cron:
+    name: send tous-a-bord emails for {{ item.name }}
+    minute: "2"
+    hour: "9"
+    job: |-
+      (cd {{ repository_folder }}/dist-server/backend/lib/ && {{ envvar_prefix }} /usr/bin/node ./email.js send tous-a-bord-notification --multiple 100)
+- name: Add a cron job to anonymize Simulation and Followup data collections
+  become_user: "{{ server_user_name }}"
+  ansible.builtin.cron:
+    name: anonymize simulation and followup data collections for {{ item.name }}
+    minute: "0"
+    hour: "5"
+    job: (cd {{ repository_folder }} && {{ envvar_prefix }} npm run tools:cleaner)

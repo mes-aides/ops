@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/bullseye64"
+
+  # Guest have 500MB of RAM by default
+  # That is not enough to `npm ci`
+  # Upgrading to 4GB
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 4096
+  end
+
+  config.vm.provider "docker" do |docker, override|
+		override.vm.box = nil
+		docker.build_dir = "."
+		override.ssh.insert_key = true
+		docker.has_ssh = true
+		docker.privileged = true 
+    docker.ports = ["8001:8001", "2001:2001", "8002:8002", "2002:2002", "8887:8887"]
+	end
+
+  # Faster startup
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Allow development on various version relatively simply
+  suffix = "vagrant"
+  current_private_ip = "192.168.56.200"
+
+  puts "This instance will be reachable at #{current_private_ip}"
+  config.vm.define "mes_aides_#{suffix}"
+  config.vm.network "private_network", ip: current_private_ip, guest: 22, host: 2222
+
+
+  # Replicate OVH initial provisioning
+  ssh_pub_key = File.read("#{ENV['HOME']}/.ssh/id_rsa.pub").split("\n")[0]
+  config.vm.provision "shell", inline: "sudo su -c \"mkdir --parents /root/.ssh && echo #{ssh_pub_key}-for-vagrant > /root/.ssh/authorized_keys\""
+end

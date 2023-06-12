@@ -1,0 +1,44 @@
+---
+- name: Nginx create site
+  block:
+    - name: Check that fullchain.pem certificate exists
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/live/{{ service_domain }}/fullchain.pem
+      register: certificate
+    - name: Generate certificate if missing
+      when: (not certificate.stat.exists) and (https | default(false))
+      block:
+        - name: Set SSL state
+          ansible.builtin.set_fact:
+            ssl_exists: false
+        - name: Copy nginx application configuration {{ service_domain }}
+          ansible.builtin.template:
+            src: templates/nginx_config.conf.j2
+            dest: /etc/nginx/sites-enabled/{{ service_domain }}.conf
+            mode: "0644"
+          notify: Restart nginx
+        - name: Add www subdomain if required
+          when: add_www_subdomain | default(false)
+          ansible.builtin.set_fact:
+            certbot_www_option: " -d www.{{ service_domain }}"
+        - name: Issue or renew an SSL certificate with Let's Encrypt
+          ansible.builtin.command: >
+            certbot --nginx
+            -d {{ service_domain }}
+            {{ certbot_www_option }}
+          register: lets_encrypt_success
+          changed_when: false
+          ignore_errors: true
+        - name: Let's encrypt certificate generation
+          when: (https | default(false)) and lets_encrypt_success.failed
+          ansible.builtin.debug:
+            msg: "[WARNING] Let's encrypt certificate generation failed"
+    - name: Set SSL state
+      ansible.builtin.set_fact:
+        ssl_exists: "{{ (https | default(false)) and (lets_encrypt_success.failed is not defined or lets_encrypt_success.failed is false) }}"
+    - name: Copy nginx application configuration {{ service_domain }}
+      ansible.builtin.template:
+        src: templates/nginx_config.conf.j2
+        dest: /etc/nginx/sites-enabled/{{ service_domain }}.conf
+        mode: "0644"
+      notify: Restart nginx

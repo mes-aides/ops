@@ -1,0 +1,9 @@
+---
+- name: Check nginx config
+  ansible.builtin.command:
+    cmd: nginx -t
+  changed_when: false
+- name: Restart nginx service
+  ansible.builtin.service:
+    name: nginx
+    state: restarted

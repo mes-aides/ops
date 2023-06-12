@@ -1,0 +1,17 @@
+---
+- name: Refresh tasks
+  vars:
+    apps: "{{ applications if target_application is not defined else applications | selectattr('name', 'equalto', target_application) }}"
+    force: "{{ true if target_application is not defined else false }}"
+  block:
+    - name: Restart nginx
+      ansible.builtin.debug:
+        msg: trigger nginx-restart
+      notify: Restart nginx
+      changed_when: true
+    - name: Webapp refresh
+      ansible.builtin.include_tasks: setup_webapp.yaml
+      with_items: "{{ apps }}"
+    - name: Openfisca refresh
+      ansible.builtin.include_tasks: setup_openfisca.yaml
+      with_items: "{{ apps }}"
