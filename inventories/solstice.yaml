@@ -1,0 +1,13 @@
+---
+virtualmachines:
+  hosts:
+    solstice:
+      ansible_host: solstice.mes-aides.1jeune1solution.beta.gouv.fr
+      ansible_port: 22
+      ansible_ssh_user: root
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      applications:
+        - name: aides_jeunes
+          mongodb_collections_migration:
+            simulations: '{"createdAt": {"$gte": { "$date": "2023-06-14T00:00:00.000Z" }}}'
+            followups: '{"createdAt": {"$gte": { "$date": "2023-06-14T00:00:00.000Z" }}}'
