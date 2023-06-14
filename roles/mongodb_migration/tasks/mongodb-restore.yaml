@@ -1,5 +1,5 @@
 ---
-- name: Restore MongoDB collections to Server 2
+- name: Restore MongoDB collections to Server
   ansible.builtin.copy:
     src: ./.tmp/{{ application.name }}_{{ item.key }}.tar.gz
     dest: /tmp/mongodump/
