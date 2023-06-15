@@ -9,5 +9,5 @@ virtualmachines:
       applications:
         - name: aides_jeunes
           mongodb_collections_migration:
-            simulations: '{"createdAt": {"$gte": { "$date": "2023-06-14T00:00:00.000Z" }}}'
-            followups: '{"createdAt": {"$gte": { "$date": "2023-06-14T00:00:00.000Z" }}}'
+            simulations: '{"createdAt": {"$gte": { "$date": "2023-06-15T00:00:00.000Z" }}}'
+            followups: '{"createdAt": {"$gte": { "$date": "2023-06-15T00:00:00.000Z" }}}'
