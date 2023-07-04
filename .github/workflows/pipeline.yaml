@@ -6,8 +6,11 @@ on:
   workflow_dispatch:
 
 env:
-  SSH_HOST: 51.91.16.19
-  SSH_USER: debian
+  ECLIPSE_SSH_HOST: 51.91.16.19
+  ECLIPSE_SSH_USER: debian
+  EQUINOXE_SSH_HOST: 5.135.137.147
+  EQUINOXE_SSH_USER: debian
+
 
 jobs:
   install:
@@ -67,4 +70,11 @@ jobs:
           mkdir -p ~/.ssh/
           echo "${{ secrets.ECLIPSE_PRIVATE_KEY }}" > ~/.ssh/eclipse
           chmod 600 ~/.ssh/eclipse
-          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} -i ~/.ssh/eclipse
+          ssh -o StrictHostKeyChecking=no ${{ env.ECLIPSE_SSH_USER }}@${{ env.ECLIPSE_SSH_HOST }} -i ~/.ssh/eclipse
+      - name: Equinoxe Deployment
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.EQUINOXE_PRIVATE_KEY }}" > ~/.ssh/equinoxe
+          chmod 600 ~/.ssh/equinoxe
+          ssh -o StrictHostKeyChecking=no ${{ env.EQUINOXE_SSH_HOST }}@${{ env.EQUINOXE_SSH_USER }} -i ~/.ssh/equinoxe
