@@ -1,0 +1,46 @@
+---
+virtualmachines:
+  hosts:
+    equinoxe:
+      ansible_host: equinoxe.mes-aides.1jeune1solution.beta.gouv.fr
+      ansible_port: 22
+      ansible_ssh_user: debian
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      ansible_host_ip: 5.135.137.147
+      fullname: equinoxe.mes-aides.1jeune1solution.beta.gouv.fr
+      dns_root: beta.gouv.fr
+      email: aides-jeunes@beta.gouv.fr
+      github_users:
+        - baptou12
+        - Cugniere
+        - guillett
+        - Shamzic
+      monitor:
+        port: 8887
+      applications:
+        - name: aides_jeunes
+          repository: https://github.com/betagouv/aides-jeunes.git
+          branch: master
+          default_site: true
+          https: true
+          domain: mes-aides.1jeune1solution.beta.gouv.fr
+          node_server_port: 8001
+          node_instance_number: 4
+          openfisca_server_port: 2001
+          openfisca_worker_number: 4
+          mongodb_collections_migration:
+            simulations: ""
+            followups: ""
+        - name: aides_jeunes_preprod
+          repository: https://github.com/betagouv/aides-jeunes.git
+          branch: dev
+          https: true
+          domain: preprod.mes-aides.incubateur.net
+          node_server_port: 8002
+          node_instance_number: 2
+          openfisca_server_port: 2002
+          openfisca_worker_number: 2
+      ops:
+        repository: https://github.com/betagouv/aides-jeunes-ops.git
+        branch: main
+        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILq3/l5Dovpbf2+XafRhtCMvMc9t1g7/ux2Vn+N/u0q6 equinoxe@equinoxe
