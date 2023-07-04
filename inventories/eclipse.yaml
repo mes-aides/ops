@@ -2,6 +2,7 @@
 virtualmachines:
   hosts:
     eclipse:
+      challenge_proxy: http://5.135.137.147
       ansible_host: eclipse.mes-aides.incubateur.net
       ansible_port: 22
       ansible_ssh_user: debian
