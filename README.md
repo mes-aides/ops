@@ -54,7 +54,7 @@ This will disable SSH connection to the server using password. This step will no
 - set `PasswordAuthentication no` 
 - set `ChallengeResponseAuthentication no`
 
-It is advised to run this command on a newly installed and if you understand the implication of those parameters. Your hosting service should provide you with an emergency access if you get locked out of the server.
+It is advised to run this command on a newly installed server, while keeping an active ssh connection in parallel and only if you understand the implication of those parameters. Your hosting service should provide you with an emergency access if you get locked out of the server.
 
 ### Listing required DNS record
 

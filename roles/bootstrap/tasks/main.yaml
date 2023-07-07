@@ -42,6 +42,7 @@
   vars:
     service_domain: monitor.{{ fullname }}
     upstream_name: monitor
+    https: true
 - name: Provision tasks
   ansible.builtin.include_tasks: nginx_application_sites.yaml
   with_items: "{{ applications }}"
