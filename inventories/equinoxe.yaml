@@ -43,4 +43,4 @@ virtualmachines:
       ops:
         repository: https://github.com/betagouv/aides-jeunes-ops.git
         branch: main
-        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILq3/l5Dovpbf2+XafRhtCMvMc9t1g7/ux2Vn+N/u0q6 equinoxe@equinoxe
+        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII5PcRkoz+zc07q47PKniaWBBODeDIHPWuS1+7rwK9mS equinoxe@equinoxe
