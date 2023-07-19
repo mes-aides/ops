@@ -77,4 +77,4 @@ jobs:
           mkdir -p ~/.ssh/
           echo "${{ secrets.EQUINOXE_PRIVATE_KEY }}" > ~/.ssh/equinoxe
           chmod 600 ~/.ssh/equinoxe
-          ssh -o StrictHostKeyChecking=no ${{ env.EQUINOXE_SSH_HOST }}@${{ env.EQUINOXE_SSH_USER }} -i ~/.ssh/equinoxe
+          ssh -o StrictHostKeyChecking=no ${{ env.EQUINOXE_SSH_USER }}@${{ env.EQUINOXE_SSH_HOST }} -i ~/.ssh/equinoxe
