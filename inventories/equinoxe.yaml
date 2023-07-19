@@ -1,14 +1,13 @@
 ---
 virtualmachines:
   hosts:
-    eclipse:
-      challenge_proxy: http://5.135.137.147
-      ansible_host: eclipse.mes-aides.incubateur.net
+    equinoxe:
+      ansible_host: equinoxe.mes-aides.1jeune1solution.beta.gouv.fr
       ansible_port: 22
       ansible_ssh_user: debian
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
-      ansible_host_ip: 51.91.16.19
-      fullname: eclipse.mes-aides.incubateur.net
+      ansible_host_ip: 5.135.137.147
+      fullname: equinoxe.mes-aides.1jeune1solution.beta.gouv.fr
       dns_root: beta.gouv.fr
       email: aides-jeunes@beta.gouv.fr
       github_users:
@@ -16,7 +15,6 @@ virtualmachines:
         - Cugniere
         - guillett
         - Shamzic
-        - Valandr
       monitor:
         port: 8887
       applications:
@@ -45,4 +43,4 @@ virtualmachines:
       ops:
         repository: https://github.com/betagouv/aides-jeunes-ops.git
         branch: main
-        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILf+3BWu3FJDmuouJK1SuAaQrPLmJrBR1xMf5fGCJtGz eclipse@eclipse
+        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILq3/l5Dovpbf2+XafRhtCMvMc9t1g7/ux2Vn+N/u0q6 equinoxe@equinoxe
