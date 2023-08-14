@@ -16,7 +16,7 @@
   ansible.builtin.include_tasks: install_pm2.yaml
 
 ## Setup Python
-- name: Install python 3.8
+- name: Install python 3.11
   ansible.builtin.include_tasks: install_python.yaml
 
 ## Setup Mongo

@@ -1,12 +1,12 @@
 ---
-- name: Install python 3.8.16
+- name: Install python 3.11.4
   block:
-    - name: Test if Python 3.8 is already installed
-      ansible.builtin.command: which python3.8
-      changed_when: "'python3.8' not in python_installed.stdout"
+    - name: Test if Python 3.11 is already installed
+      ansible.builtin.command: which python3.11
+      changed_when: "'python3.11' not in python_installed.stdout"
       register: python_installed
       failed_when: python_installed.rc not in [0,1]
-    - name: Manually install Python 3.8
+    - name: Manually install Python 3.11
       when: python_installed.stdout | length == 0
       block:
         - name: Add packages required to install python
@@ -26,7 +26,7 @@
               - zlib1g-dev
         - name: Download and unarchive
           ansible.builtin.unarchive:
-            src: https://www.python.org/ftp/python/3.8.16/Python-3.8.16.tgz
+            src: https://www.python.org/ftp/python/3.11.4/Python-3.11.4.tgz
             dest: /opt
             remote_src: true
         - name: Build
@@ -34,16 +34,16 @@
           become_method: ansible.builtin.sudo
           changed_when: false
           ansible.builtin.command:
-            chdir: /opt/Python-3.8.16/
+            chdir: /opt/Python-3.11.4/
             cmd: "{{ item }}"
           loop:
             - ./configure --enable-optimizations
             - make altinstall
         - name: Post-build clean-up
           ansible.builtin.file:
-            path: /opt/Python-3.8.16/
+            path: /opt/Python-3.11.4/
             state: absent
-    - name: Install python 3.8 packages requirements
+    - name: Install python 3.11 packages requirements
       ansible.builtin.apt:
         update_cache: true
         name:

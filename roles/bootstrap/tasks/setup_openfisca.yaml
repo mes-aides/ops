@@ -6,19 +6,25 @@
     openfisca_service_name: "{{ item.name }}_openfisca"
 - name: Openfisca setup and update
   block:
+    - name: Remove python venv if it exists
+      become_user: "{{ server_user_name }}"
+      ansible.builtin.pip:
+        virtualenv: "{{ venv_dir }}"
+        virtualenv_command: python3.8 -m venv
+        state: absent
     - name: Create Python virtual env and upgrade pip
       become_user: "{{ server_user_name }}"
       ansible.builtin.pip:
         name: pip
         virtualenv: "{{ venv_dir }}"
-        virtualenv_command: python3.8 -m venv
+        virtualenv_command: python3.11 -m venv
         extra_args: --upgrade
     - name: Install Openfisca requirements
       become_user: "{{ server_user_name }}"
       ansible.builtin.pip:
         requirements: "{{ repository_folder }}/openfisca/requirements.txt"
         virtualenv: "{{ venv_dir }}"
-        virtualenv_command: python3.8 -m venv
+        virtualenv_command: python3.11 -m venv
         extra_args: --upgrade
     - name: Setup openfisca service
       ansible.builtin.template:
@@ -32,5 +38,5 @@
       changed_when: false
       ansible.builtin.service:
         name: "{{ openfisca_service_name }}"
-        state: reloaded
+        state: restarted
         enabled: true
