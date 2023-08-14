@@ -9,6 +9,7 @@
     - name: Remove python venv if it exists
       become_user: "{{ server_user_name }}"
       ansible.builtin.pip:
+        name: pip
         virtualenv: "{{ venv_dir }}"
         virtualenv_command: python3.8 -m venv
         state: absent
