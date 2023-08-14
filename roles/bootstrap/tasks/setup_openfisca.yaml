@@ -8,10 +8,8 @@
   block:
     - name: Remove python venv if it exists
       become_user: "{{ server_user_name }}"
-      ansible.builtin.pip:
-        name: pip
-        virtualenv: "{{ venv_dir }}"
-        virtualenv_command: python3.8 -m venv
+      ansible.builtin.file:
+        path: "{{ venv_dir }}"
         state: absent
     - name: Create Python virtual env and upgrade pip
       become_user: "{{ server_user_name }}"
