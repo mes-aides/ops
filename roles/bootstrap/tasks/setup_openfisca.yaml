@@ -6,11 +6,6 @@
     openfisca_service_name: "{{ item.name }}_openfisca"
 - name: Openfisca setup and update
   block:
-    - name: Remove python venv if it exists
-      become_user: "{{ server_user_name }}"
-      ansible.builtin.file:
-        path: "{{ venv_dir }}"
-        state: absent
     - name: Create Python virtual env and upgrade pip
       become_user: "{{ server_user_name }}"
       ansible.builtin.pip:
@@ -37,5 +32,5 @@
       changed_when: false
       ansible.builtin.service:
         name: "{{ openfisca_service_name }}"
-        state: restarted
+        state: reloaded
         enabled: true
