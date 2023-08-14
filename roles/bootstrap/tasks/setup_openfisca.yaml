@@ -38,5 +38,5 @@
       changed_when: false
       ansible.builtin.service:
         name: "{{ openfisca_service_name }}"
-        state: reloaded
+        state: restarted
         enabled: true
