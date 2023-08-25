@@ -12,3 +12,9 @@
   register: certbot_register
   changed_when: "'Account registered' not in certbot_register.stdout"
   failed_when: "'Account registered' not in certbot_register.stdout and 'registration of a duplicate account' not in certbot_register.stderr"
+- name: Setup cron job for automatic certificate renewal
+  ansible.builtin.cron:
+    name: Certbot Auto Renewal
+    minute: "0"
+    hour: "2"
+    job: "certbot renew"
