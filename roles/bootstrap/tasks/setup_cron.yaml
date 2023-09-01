@@ -32,10 +32,11 @@
     minute: "0"
     hour: "5"
     job: (cd {{ repository_folder }} && {{ envvar_prefix }} npm run tools:cleaner)
-- name: Create cron job to execute generate_mongo_stats.sh daily
+- name: Create cron job to execute generate_mongo_stats.sh monthly
   become_user: "{{ server_user_name }}"
   ansible.builtin.cron:
-    name: Execute generate_mongo_stats.sh daily {{ item.name }}
+    name: Execute generate_mongo_stats.sh monthly {{ item.name }}
     minute: "0"
     hour: "0"
+    day: "1"
     job: (cd {{ repository_folder }} && {{ envvar_prefix }} npm run tools:generate-mongo-stats)
