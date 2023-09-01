@@ -38,4 +38,4 @@
     name: Execute generate_mongo_stats.sh daily {{ item.name }}
     minute: "0"
     hour: "0"
-    job: (cd {{ repository_folder }}/tools && {{ envvar_prefix }} sh generate_mongo_stats.sh)
+    job: (cd {{ repository_folder }} && {{ envvar_prefix }} npm run tools:generate-mongo-stats)
