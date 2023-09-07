@@ -3,6 +3,18 @@
   ansible.builtin.apt:
     name: [certbot, python3-certbot-nginx]
     state: present
+- name: Register certbot
+  ansible.builtin.command: >
+    certbot register
+    --non-interactive
+    --agree-tos
+    --email {{ email }}
+  register: certbot_register
+  changed_when: "'Account registered' not in certbot_register.stdout"
+  failed_when: >
+    'Account registered' not in certbot_register.stdout and
+    'registration of a duplicate account' not in certbot_register.stderr and
+    'already running' not in certbot_register.stderr
 - name: Setup cron job for automatic certificate renewal
   ansible.builtin.cron:
     name: Certbot Auto Renewal
