@@ -2,7 +2,6 @@
 - name: Refresh tasks
   vars:
     apps: "{{ applications if target_application is not defined else applications | selectattr('name', 'equalto', target_application) }}"
-    force: "{{ true if target_application is not defined else false }}"
   block:
     - name: Restart nginx
       ansible.builtin.debug:

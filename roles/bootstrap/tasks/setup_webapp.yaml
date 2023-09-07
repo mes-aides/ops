@@ -11,10 +11,8 @@
     update: true
     clone: false
     version: "{{ item.branch }}"
-  register: repository_update
 - name: Install npm packages and restart server
   become_user: "{{ server_user_name }}"
-  when: force or repository_update.before != repository_update.after
   block:
     - name: Run npm ci
       ansible.builtin.command:
