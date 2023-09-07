@@ -11,7 +11,6 @@
     update: true
     clone: false
     version: "{{ item.branch }}"
-  register: repository_update
 - name: Install npm packages and restart server
   become_user: "{{ server_user_name }}"
   block:
