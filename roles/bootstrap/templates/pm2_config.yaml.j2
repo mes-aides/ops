@@ -1,8 +1,8 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
 apps:
   - name: {{ item.name }}-node-server
-    cwd: /home/main/{{ item.name }}/repository/dist-server/backend/
-    script: server.js
+    cwd: /home/main/{{ item.name }}/repository/
+    script: dist-server/backend/server.js
     instances: {{ item.node_instance_number }}
     exec_mode: cluster
     merge_logs: true
