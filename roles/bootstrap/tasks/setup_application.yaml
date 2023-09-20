@@ -46,14 +46,5 @@
         owner: "{{ server_user_name }}"
         group: "{{ server_user_group }}"
         mode: "0600"
-    - name: Create configuration file if it doesn't exists
-      ansible.builtin.copy:
-        src: "{{ repository_folder }}/backend/config/continuous-integration.ts"
-        dest: "{{ repository_folder }}/backend/config/production.ts"
-        mode: preserve
-        owner: "{{ server_user_name }}"
-        group: "{{ server_user_group }}"
-        remote_src: true
-        force: false
     - name: Add cron for application
       ansible.builtin.include_tasks: setup_cron.yaml
