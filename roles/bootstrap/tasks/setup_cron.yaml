@@ -24,7 +24,7 @@
     minute: "2"
     hour: "9"
     job: |-
-      (cd {{ repository_folder }}/dist-server/backend/lib/ && {{ envvar_prefix }} /usr/bin/node ./email.js send tous-a-bord-notification --multiple 100)
+      (cd {{ repository_folder }} && {{ envvar_prefix }} /usr/bin/node ./dist-server/backend/lib/email.js send tous-a-bord-notification --multiple 100)
 - name: Add a cron job to anonymize Simulation and Followup data collections
   become_user: "{{ server_user_name }}"
   ansible.builtin.cron:
