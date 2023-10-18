@@ -72,7 +72,7 @@ jobs:
           chmod 600 ~/.ssh/eclipse
           ssh -o StrictHostKeyChecking=no ${{ env.ECLIPSE_SSH_USER }}@${{ env.ECLIPSE_SSH_HOST }} -i ~/.ssh/eclipse
       - name: Equinoxe Deployment
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'disabled'
         shell: bash
         run: |
           mkdir -p ~/.ssh/
