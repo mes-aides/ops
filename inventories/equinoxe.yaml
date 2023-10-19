@@ -12,7 +12,6 @@ virtualmachines:
       email: aides-jeunes@beta.gouv.fr
       github_users:
         - baptou12
-        - Cugniere
         - guillett
         - Shamzic
       monitor:
