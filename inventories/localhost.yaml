@@ -13,7 +13,6 @@ virtualmachines:
       email: prenom.nom@beta.gouv.fr
       github_users:
         - baptou12
-        - Cugniere
         - guillett
         - Shamzic
       monitor:
