@@ -29,7 +29,7 @@
     job: >-
       (cd {{ repository_folder }} &&
       {{ envvar_prefix }} /usr/bin/node
-      ./dist-server/backend/lib/sms-sending-tool.js send initial-survey
+      ./dist-server/tools/sms-sending-tool.js send initial-survey
       --multiple 1000 >> /var/log/{{ server_user_name }}/{{ item.name }}_sms.log 2>&1)
 - name: Add a cron job to anonymize Simulation and Followup data collections
   become_user: "{{ server_user_name }}"
