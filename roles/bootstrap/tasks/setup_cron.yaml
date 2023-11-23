@@ -25,7 +25,7 @@
   ansible.builtin.cron:
     name: send initial survey sms for {{ item.name }}
     minute: "8"
-    hour: "4"
+    hour: "17"
     job: >-
       (cd {{ repository_folder }} &&
       {{ envvar_prefix }} /usr/bin/node
