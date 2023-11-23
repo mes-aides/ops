@@ -38,7 +38,7 @@
         repo: "{{ item.repository }}"
         dest: "{{ repository_folder }}"
         single_branch: true
-        version: "{{ item.branch | default('master') }}"
+        version: "{{ item.branch | default('main') }}"
     - name: Setup pm2 for application
       ansible.builtin.template:
         src: templates/pm2_config.yaml.j2
