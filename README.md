@@ -21,12 +21,12 @@ The options are as follow :
 virtualmachines:
   hosts:
     vps:
-      ansible_host: vps-45bb7a36.vps.ovh.net                             # The server adress  
+      ansible_host: vps-45bb7a36.vps.ovh.net                             # The server adress
       ansible_port: 22                                                   # The ssh port used to connect to the server
       ansible_ssh_user: debian                                           # The user name of the priviledged account on the server
       ansible_ssh_private_key_file: ~/.ssh/id_rsa                        # The path to the SSH key used to connect to the server
       ansible_host_ip: 51.38.232.135                                     # The ip of the server, used to generate DNS records
-      fullname: solstice.aides-jeunes.leonides.org                       # 
+      fullname: solstice.aides-jeunes.leonides.org                       #
       dns_root: leonides.org                                             # The root of domain name use by your server
       email: random-email@leonides.org                                   # The email used to register Certbot
       github_users:                                                      # The github users that will be able to connect to the server
@@ -36,7 +36,7 @@ virtualmachines:
       applications:                                                      # List all applications that will be deployed
         - name: aides_jeunes
           repository: https://github.com/betagouv/aides-jeunes.git
-          branch: master
+          branch: main
           default_site: true
           https: true
           domain: aides-jeunes.leonides.org
@@ -51,7 +51,7 @@ virtualmachines:
 You can set some basic security settings on your server by running `ansible-playbook -i ./inventories/vps.yaml initialize.yaml`.
 
 This will disable SSH connection to the server using password. This step will not run if the server user file `~/.ssh/authorized_keys` is either empty or missing. The following properties will be modified in `/etc/ssh/sshd_config` :
-- set `PasswordAuthentication no` 
+- set `PasswordAuthentication no`
 - set `ChallengeResponseAuthentication no`
 
 It is advised to run this command on a newly installed server, while keeping an active ssh connection in parallel and only if you understand the implication of those parameters. Your hosting service should provide you with an emergency access if you get locked out of the server.
