@@ -17,4 +17,5 @@ apps:
       MONGODB_URL: mongodb://127.0.0.1/db_{{ item.name }}
       NODE_ENV: production
       OPENFISCA_INTERNAL_ROOT_URL: http://127.0.0.1:{{ item.openfisca_server_port }}
+      OPENFISCA_TRACER_URL: https://openfisca.github.io/tracer
       PORT: {{ item.node_server_port }}
