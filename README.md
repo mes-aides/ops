@@ -81,7 +81,7 @@ ansible-playbook -i ./inventories/vps.yaml synchronize.yaml
 A copy of this repository will be created in the folder `/opt/mes-aides` of the server. This repository will be automatically updated and new modifications applied every time an ssh connection is made with the private key associated with the `update_key` defined in the inventory.
 
 Note:
-Private and public keys should be generated manually:
+Private and public keys should be generated manually (`ssh-keygen -t ed25519 -C aides-jeunes@beta.gouv.fr -f key`):
 - Private should be keys added to Github secrets variable (used [here](https://github.com/betagouv/aides-jeunes-ops/blob/9f5bd32001b1b889f580e7e14213397b7af2227b/.github/workflows/pipeline.yaml#L71) for instance)
 - Public keys added to `ops.update_key` variable in the inventory
 
@@ -132,7 +132,6 @@ Then run the command :
 ansible-playbook -i ./inventories/vps.yaml --tags="restore" mongodb-migration.yaml
 ```
 
-
 # Local development
 
 In order to run ansible on a local image you will need to have both Vagrant and Docker installed on your machine. You will also need to have a valid public/secret key pair in your local ssh folder (`~/.ssh/`) called `id_rsa.pub` and `id_rsa`.
@@ -142,3 +141,9 @@ Navigate to the `local` folder and run the command :
 - `vagrant up --provider=docker` to create a docker container (recommended if running on an arm64 processor)
 
 Once the image is successfully created, you should be able to run any of the above commands.
+
+# Debug CI/CD Github 
+You can use act that works with Docker.
+Here is an example:
+
+- `act pull_request --container-architecture linux/amd64  -P ubuntu-24.04=ghcr.io/catthehacker/ubuntu:act-24.04`
