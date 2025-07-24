@@ -1,0 +1,34 @@
+---
+virtualmachines:
+  hosts:
+    wiru:
+      ansible_host: wiru.mes-aides.org
+      ansible_port: 22
+      ansible_ssh_user: ubuntu
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      ansible_host_ip: 5.135.137.147
+      fullname: wiru.mes-aides.org
+      dns_root: mes-aides.org
+      email: equipe@mes-aides.org
+      github_users:
+        - guillett
+      monitor:
+        port: 8887
+      applications:
+        - name: mes_aides
+          repository: https://github.com/mes-aides/simulateur.git
+          branch: main
+          default_site: true
+          https: true
+          domain: mes-aides.org
+          node_server_port: 8001
+          node_instance_number: 4
+          openfisca_server_port: 2001
+          openfisca_worker_number: 4
+          mongodb_collections_migration:
+            simulations: ""
+            followups: ""
+      ops:
+        repository: https://github.com/mes-aides/ops.git
+        branch: main
+        update_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPsdvham6Pcz5Vr6C6MqpP+xP7pqLKuBWdB82tN1QBvJ wiru@wiru
